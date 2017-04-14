@@ -7,9 +7,7 @@ import net.corda.training.flow.SignTransactionFlowResponder
 object IOUService {
     class Service(services: PluginServiceHub) {
         init {
-            services.registerFlowInitiator(SignTransactionFlow.Initiator::class.java) {
-                SignTransactionFlowResponder(it)
-            }
+            services.registerFlowInitiator(SignTransactionFlow.Initiator::class.java, ::SignTransactionFlowResponder)
         }
     }
 }

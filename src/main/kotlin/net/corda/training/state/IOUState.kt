@@ -12,14 +12,14 @@ import java.util.*
 
 /**
  * The IOU State object, with the following properties:
- * - [amount] The amount owed from the [borrower] to the [lender]
+ * - [amount] The amount owed by the [borrower] to the [lender]
  * - [lender] The lending party.
  * - [borrower] The borrowing party.
  * - [contract] Holds a reference to the [IOUContract]
  * - [paid] Records how much of the [amount] has been paid.
- * - [linearId] A unique id shared by all LinearState states throughout history within the vaults of all parties.
- *   Verify methods should check that one input and one output share the id in a transaction, except at
- *   issuance/termination.
+ * - [linearId] A unique id shared by all LinearState states representing the same agreement throughout history within
+ *   the vaults of all parties. Verify methods should check that one input and one output share the id in a transaction,
+ *   except at issuance/termination.
  */
 data class IOUState(val amount: Amount<Currency>,
                val lender: Party,
@@ -47,12 +47,13 @@ data class IOUState(val amount: Amount<Currency>,
     override fun toString() = "IOU($linearId): ${borrower.name} owes ${lender.name} $amount and has paid $paid so far."
 
     /**
-     * A Contract code reference to the IOUCoontract. Make sure this is not part of the [IOUState] constructor.
+     * A Contract code reference to the IOUContract. Make sure this is not part of the [IOUState] constructor, if it is
+     * then equality won't work property on this state type. ** Don't change this property! **
      */
     override val contract get() = IOUContract()
 
     /**
-     * A helper methods for when building transactions for settling and transferring IOUs.
+     * Helper methods for when building transactions for settling and transferring IOUs.
      * - [pay] adds an amount to the paid property. It does no validation.
      * - [withNewLender] creates a copy of the current state with a newly specified lender. For use when transferring.
      */

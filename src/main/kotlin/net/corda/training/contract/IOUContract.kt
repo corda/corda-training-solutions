@@ -8,14 +8,14 @@ import net.corda.core.crypto.SecureHash
 import net.corda.training.state.IOUState
 
 /**
- * The IOUContract can handle a three transaction types involving [IOUState]s.
+ * The IOUContract can handle three transaction types involving [IOUState]s.
  * - Issuance: Issuing a new [IOUState] on the ledger, which is a bilateral agreement between two parties.
- * - Transfer: Re-assinging the lender/beneficiary.
+ * - Transfer: Re-assingning the lender/beneficiary.
  * - Settle: Fully or partially settling the [IOUState] using the Corda [Cash] contract.
  */
 class IOUContract : Contract {
     /**
-     * Legal prose reference. This is just a dummy string for the time being.
+     * Legal prose hash. This is just a dummy string for the time being.
      */
     override val legalContractReference: SecureHash = SecureHash.sha256("Prose contract.")
 

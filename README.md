@@ -5,6 +5,14 @@
 This repo contains all the solutions for the practical exercises of the Corda two day 
 training course. 
 
+# Pre-requisites:
+  
+* JDK 1.8 latest version
+* IntelliJ latest version (2017.1) (as of writing)
+* git
+
+# Solution files
+
 State solution:
 
 * `IOUState.kt`

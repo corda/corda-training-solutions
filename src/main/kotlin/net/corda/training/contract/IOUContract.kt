@@ -10,7 +10,7 @@ import net.corda.training.state.IOUState
 /**
  * The IOUContract can handle three transaction types involving [IOUState]s.
  * - Issuance: Issuing a new [IOUState] on the ledger, which is a bilateral agreement between two parties.
- * - Transfer: Re-assingning the lender/beneficiary.
+ * - Transfer: Re-assigning the lender/beneficiary.
  * - Settle: Fully or partially settling the [IOUState] using the Corda [Cash] contract.
  */
 class IOUContract : Contract {
@@ -22,7 +22,7 @@ class IOUContract : Contract {
     /**
      * Add any commands required for this contract as classes within this interface.
      * It is useful to encapsulate your commands inside an interface, so you can use the [requireSingleCommand]
-     * function to check for a range of commands which implement this interface.
+     * function to check for a number of commands which implement this interface.
      */
     interface Commands : CommandData {
         class Issue : TypeOnlyCommandData(), Commands

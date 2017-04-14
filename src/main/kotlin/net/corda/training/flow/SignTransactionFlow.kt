@@ -46,8 +46,7 @@ object SignTransactionFlow {
             // Verify the collected signatures.
             if (needsNotarySignature(wtx)) {
                 // Still need the notary signature.
-                val notaryKey = wtx.notary?.owningKey
-                stx.verifySignatures(notaryKey!!)
+                stx.verifySignatures(notaryKey)
             } else {
                 // We've collected all the signatures, e.g. for issuance transactions.
                 stx.verifySignatures()
@@ -101,8 +100,7 @@ object SignTransactionFlow {
      * The [Responder] receives a [WireTransaction], checks they need to sign, verifies the transaction, signs the
      * transaction and returns their [DigitalSignature] to the [Initiator].
      */
-    abstract class AbstractResponder : FlowLogic<Unit>() {
-        abstract val otherParty: Party
+    open class Responder(open val otherParty: Party) : FlowLogic<Unit>() {
         /**
          * 1. Check the senders signature.
          * 2. Check the responding [Party] needs to sign the transaction.
@@ -132,16 +130,15 @@ object SignTransactionFlow {
          * Abstract method for performing additional checks depending on the expected transaction.
          */
         @Suspendable
-        abstract fun checkTransaction(wtx: WireTransaction)
+        open fun checkTransaction(wtx: WireTransaction) {
+            // No additional checks done by default.
+        }
 
         /**
          * Sign the transaction with the node's [KeyPair].
          */
         @Suspendable
-        private fun sign(wtx: WireTransaction): DigitalSignature.WithKey {
-            val myKey = serviceHub.legalIdentityKey
-            return myKey.signWithECDSA(wtx.id.bytes)
-        }
+        private fun sign(wtx: WireTransaction): DigitalSignature.WithKey = serviceHub.legalIdentityKey.signWithECDSA(wtx.id.bytes)
 
         /**
          * Verify the transaction.

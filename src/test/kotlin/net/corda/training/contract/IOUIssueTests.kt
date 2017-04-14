@@ -15,8 +15,6 @@ import kotlin.collections.single
  * task description to determine how to get the tests to pass.
  */
 class IOUIssueTests {
-    // A pre-made IOU we will use for this exercise.
-    val iou = IOUState(1.POUNDS, ALICE, BOB)
     // A pre-made dummy state we may need for some of the tests.
     val dummyState = object : ContractState {
         override val contract get() = DUMMY_PROGRAM_ID
@@ -51,6 +49,7 @@ class IOUIssueTests {
      */
     @Test
     fun mustIncludeIssueCommand() {
+        val iou = IOUState(1.POUNDS, ALICE, BOB)
         ledger {
             transaction {
                 output { iou }
@@ -89,6 +88,7 @@ class IOUIssueTests {
      */
     @Test
     fun issueTransactionMustHaveNoInputs() {
+        val iou = IOUState(1.POUNDS, ALICE, BOB)
         ledger {
             transaction {
                 input { dummyState }
@@ -113,6 +113,7 @@ class IOUIssueTests {
      */
     @Test
     fun issueTransactionMustHaveOneOutput() {
+        val iou = IOUState(1.POUNDS, ALICE, BOB)
         ledger {
             transaction {
                 command(ALICE_PUBKEY, BOB_PUBKEY) { IOUContract.Commands.Issue() }
@@ -190,6 +191,7 @@ class IOUIssueTests {
      */
     @Test
     fun lenderAndBorrowerMustSignIssueTransaction() {
+        val iou = IOUState(1.POUNDS, ALICE, BOB)
         ledger {
             transaction {
                 command(DUMMY_PUBKEY_1) { IOUContract.Commands.Issue() }
@@ -238,6 +240,7 @@ class IOUIssueTests {
      */
     @Test
     fun lenderAndBorrowerCannotBeTheSame() {
+        val iou = IOUState(1.POUNDS, ALICE, BOB)
         val borrowerIsLenderIou = IOUState(10.POUNDS, ALICE, ALICE)
         ledger {
             transaction {

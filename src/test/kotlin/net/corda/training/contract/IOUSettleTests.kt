@@ -20,7 +20,6 @@ import java.util.*
 class IOUSettleTests {
     val defaultRef = OpaqueBytes(ByteArray(1, { 1 }))
     val defaultIssuer = MEGA_CORP.ref(defaultRef)
-    val iou = IOUState(10.POUNDS, ALICE, BOB)
 
     private fun createCashState(amount: Amount<Currency>, owner: CompositeKey): Cash.State {
         return Cash.State(amount = amount `issued by` defaultIssuer, owner = owner)
@@ -41,6 +40,7 @@ class IOUSettleTests {
      */
     @Test
     fun mustIncludeSettleCommand() {
+        val iou = IOUState(10.POUNDS, ALICE, BOB)
         val inputCash = createCashState(5.POUNDS, BOB_PUBKEY)
         val outputCash = inputCash.withNewOwner(newOwner = ALICE_PUBKEY).second
         ledger {
@@ -126,6 +126,7 @@ class IOUSettleTests {
      */
     @Test
     fun mustHaveOneInputIOU() {
+        val iou = IOUState(10.POUNDS, ALICE, BOB)
         val iouOne = IOUState(10.POUNDS, ALICE, BOB)
         val tenPounds = createCashState(10.POUNDS, BOB_PUBKEY)
         val fivePounds = createCashState(5.POUNDS, BOB_PUBKEY)

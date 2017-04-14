@@ -15,8 +15,6 @@ import org.junit.Test
  * task description to determine how to get the tests to pass.
  */
 class IOUTransferTests {
-    // A pre-made IOU we will use for this exercise.
-    val iou = IOUState(10.POUNDS, ALICE, BOB)
     // A pre-made dummy state we may need for some of the tests.
     class DummyState : ContractState {
         override val contract get() = DUMMY_PROGRAM_ID
@@ -57,6 +55,7 @@ class IOUTransferTests {
      */
     @Test
     fun mustHandleMultipleCommandValues() {
+        val iou = IOUState(10.POUNDS, ALICE, BOB)
         ledger {
             transaction {
                 output { iou }
@@ -86,6 +85,7 @@ class IOUTransferTests {
      */
     @Test
     fun mustHaveOneInputAndOneOutput() {
+        val iou = IOUState(10.POUNDS, ALICE, BOB)
         ledger {
             transaction {
                 input { iou }
@@ -133,6 +133,7 @@ class IOUTransferTests {
      */
     @Test
     fun onlyTheLenderMayChange() {
+        val iou = IOUState(10.POUNDS, ALICE, BOB)
         ledger {
             transaction {
                 input { IOUState(10.DOLLARS, ALICE, BOB) }
@@ -168,6 +169,7 @@ class IOUTransferTests {
      */
     @Test
     fun theLenderMustChange() {
+        val iou = IOUState(10.POUNDS, ALICE, BOB)
         ledger {
             transaction {
                 input { iou }
@@ -192,6 +194,7 @@ class IOUTransferTests {
      */
     @Test
     fun allParticipantsMustSign() {
+        val iou = IOUState(10.POUNDS, ALICE, BOB)
         ledger {
             transaction {
                 input { iou }

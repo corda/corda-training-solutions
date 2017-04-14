@@ -26,10 +26,6 @@ import kotlin.test.assertNotEquals
  * Hint: CMD / Ctrl + click on the brown type names in square brackets for that type's definition in the codebase.
  */
 class IOUStateTests {
-    // An IOUState we can use for the unit tests.
-    // In this IOU, Alice is lending £1 to Bob.
-    val iouState = IOUState(1.POUNDS, ALICE, BOB)
-
     /**
      * Task 1.
      * TODO: Add an 'amount' property of type [Amount] to the [IOUState] class to get this test to pass.
@@ -98,6 +94,7 @@ class IOUStateTests {
      */
     @Test
     fun lenderIsParticipant() {
+        val iouState = IOUState(1.POUNDS, ALICE, BOB)
         assertNotEquals(iouState.participants.indexOf(ALICE_PUBKEY), -1)
     }
 
@@ -109,6 +106,7 @@ class IOUStateTests {
      */
     @Test
     fun borrowerIsParticipant() {
+        val iouState = IOUState(1.POUNDS, ALICE, BOB)
         assertNotEquals(iouState.participants.indexOf(BOB_PUBKEY), -1)
     }
 
@@ -155,6 +153,7 @@ class IOUStateTests {
      */
     @Test
     fun isRelevantMethodComplete() {
+        val iouState = IOUState(1.POUNDS, ALICE, BOB)
         assert(iouState.isRelevant(setOf(ALICE.owningKey.singleKey, BOB.owningKey.singleKey)))
     }
 
@@ -194,6 +193,7 @@ class IOUStateTests {
      */
     @Test
     fun checkIOUStateToStringMethod() {
+        val iouState = IOUState(1.POUNDS, ALICE, BOB)
         assertEquals(iouState.toString(), "IOU(${iouState.linearId}): Bob owes Alice 1.00 GBP and has paid 0.00 GBP so far.")
     }
 

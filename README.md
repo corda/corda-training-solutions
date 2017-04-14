@@ -15,22 +15,22 @@ training course.
 
 State solution:
 
-* `IOUState.kt`
+* [`IOUState.kt`](https://github.com/roger3cev/corda-training-solutions/blob/master/src/main/kotlin/net/corda/training/state/IOUState.kt)
 
 Contract solution:
 
-* `IOUContract.kt`
+* [`IOUContract.kt`](https://github.com/roger3cev/corda-training-solutions/blob/master/src/main/kotlin/net/corda/training/contract/IOUContract.kt)
 
 Flow solutions:
 
-* Issue: `IOUIssueFlow.kt`
-* Transfer: `IOUTransferFlow.kt`
-* Settle: `IOUSettleFlow.kt`
+* Issue: [`IOUIssueFlow.kt`](https://github.com/roger3cev/corda-training-solutions/blob/master/src/main/kotlin/net/corda/training/flow/IOUIssueFlow.kt)
+* Transfer: [`IOUTransferFlow.kt`](https://github.com/roger3cev/corda-training-solutions/blob/master/src/main/kotlin/net/corda/training/flow/IOUTransferFlow.kt)
+* Settle: [`IOUSettleFlow.kt`](https://github.com/roger3cev/corda-training-solutions/blob/master/src/main/kotlin/net/corda/training/flow/IOUSettleFlow.kt)
 
 The code in the following files was already added for you:
 
-* `SignTransactionFlow.kt`
-* `SelfIssueCashFlow.kt`
-* `IOUApi..kt`
-* `IOUClient.kt`
-* `IOUPlugin.kt`
+* [`SignTransactionFlow.kt`](https://github.com/roger3cev/corda-training-solutions/blob/master/src/main/kotlin/net/corda/training/flow/SignTransactionFlow.kt)
+* [`SelfIssueCashFlow.kt`](https://github.com/roger3cev/corda-training-solutions/blob/master/src/main/kotlin/net/corda/training/flow/SelfIssueCashFlow.kt)
+* [`IOUApi.kt`](https://github.com/roger3cev/corda-training-solutions/blob/master/src/main/kotlin/net/corda/training/api/IOUApi.kt)
+* [`IOUClient.kt`](https://github.com/roger3cev/corda-training-solutions/blob/master/src/main/kotlin/net/corda/training/client/IOUClient.kt)
+* [`IOUPlugin.kt`](https://github.com/roger3cev/corda-training-solutions/blob/master/src/main/kotlin/net/corda/training/plugin/IOUPlugin.kt)

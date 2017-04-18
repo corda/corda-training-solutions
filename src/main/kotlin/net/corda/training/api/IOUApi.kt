@@ -4,23 +4,51 @@ import net.corda.contracts.asset.Cash
 import net.corda.core.contracts.Amount
 import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.messaging.CordaRPCOps
+import net.corda.core.utilities.loggerFor
 import net.corda.training.flow.IOUIssueFlow
 import net.corda.training.flow.IOUSettleFlow
 import net.corda.training.flow.IOUTransferFlow
 import net.corda.training.flow.SelfIssueCashFlow
 import net.corda.training.state.IOUState
+import org.slf4j.Logger
 import java.util.*
 import javax.ws.rs.*
 import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.Response
 
+val NOTARY_NAMES = listOf("Controller", "NetworkMapService")
+
 /**
  * This API is accessible from /api/iou. The endpoint paths specified below are relative to it.
  * We've defined a bunch of endpoints to deal with IOUs, cash and the various operations you can perform with them.
  */
-
 @Path("iou")
 class IOUApi(val services: CordaRPCOps) {
+    private val myLegalName: String = services.nodeIdentity().legalIdentity.name
+
+    companion object {
+        private val logger: Logger = loggerFor<IOUApi>()
+    }
+
+    /**
+     * Returns the node's name.
+     */
+    @GET
+    @Path("me")
+    @Produces(MediaType.APPLICATION_JSON)
+    fun whoami() = mapOf("me" to myLegalName)
+
+    /**
+     * Returns all parties registered with the [NetworkMapService]. These names can be used to look up identities
+     * using the [IdentityService].
+     */
+    @GET
+    @Path("peers")
+    @Produces(MediaType.APPLICATION_JSON)
+    fun getPeers() = mapOf("peers" to services.networkMapUpdates().first
+            .map { it.legalIdentity.name }
+            .filter { it != myLegalName && it !in NOTARY_NAMES })
+
     /**
      * Displays all IOU states that exist in the node's vault.
      */

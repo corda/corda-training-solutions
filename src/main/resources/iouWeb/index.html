@@ -21,6 +21,7 @@ COMING WEEKS, WE'LL WRITE A TUTORIAL ON HOW BEST TO DO THIS.
           integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"
           integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="css/index.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
             integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
@@ -97,22 +98,36 @@ COMING WEEKS, WE'LL WRITE A TUTORIAL ON HOW BEST TO DO THIS.
                         <th>To</th>
                         <th>Amount</th>
                         <th>Paid</th>
-                        <th>Transfer</th>
-                        <th>Settle</th>
+                        <th>Actions</th>
                     </tr>
                     </thead>
                     <tbody>
                     <tr ng-repeat="iou in demoApp.ious">
-                        <td>{{iou.sender}}</td>
-                        <td>{{iou.recipient}}</td>
-                        <td>{{iou.iou.amount}}</td>
-                        <td>{{iou.iou.paid}}</td>
+                        <td class="vert-align">{{iou.sender}}</td>
+                        <td class="vert-align">{{iou.recipient}}</td>
+                        <td class="vert-align">{{iou.iou.amount}}</td>
+                        <td class="vert-align">{{iou.iou.paid}}</td>
                         <td>
-                            <button ng-click="demoApp.transfer()" type="button" class="btn btn-primary">Transfer
-                            </button>
+                            <div class="btn-group" role="group">
+                                <button ng-click="demoApp.transfer()" type="button" class="btn btn-primary">Transfer
+                                </button>
+                                <button ng-click="demoApp.settle()" type="button" class="btn btn-primary">Settle
+                                </button>
+                            </div>
                         </td>
+                    </tr>
+                    <tr ng-repeat="iou in demoApp.ious">
+                        <td class="vert-align">{{iou.sender}}</td>
+                        <td class="vert-align">{{iou.recipient}}</td>
+                        <td class="vert-align">{{iou.iou.amount}}</td>
+                        <td class="vert-align">{{iou.iou.paid}}</td>
                         <td>
-                            <button ng-click="demoApp.settle()" type="button" class="btn btn-primary">Settle</button>
+                            <div class="btn-group" role="group">
+                                <button ng-click="demoApp.transfer()" type="button" class="btn btn-primary">Transfer
+                                </button>
+                                <button ng-click="demoApp.settle()" type="button" class="btn btn-primary">Settle
+                                </button>
+                            </div>
                         </td>
                     </tr>
                     </tbody>

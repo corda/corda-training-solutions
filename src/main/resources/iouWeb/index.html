@@ -1,15 +1,3 @@
-<!--
---------
-WARNING:
---------
-FOR SECURITY REASONS, USING A JAVASCRIPT WEB APP HOSTED VIA THE CORDA NODE IS NOT THE RECOMMENDED WAY TO INTERFACE
-WITH CORDA NODES! HOWEVER, FOR THIS PRE-ALPHA RELEASE IT'S A USEFUL WAY TO EXPERIMENT WITH THE PLATFORM AS IT ALLOWS
-YOU TO QUICKLY BUILD A UI FOR DEMONSTRATION PURPOSES.
-
-GOING FORWARD WE RECOMMEND IMPLEMENTING A STANDALONE WEB SERVER THAT AUTHORISES VIA THE NODE'S RPC INTERFACE. IN THE
-COMING WEEKS, WE'LL WRITE A TUTORIAL ON HOW BEST TO DO THIS.
--->
-
 <!-- Define your frontend here. -->
 
 <!DOCTYPE html>
@@ -28,8 +16,9 @@ COMING WEEKS, WE'LL WRITE A TUTORIAL ON HOW BEST TO DO THIS.
             crossorigin="anonymous"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.0-rc.1/angular.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/2.2.0/ui-bootstrap-tpls.min.js"></script>
-    <script src="js/angular-module.js"></script>
+    <script src="js/index.js"></script>
 </head>
+
 <body ng-app="demoAppModule" ng-controller="DemoAppController as demoApp">
 <nav class="navbar navbar-default">
     <div class="container-fluid">
@@ -41,6 +30,7 @@ COMING WEEKS, WE'LL WRITE A TUTORIAL ON HOW BEST TO DO THIS.
                 class="glyphicon glyphicon-refresh"></span></button>
     </div>
 </nav>
+
 <script type="text/ng-template" id="demoAppModal.html">
     <div class="modal-header">
         <h4 class="modal-title">Add new IOU</h4>
@@ -49,15 +39,19 @@ COMING WEEKS, WE'LL WRITE A TUTORIAL ON HOW BEST TO DO THIS.
         <div class="modal-body">
             <div class="form-group">
                 <label for="counterparty" class="control-label">Counter-party:</label>
-                <select ng-model="modalInstance.form.counterparty" class="form-control" id="counterparty"
-                        ng-options="peer as peer for peer in modalInstance.peers">
+                <select ng-model="issueModalInstance.form.counterparty" class="form-control" id="counterparty"
+                        ng-options="peer as peer for peer in issueModalInstance.peers">
                 </select>
             </div>
             <div class="form-group">
-                <label for="value" class="control-label">Value (Int):</label>
-                <input type="text" ng-model="modalInstance.form.value" class="form-control" id="value">
+                <label for="currency" class="control-label">Currency (ISO code):</label>
+                <input type="text" ng-model="issueModalInstance.form.currency" class="form-control" id="currency">
             </div>
-            <div ng-show="modalInstance.formError" class="form-group">
+            <div class="form-group">
+                <label for="amount" class="control-label">Amount (Int):</label>
+                <input type="text" ng-model="issueModalInstance.form.amount" class="form-control" id="amount">
+            </div>
+            <div ng-show="issueModalInstance.formError" class="form-group">
                 <div class="alert alert-danger" role="alert">
                     <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
                     <span class="sr-only">Error:</span>
@@ -66,17 +60,45 @@ COMING WEEKS, WE'LL WRITE A TUTORIAL ON HOW BEST TO DO THIS.
             </div>
         </div>
         <div class="modal-footer">
-            <button ng-click="modalInstance.cancel()" type="button" class="btn btn-default">Close</button>
-            <button ng-click="modalInstance.create()" type="button" class="btn btn-primary">Create IOU</button>
+            <button ng-click="issueModalInstance.cancel()" type="button" class="btn btn-default">Close</button>
+            <button ng-click="issueModalInstance.create()" type="button" class="btn btn-primary">Create IOU</button>
         </div>
     </form>
     </div>
 </script>
+
 <script type="text/ng-template" id="messageContent.html">
     <div class="modal-body" id="modal-body">
-        {{ modalInstanceTwo.message }}
+        {{ issueMsgModalInstance.message }}
     </div>
 </script>
+
+<div class="row">
+    <div class="col-md-1"></div>
+    <div class="col-md-10">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h3 class="panel-title">Cash balances:</h3>
+            </div>
+            <div class="panel-body">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>Amount</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-repeat="cash in demoApp.cashBalances">
+                        <td class="vert-align">{{cash}}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="col-md-1"></div>
+    </div>
+</div>
+
 <div class="row">
     <div class="col-md-1"></div>
     <div class="col-md-10">
@@ -103,24 +125,12 @@ COMING WEEKS, WE'LL WRITE A TUTORIAL ON HOW BEST TO DO THIS.
                     </thead>
                     <tbody>
                     <tr ng-repeat="iou in demoApp.ious">
-                        <td class="vert-align">{{iou.sender}}</td>
-                        <td class="vert-align">{{iou.recipient}}</td>
-                        <td class="vert-align">{{iou.iou.amount}}</td>
-                        <td class="vert-align">{{iou.iou.paid}}</td>
-                        <td>
-                            <div class="btn-group" role="group">
-                                <button ng-click="demoApp.transfer()" type="button" class="btn btn-primary">Transfer
-                                </button>
-                                <button ng-click="demoApp.settle()" type="button" class="btn btn-primary">Settle
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr ng-repeat="iou in demoApp.ious">
-                        <td class="vert-align">{{iou.sender}}</td>
-                        <td class="vert-align">{{iou.recipient}}</td>
-                        <td class="vert-align">{{iou.iou.amount}}</td>
-                        <td class="vert-align">{{iou.iou.paid}}</td>
+                        <!-- For identifying the IOU to transfer/settle. -->
+                        <div>{{iou.linearId.id}}</div>
+                        <td class="vert-align">{{iou.lender}}</td>
+                        <td class="vert-align">{{iou.borrower}}</td>
+                        <td class="vert-align">{{iou.amount}}</td>
+                        <td class="vert-align">{{iou.paid}}</td>
                         <td>
                             <div class="btn-group" role="group">
                                 <button ng-click="demoApp.transfer()" type="button" class="btn btn-primary">Transfer
@@ -137,5 +147,6 @@ COMING WEEKS, WE'LL WRITE A TUTORIAL ON HOW BEST TO DO THIS.
         <div class="col-md-1"></div>
     </div>
 </div>
+
 </body>
 </html>

@@ -1,13 +1,13 @@
 "use strict";
 
-angular.module('demoAppModule').controller('CreateIOUModalCtrl', function ($http, $location, $uibModalInstance, $uibModal, apiBaseURL, peers) {
+angular.module('demoAppModule').controller('CreateIOUModalCtrl', function($http, $uibModalInstance, $uibModal, apiBaseURL, peers) {
     const createIOUModal = this;
 
     createIOUModal.peers = peers;
     createIOUModal.form = {};
     createIOUModal.formError = false;
 
-    // Validate and create IOU.
+    /** Validate and create an IOU. */
     createIOUModal.create = () => {
         if (invalidFormInput()) {
             createIOUModal.formError = true;
@@ -20,11 +20,12 @@ angular.module('demoAppModule').controller('CreateIOUModalCtrl', function ($http
 
             $uibModalInstance.close();
 
+            // We define the IOU creation endpoint.
             const issueIOUEndpoint =
                 apiBaseURL +
                 `issue-iou?amount=${amount}&currency=${currency}&party=${party}`;
 
-            // Issue PO and handle success / fail responses.
+            // We hit the endpoint to create the IOU and handle success/failure responses.
             $http.get(issueIOUEndpoint).then(
                 (result) => createIOUModal.displayMessage(result),
                 (result) => createIOUModal.displayMessage(result)
@@ -32,29 +33,32 @@ angular.module('demoAppModule').controller('CreateIOUModalCtrl', function ($http
         }
     };
 
+    /** Displays the success/failure response from attempting to create an IOU. */
     createIOUModal.displayMessage = (message) => {
         const createIOUMsgModal = $uibModal.open({
             templateUrl: 'createIOUMsgModal.html',
             controller: 'createIOUMsgModalCtrl',
             controllerAs: 'createIOUMsgModal',
-            resolve: { message: () => message }
+            resolve: {
+                message: () => message
+            }
         });
 
         // No behaviour on close / dismiss.
         createIOUMsgModal.result.then(() => {}, () => {});
     };
 
-    // Close create IOU modal dialogue.
+    /** Closes the IOU creation modal. */
     createIOUModal.cancel = () => $uibModalInstance.dismiss();
 
-    // Validate the IOU.
+    // Validates the IOU.
     function invalidFormInput() {
         return isNaN(createIOUModal.form.amount) || (createIOUModal.form.counterparty === undefined);
     }
 });
 
-// Controller for success/fail modal dialogue.
-angular.module('demoAppModule').controller('createIOUMsgModalCtrl', function ($uibModalInstance, message) {
+// Controller for the success/fail modal.
+angular.module('demoAppModule').controller('createIOUMsgModalCtrl', function($uibModalInstance, message) {
     const createIOUMsgModal = this;
     createIOUMsgModal.message = message.data;
 });

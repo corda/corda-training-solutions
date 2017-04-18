@@ -16,21 +16,111 @@ COMING WEEKS, WE'LL WRITE A TUTORIAL ON HOW BEST TO DO THIS.
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>IOU CorDapp</title>
+    <title>Example CorDapp</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"
+          integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+            integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+            crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.0-rc.1/angular.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/2.2.0/ui-bootstrap-tpls.min.js"></script>
+    <script src="js/angular-module.js"></script>
 </head>
-<body>
-    <div>
-        <p>The the web API to interact with this CorDapp, end-points available:</p>
-        <ul>
-            <li>GET /api/iou/ious (list IOUs)</li>
-            <li>GET /api/iou/issue-iou?amount=INTEGER&currency=[GBP/USD]&party=NODE_NAME (issue an IOU to a party with a specified amount and currency)</li>
-            <li>GET /api/iou/transfer-iou?id=LINEAR_ID&party=NODE_NAME (Transfer an IOU specified by linearId to another party</li>
-            <li>GET /api/iou/settle-iou?id=LINEAR_ID&amount=INTEGER&currency=[GBP/USD] (settle an amount of an IOU specified by linearId)</li>
-            <li>GET /api/iou/cash (list all cash states)</li>
-            <li>GET /api/iou/self-issue-cash?amount=INTEGER&currency=[GBP/USD] (self issues an amount of cash in the specified currency)</li>
-            <li>GET /api/iou/cash-balances (lists cash balances per currency)</li>
-        </ul>
-
+<body ng-app="demoAppModule" ng-controller="DemoAppController as demoApp">
+<nav class="navbar navbar-default">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="#">{{demoApp.thisNode}}</a>
+        </div>
+        <button ng-click="demoApp.openModal()" type="button" class="btn btn-primary navbar-btn">Create IOU</button>
+        <button ng-click="demoApp.getIOUs()" type="button" class="btn btn-default navbar-btn"><span
+                class="glyphicon glyphicon-refresh"></span></button>
     </div>
+</nav>
+<script type="text/ng-template" id="demoAppModal.html">
+    <div class="modal-header">
+        <h4 class="modal-title">Add new IOU</h4>
+    </div>
+    <form>
+        <div class="modal-body">
+            <div class="form-group">
+                <label for="counterparty" class="control-label">Counter-party:</label>
+                <select ng-model="modalInstance.form.counterparty" class="form-control" id="counterparty"
+                        ng-options="peer as peer for peer in modalInstance.peers">
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="value" class="control-label">Value (Int):</label>
+                <input type="text" ng-model="modalInstance.form.value" class="form-control" id="value">
+            </div>
+            <div ng-show="modalInstance.formError" class="form-group">
+                <div class="alert alert-danger" role="alert">
+                    <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                    <span class="sr-only">Error:</span>
+                    Enter valid IOU parameters
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button ng-click="modalInstance.cancel()" type="button" class="btn btn-default">Close</button>
+            <button ng-click="modalInstance.create()" type="button" class="btn btn-primary">Create IOU</button>
+        </div>
+    </form>
+    </div>
+</script>
+<script type="text/ng-template" id="messageContent.html">
+    <div class="modal-body" id="modal-body">
+        {{ modalInstanceTwo.message }}
+    </div>
+</script>
+<div class="row">
+    <div class="col-md-1"></div>
+    <div class="col-md-10">
+        <div ng-show="!demoApp.ious.length" class="panel panel-primary">
+            <div class="panel-heading">
+                <h3 class="panel-title">There are no recorded IOUs</h3>
+            </div>
+            <div class="panel-body">Use the "Create IOU" button to send an IOU to a peer.</div>
+        </div>
+        <div ng-show="demoApp.ious.length" class="panel panel-primary">
+            <div class="panel-heading">
+                <h3 class="panel-title">Recorded IOUs:</h3>
+            </div>
+            <div class="panel-body">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>From</th>
+                        <th>To</th>
+                        <th>Amount</th>
+                        <th>Paid</th>
+                        <th>Transfer</th>
+                        <th>Settle</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-repeat="iou in demoApp.ious">
+                        <td>{{iou.sender}}</td>
+                        <td>{{iou.recipient}}</td>
+                        <td>{{iou.iou.amount}}</td>
+                        <td>{{iou.iou.paid}}</td>
+                        <td>
+                            <button ng-click="demoApp.transfer()" type="button" class="btn btn-primary">Transfer
+                            </button>
+                        </td>
+                        <td>
+                            <button ng-click="demoApp.settle()" type="button" class="btn btn-primary">Settle</button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="col-md-1"></div>
+    </div>
+</div>
 </body>
 </html>

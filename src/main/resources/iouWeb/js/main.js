@@ -4,8 +4,7 @@
 angular.module('demoAppModule', ['ui.bootstrap']).controller('DemoAppCtrl', function($http, $location, $uibModal) {
     const demoApp = this;
 
-    // TODO: Change this back to /api/iou/
-    const apiBaseURL = "http://localhost:10007/api/iou/";
+    const apiBaseURL = "/api/iou/";
 
     // Retrieves the identity of this and other nodes.
     let peers = [];

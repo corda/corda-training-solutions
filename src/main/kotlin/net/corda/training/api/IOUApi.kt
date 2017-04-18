@@ -116,7 +116,6 @@ class IOUApi(val services: CordaRPCOps) {
      */
     @GET
     @Path("settle-iou")
-    @Produces(MediaType.APPLICATION_JSON)
     fun settleIOU(@QueryParam(value = "id") id: String,
                   @QueryParam(value = "amount") amount: Int,
                   @QueryParam(value = "currency") currency: String): Response {
@@ -131,7 +130,6 @@ class IOUApi(val services: CordaRPCOps) {
      */
     @GET
     @Path("self-issue-cash")
-    @Produces(MediaType.APPLICATION_JSON)
     fun selfIssueCash(@QueryParam(value = "amount") amount: Int,
                       @QueryParam(value = "currency") currency: String): Response {
         val issueAmount = Amount(amount.toLong() * 100, Currency.getInstance(currency))

@@ -16,7 +16,7 @@ import javax.ws.rs.*
 import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.Response
 
-val NOTARY_NAMES = listOf("Controller", "NetworkMapService")
+val SERVICE_NODE_NAMES = listOf("Controller", "NetworkMapService")
 
 /**
  * This API is accessible from /api/iou. The endpoint paths specified below are relative to it.
@@ -47,7 +47,7 @@ class IOUApi(val services: CordaRPCOps) {
     @Produces(MediaType.APPLICATION_JSON)
     fun getPeers() = mapOf("peers" to services.networkMapUpdates().first
             .map { it.legalIdentity.name }
-            .filter { it != myLegalName && it !in NOTARY_NAMES })
+            .filter { it != myLegalName && it !in SERVICE_NODE_NAMES })
 
     /**
      * Displays all IOU states that exist in the node's vault.
@@ -55,7 +55,7 @@ class IOUApi(val services: CordaRPCOps) {
     @GET
     @Path("ious")
     @Produces(MediaType.APPLICATION_JSON)
-            // Filter by state type: IOU.
+    // Filter by state type: IOU.
     fun getIOUs() = services.vaultAndUpdates().first.filter { it.state.data is IOUState }
 
     /**
@@ -64,7 +64,7 @@ class IOUApi(val services: CordaRPCOps) {
     @GET
     @Path("cash")
     @Produces(MediaType.APPLICATION_JSON)
-            // Filter by state type: Cash.
+    // Filter by state type: Cash.
     fun getCash() = services.vaultAndUpdates().first.filter { it.state.data is Cash.State }
 
     /**
@@ -73,7 +73,7 @@ class IOUApi(val services: CordaRPCOps) {
     @GET
     @Path("cash-balances")
     @Produces(MediaType.APPLICATION_JSON)
-            // Filter by state type: Cash.
+    // Display cash balances.
     fun getCashBalances() = services.getCashBalances()
 
     /**
@@ -97,7 +97,7 @@ class IOUApi(val services: CordaRPCOps) {
                     .status(Response.Status.CREATED)
                     .entity("Transaction id ${result.id} committed to ledger.\n${result.tx.outputs.single()}")
                     .build()
-
+        // For the purposes of this demo app, we do not differentiate by exception type.
         } catch (e: Exception) {
             return Response
                     .status(Response.Status.BAD_REQUEST)

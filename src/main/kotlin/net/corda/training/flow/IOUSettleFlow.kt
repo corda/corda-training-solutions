@@ -34,8 +34,10 @@ class IOUSettleFlow(val linearId: UniqueIdentifier, val amount: Amount<Currency>
         val cashBalance = serviceHub.vaultService.cashBalances[amount.token]
         if (cashBalance == null) {
             throw IllegalArgumentException("Borrower has no ${amount.token} to settle.")
-        } else if(cashBalance < amount) {
+        } else if (cashBalance < amount) {
             throw IllegalArgumentException("Borrower has only $cashBalance but needs $amount to settle.")
+        } else if (amount > (iouToSettle.state.data.amount - iouToSettle.state.data.paid)) {
+            throw IllegalArgumentException("Borrower tried to settle with $amount but only needs ${ (iouToSettle.state.data.amount - iouToSettle.state.data.paid) }")
         }
 
         // Step 5. Get some cash from the vault and add a spend to our transaction builder.

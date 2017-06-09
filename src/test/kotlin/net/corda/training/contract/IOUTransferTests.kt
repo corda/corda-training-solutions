@@ -80,7 +80,7 @@ class IOUTransferTests {
 
     /**
      * Task 2.
-     * The transfer transactino should only have one input state and one output state.
+     * The transfer transaction should only have one input state and one output state.
      * TODO: Add constraints to the contract code to ensure a transfer transaction has only one input and output state.
      * Hint:
      * - Look at the contract code for "Issue".
@@ -190,9 +190,8 @@ class IOUTransferTests {
 
     /**
      * Task 5.
-     * It is fairly obvious that in a transfer IOU transaction the lender must change!
-     * TODO: Add a constraint to check the lender has changed in the output IOU.
-     * Hint: The input sender cannot be the output sender!
+     * All the participants in a transfer IOU transaction must sign.
+     * TODO: Add a constraint to check the old lender, the new lender and the recipient have signed.
      */
     @Test
     fun allParticipantsMustSign() {

@@ -2,21 +2,27 @@ package net.corda.training.flow
 
 import co.paralleluniverse.fibers.Suspendable
 import net.corda.core.contracts.*
-import net.corda.core.crypto.Party
+import net.corda.core.identity.Party
 import net.corda.core.flows.FlowLogic
+import net.corda.core.flows.InitiatedBy
+import net.corda.core.flows.InitiatingFlow
+import net.corda.core.flows.StartableByRPC
 import net.corda.core.node.services.linearHeadsOfType
 import net.corda.core.transactions.SignedTransaction
+import net.corda.flows.CollectSignaturesFlow
 import net.corda.flows.FinalityFlow
+import net.corda.flows.SignTransactionFlow
 import net.corda.training.contract.IOUContract
 import net.corda.training.state.IOUState
 
 /**
  * This is the flow which handles transfers of existing IOUs on the ledger.
- * This flow doesn't come in an Initiator and Responder pair as messaging across the network is handled by a [subFlow]
- * call to [CollectSignatureFlow.Initiator].
+ * Gathering the counterparty's signature is handled by the [CollectSignaturesFlow].
  * Notarisation (if required) and commitment to the ledger is handled vy the [FinalityFlow].
  * The flow returns the [SignedTransaction] that was committed to the ledger.
  */
+@InitiatingFlow
+@StartableByRPC
 class IOUTransferFlow(val linearId: UniqueIdentifier, val newLender: Party): FlowLogic<SignedTransaction>() {
     @Suspendable
     override fun call(): SignedTransaction {
@@ -34,7 +40,7 @@ class IOUTransferFlow(val linearId: UniqueIdentifier, val newLender: Party): Flo
         val outputIou = inputIou.withNewLender(newLender)
 
         // Stage 4. Create the transfer command.
-        val signers = inputIou.participants + newLender.owningKey
+        val signers = (inputIou.participants + newLender).map { it.owningKey }
         val transferCommand = Command(IOUContract.Commands.Transfer(), signers)
 
         // Stage 5. Get a reference to a transaction builder.
@@ -46,13 +52,32 @@ class IOUTransferFlow(val linearId: UniqueIdentifier, val newLender: Party): Flo
 
         // Stage 7. Verify and sign the transaction.
         builder.toWireTransaction().toLedgerTransaction(serviceHub).verify()
-        val ptx = builder.signWith(serviceHub.legalIdentityKey).toSignedTransaction(false)
+        val ptx = serviceHub.signInitialTransaction(builder)
 
         // Stage 8. Collect signature from borrower and the new lender and add it to the transaction.
         // This also verifies the transaction and checks the signatures.
-        val stx = subFlow(SignTransactionFlow.Initiator(ptx))
+        val stx = subFlow(CollectSignaturesFlow(ptx))
 
         // Stage 9. Notarise and record, the transaction in our vaults.
         return subFlow(FinalityFlow(stx, setOf(inputIou.lender, inputIou.borrower, newLender))).single()
+    }
+}
+
+/**
+ * This is the flow which signs IOU transfers.
+ * The signing is handled by the [CollectSignaturesFlow].
+ */
+@InitiatedBy(IOUTransferFlow::class)
+class IOUTransferFlowResponder(val otherParty: Party): FlowLogic<Unit>() {
+
+    @Suspendable
+    override fun call() {
+        val signTransactionFlow = object : SignTransactionFlow(otherParty) {
+            override fun checkTransaction(stx: SignedTransaction) {
+                // Define checking logic.
+            }
+        }
+
+        subFlow(signTransactionFlow)
     }
 }

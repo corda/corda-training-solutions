@@ -1,7 +1,10 @@
 package net.corda.training.api
 
+import net.corda.client.rpc.notUsed
 import net.corda.contracts.asset.Cash
 import net.corda.core.contracts.Amount
+import net.corda.core.contracts.ContractState
+import net.corda.core.contracts.StateAndRef
 import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.messaging.CordaRPCOps
 import net.corda.core.utilities.loggerFor
@@ -10,13 +13,17 @@ import net.corda.training.flow.IOUSettleFlow
 import net.corda.training.flow.IOUTransferFlow
 import net.corda.training.flow.SelfIssueCashFlow
 import net.corda.training.state.IOUState
+import org.bouncycastle.asn1.x500.X500Name
 import org.slf4j.Logger
 import java.util.*
-import javax.ws.rs.*
+import javax.ws.rs.GET
+import javax.ws.rs.Path
+import javax.ws.rs.Produces
+import javax.ws.rs.QueryParam
 import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.Response
 
-val SERVICE_NODE_NAMES = listOf("Controller", "NetworkMapService")
+val SERVICE_NODE_NAMES = listOf(X500Name("CN=Controller,O=R3,L=London,C=UK"), X500Name("CN=NetworkMapService,O=R3,L=London,C=UK"))
 
 /**
  * This API is accessible from /api/iou. The endpoint paths specified below are relative to it.
@@ -24,7 +31,7 @@ val SERVICE_NODE_NAMES = listOf("Controller", "NetworkMapService")
  */
 @Path("iou")
 class IOUApi(val services: CordaRPCOps) {
-    private val myLegalName: String = services.nodeIdentity().legalIdentity.name
+    private val myLegalName = services.nodeIdentity().legalIdentity.name
 
     companion object {
         private val logger: Logger = loggerFor<IOUApi>()
@@ -45,9 +52,13 @@ class IOUApi(val services: CordaRPCOps) {
     @GET
     @Path("peers")
     @Produces(MediaType.APPLICATION_JSON)
-    fun getPeers() = mapOf("peers" to services.networkMapUpdates().first
-            .map { it.legalIdentity.name }
-            .filter { it != myLegalName && it !in SERVICE_NODE_NAMES })
+    fun getPeers(): Map<String, List<X500Name>> {
+        val (nodeInfo, nodeUpdates) = services.networkMapUpdates()
+        nodeUpdates.notUsed()
+        return mapOf("peers" to nodeInfo
+                .map { it.legalIdentity.name }
+                .filter { it != myLegalName && it !in SERVICE_NODE_NAMES })
+    }
 
     /**
      * Displays all IOU states that exist in the node's vault.
@@ -55,8 +66,12 @@ class IOUApi(val services: CordaRPCOps) {
     @GET
     @Path("ious")
     @Produces(MediaType.APPLICATION_JSON)
-    // Filter by state type: IOU.
-    fun getIOUs() = services.vaultAndUpdates().first.filter { it.state.data is IOUState }
+    fun getIOUs(): List<StateAndRef<ContractState>> {
+        val (vaultInfo, vaultUpdates) = services.vaultAndUpdates()
+        vaultUpdates.notUsed()
+        // Filter by state type: IOU.
+        return vaultInfo.filter { it.state.data is IOUState }
+    }
 
     /**
      * Displays all cash states that exist in the node's vault.
@@ -64,8 +79,12 @@ class IOUApi(val services: CordaRPCOps) {
     @GET
     @Path("cash")
     @Produces(MediaType.APPLICATION_JSON)
-    // Filter by state type: Cash.
-    fun getCash() = services.vaultAndUpdates().first.filter { it.state.data is Cash.State }
+    fun getCash(): List<StateAndRef<ContractState>> {
+        val (vaultInfo, vaultUpdates) = services.vaultAndUpdates()
+        vaultUpdates.notUsed()
+        // Filter by state type: Cash.
+        return vaultInfo.filter { it.state.data is Cash.State }
+    }
 
     /**
      * Displays all cash states that exist in the node's vault.

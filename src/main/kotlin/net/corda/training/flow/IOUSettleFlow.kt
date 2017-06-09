@@ -103,6 +103,8 @@ class IOUSettleFlowResponder(val otherParty: Party): FlowLogic<Unit>() {
     }
 }
 
+@InitiatingFlow
+@StartableByRPC
 /**
  * Self issues the calling node an amount of cash in the desired currency.
  * Only used for demo/sample/training purposes!

@@ -3,9 +3,9 @@ package net.corda.training.state
 import net.corda.core.contracts.Amount
 import net.corda.core.contracts.LinearState
 import net.corda.core.contracts.UniqueIdentifier
-import net.corda.core.crypto.Party
-import net.corda.core.crypto.CompositeKey
 import net.corda.core.crypto.keys
+import net.corda.core.identity.AbstractParty
+import net.corda.core.identity.Party
 import net.corda.training.contract.IOUContract
 import java.security.PublicKey
 import java.util.*
@@ -33,13 +33,13 @@ data class IOUState(val amount: Amount<Currency>,
      * We do this by checking that the set intersection of the vault public keys with the participant public keys
      * is not the empty set.
      */
-    override fun isRelevant(ourKeys: Set<PublicKey>): Boolean = ourKeys.intersect(participants.keys).isNotEmpty()
+    override fun isRelevant(ourKeys: Set<PublicKey>): Boolean = ourKeys.intersect(participants.flatMap { it.owningKey.keys }).isNotEmpty()
 
     /**
-     *  This property holds a list of the public keys which belong to the nodes which can "use" this state in a valid
-     *  transaction. In this case, the lender or the borrower.
+     *  This property holds a list of the nodes which can "use" this state in a valid transaction. In this case, the
+     *  lender or the borrower.
      */
-    override val participants: List<CompositeKey> get() = listOf(lender.owningKey, borrower.owningKey)
+    override val participants: List<AbstractParty> get() = listOf(lender, borrower)
 
     /**
      * A toString() helper method for displaying IOUs in the console.
@@ -47,8 +47,8 @@ data class IOUState(val amount: Amount<Currency>,
     override fun toString() = "IOU($linearId): ${borrower.name} owes ${lender.name} $amount and has paid $paid so far."
 
     /**
-     * A Contract code reference to the IOUContract. Make sure this is not part of the [IOUState] constructor, if it is
-     * then equality won't work property on this state type. ** Don't change this property! **
+     * A reference to the IOUContract. Make sure this is not part of the [IOUState] constructor, if it is then
+     * equality won't work property on this state type. ** Don't change this property! **
      */
     override val contract get() = IOUContract()
 

@@ -1,8 +1,10 @@
 package net.corda.training.contract
 
 import net.corda.core.contracts.*
-import net.corda.core.crypto.CompositeKey
-import net.corda.core.utilities.DUMMY_PUBKEY_1
+import net.corda.core.identity.AbstractParty
+import net.corda.core.utilities.ALICE
+import net.corda.core.utilities.BOB
+import net.corda.core.utilities.CHARLIE
 import net.corda.testing.*
 import net.corda.training.state.IOUState
 import org.junit.Test
@@ -18,7 +20,7 @@ class IOUTransferTests {
     // A pre-made dummy state we may need for some of the tests.
     class DummyState : ContractState {
         override val contract get() = DUMMY_PROGRAM_ID
-        override val participants: List<CompositeKey> get() = listOf()
+        override val participants: List<AbstractParty> get() = listOf()
     }
     // A dummy command.
     class DummyCommand : CommandData

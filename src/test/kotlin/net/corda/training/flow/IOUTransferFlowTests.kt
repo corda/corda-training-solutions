@@ -30,6 +30,9 @@ class IOUTransferFlowTests {
         a = nodes.partyNodes[0]
         b = nodes.partyNodes[1]
         c = nodes.partyNodes[2]
+        // For real nodes this happens automatically, but we have to manually register the flow for tests
+        nodes.partyNodes.forEach { it.registerInitiatedFlow(IOUIssueFlowResponder::class.java) }
+        nodes.partyNodes.forEach { it.registerInitiatedFlow(IOUTransferFlowResponder::class.java) }
         net.runNetwork()
     }
 

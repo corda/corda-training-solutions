@@ -1,14 +1,12 @@
 package net.corda.training.state
 
 import net.corda.core.contracts.*
-import net.corda.core.crypto.Party
-import net.corda.core.crypto.AnonymousParty
 import net.corda.core.crypto.CompositeKey
-import net.corda.testing.ALICE
+import net.corda.core.identity.Party
+import net.corda.core.utilities.ALICE
+import net.corda.core.utilities.BOB
 import net.corda.testing.ALICE_PUBKEY
-import net.corda.testing.BOB
 import net.corda.testing.BOB_PUBKEY
-import net.corda.training.contract.IOUContract
 import org.junit.Test
 import java.util.*
 import kotlin.test.assertEquals
@@ -95,7 +93,7 @@ class IOUStateTests {
     @Test
     fun lenderIsParticipant() {
         val iouState = IOUState(1.POUNDS, ALICE, BOB)
-        assertNotEquals(iouState.participants.indexOf(ALICE_PUBKEY), -1)
+        assertNotEquals(iouState.participants.indexOf(ALICE), -1)
     }
 
     /**
@@ -107,7 +105,7 @@ class IOUStateTests {
     @Test
     fun borrowerIsParticipant() {
         val iouState = IOUState(1.POUNDS, ALICE, BOB)
-        assertNotEquals(iouState.participants.indexOf(BOB_PUBKEY), -1)
+        assertNotEquals(iouState.participants.indexOf(BOB), -1)
     }
 
     /**
@@ -154,7 +152,7 @@ class IOUStateTests {
     @Test
     fun isRelevantMethodComplete() {
         val iouState = IOUState(1.POUNDS, ALICE, BOB)
-        assert(iouState.isRelevant(setOf(ALICE.owningKey.singleKey, BOB.owningKey.singleKey)))
+        assert(iouState.isRelevant(setOf(ALICE_PUBKEY, BOB_PUBKEY)))
     }
 
     /**
@@ -194,7 +192,7 @@ class IOUStateTests {
     @Test
     fun checkIOUStateToStringMethod() {
         val iouState = IOUState(1.POUNDS, ALICE, BOB)
-        assertEquals(iouState.toString(), "IOU(${iouState.linearId}): Bob owes Alice 1.00 GBP and has paid 0.00 GBP so far.")
+        assertEquals(iouState.toString(), "IOU(${iouState.linearId}): CN=Bob Plc,O=Bob Plc,L=Rome,C=IT owes CN=Alice Corp,O=Alice Corp,L=Madrid,C=ES 1.00 GBP and has paid 0.00 GBP so far.")
     }
 
     /**

@@ -1,4 +1,4 @@
-package net.corda.training
+package com.example
 
 import com.google.common.util.concurrent.Futures
 import net.corda.core.getOrThrow

@@ -57,8 +57,8 @@ class IOUTransferFlowTests {
      * Hint:
      * - This flow will look similar to the [IOUIssueFlow].
      * - This time our transaction has an input state, so we need to retrieve it from the vault!
-     * - You can use the [linearHeadsOfType] extention method to get the latest linear states of a particular type
-     *   from the vault. It returns a [StateAndRef] object which contains the [IOUState].
+     * - You can use the [serviceHub.vaultQueryService.queryBy] method to get the latest linear states of a particular
+     *   type from the vault. It returns a list of states matching your query.
      * - Use the [UniqueIdentifier] which is passed into the flow to retrieve the correct [IOUState].
      * - Use the [IOUState.withNewLender] method to create a copy of the state with a new lender.
      * - Create a Command - we will need to use the Transfer command.

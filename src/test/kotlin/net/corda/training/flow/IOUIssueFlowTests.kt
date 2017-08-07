@@ -88,11 +88,6 @@ class IOUIssueFlowTests {
      * Task 2.
      * Now we have a well formed transaction, we need to properly verify it using the [IOUContract].
      * TODO: Amend the [IOUIssueFlow] to verify the transaction as well as sign it.
-     * Hint:
-     * - Remember: You can only verify a [LedgerTransaction].
-     * - A [SignedTransaction] is a wrapper around a [WireTransaction] and a list of signatures.
-     * - You can access the [WireTransaction] via [SignedTransaction.tx].
-     * - Use [WireTransaction.toLedgerTransaction] method to get a [LedgerTransaction].
      */
     @Test
     fun flowReturnsVerifiedPartiallySignedTransaction() {

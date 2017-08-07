@@ -1,13 +1,12 @@
 package net.corda.training.flow
 
 import net.corda.core.contracts.*
-import net.corda.core.utilities.DUMMY_NOTARY
-import net.corda.training.state.IOUState
-import net.corda.training.contract.IOUContract
 import net.corda.core.getOrThrow
-import net.corda.testing.node.MockNetwork
 import net.corda.core.transactions.SignedTransaction
-import net.corda.core.transactions.WireTransaction
+import net.corda.testing.DUMMY_NOTARY
+import net.corda.testing.node.MockNetwork
+import net.corda.training.contract.IOUContract
+import net.corda.training.state.IOUState
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -45,7 +44,7 @@ class IOUTransferFlowTests {
      * Issue an IOU on the ledger, we need to do this before we can transfer one.
      */
     private fun issueIou(iou: IOUState): SignedTransaction {
-        val flow = IOUIssueFlow(iou, b.info.legalIdentity)
+        val flow = IOUIssueFlow(iou)
         val future = a.services.startFlow(flow).resultFuture
         net.runNetwork()
         return future.getOrThrow()
@@ -64,7 +63,7 @@ class IOUTransferFlowTests {
      * - Use the [IOUState.withNewLender] method to create a copy of the state with a new lender.
      * - Create a Command - we will need to use the Transfer command.
      * - Remember, as we are involving three parties we will need to collect three signatures, so need to add three
-     *   [CompositeKey]s to the Command's signers list. We can get the signers from the input IOU and the new IOU you
+     *   [PublicKey]s to the Command's signers list. We can get the signers from the input IOU and the new IOU you
      *   have just created with the new lender.
      * - Verify and sign the transaction as you did with the [IOUIssueFlow].
      * - Return the partially signed transaction.
@@ -87,7 +86,7 @@ class IOUTransferFlowTests {
         println("Output state: $outputIou")
         val command = ptx.tx.commands.single()
         assert(command.value == IOUContract.Commands.Transfer())
-        ptx.verifySignatures(b.info.legalIdentity.owningKey, c.info.legalIdentity.owningKey, DUMMY_NOTARY.owningKey)
+        ptx.verifySignaturesExcept(b.info.legalIdentity.owningKey, c.info.legalIdentity.owningKey, DUMMY_NOTARY.owningKey)
     }
 
     /**
@@ -138,7 +137,7 @@ class IOUTransferFlowTests {
         val flow = IOUTransferFlow(inputIou.linearId, c.info.legalIdentity)
         val future = a.services.startFlow(flow).resultFuture
         net.runNetwork()
-        future.getOrThrow().verifySignatures(DUMMY_NOTARY.owningKey)
+        future.getOrThrow().verifySignaturesExcept(DUMMY_NOTARY.owningKey)
     }
 
     /**
@@ -154,6 +153,6 @@ class IOUTransferFlowTests {
         val flow = IOUTransferFlow(inputIou.linearId, c.info.legalIdentity)
         val future = a.services.startFlow(flow).resultFuture
         net.runNetwork()
-        future.getOrThrow().verifySignatures()
+        future.getOrThrow().verifyRequiredSignatures()
     }
 }

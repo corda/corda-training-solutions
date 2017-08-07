@@ -2,19 +2,17 @@ package net.corda.training.flow
 
 import co.paralleluniverse.fibers.Suspendable
 import net.corda.contracts.asset.Cash
-import net.corda.core.contracts.*
-import net.corda.core.flows.FlowLogic
-import net.corda.core.flows.InitiatedBy
-import net.corda.core.flows.InitiatingFlow
-import net.corda.core.flows.StartableByRPC
+import net.corda.core.contracts.Amount
+import net.corda.core.contracts.Command
+import net.corda.core.contracts.UniqueIdentifier
+import net.corda.core.flows.*
 import net.corda.core.identity.Party
-import net.corda.core.node.services.linearHeadsOfType
-import net.corda.core.serialization.OpaqueBytes
+import net.corda.core.node.services.queryBy
+import net.corda.core.node.services.vault.QueryCriteria
 import net.corda.core.transactions.SignedTransaction
+import net.corda.core.transactions.TransactionBuilder
+import net.corda.core.utilities.OpaqueBytes
 import net.corda.flows.CashIssueFlow
-import net.corda.flows.CollectSignaturesFlow
-import net.corda.flows.FinalityFlow
-import net.corda.flows.SignTransactionFlow
 import net.corda.training.contract.IOUContract
 import net.corda.training.state.IOUState
 import java.util.*
@@ -33,8 +31,8 @@ class IOUSettleFlow(val linearId: UniqueIdentifier, val amount: Amount<Currency>
         val me = serviceHub.myInfo.legalIdentity
 
         // Step 1. Retrieve the IOU state from the vault.
-        val iouStates = serviceHub.vaultService.linearHeadsOfType<IOUState>()
-        val iouToSettle = iouStates[linearId] ?: throw Exception("IOUState with linearId $linearId not found.")
+        val queryCriteria = QueryCriteria.LinearStateQueryCriteria(linearId = listOf(linearId))
+        val iouToSettle = serviceHub.vaultQueryService.queryBy<IOUState>(queryCriteria).states.single()
         val counterparty = iouToSettle.state.data.lender
 
         // Step 2. Check the party running this flow is the borrower.
@@ -44,7 +42,7 @@ class IOUSettleFlow(val linearId: UniqueIdentifier, val amount: Amount<Currency>
 
         // Step 3. Create a transaction builder.
         val notary = iouToSettle.state.notary
-        val builder = TransactionType.General.Builder(notary)
+        val builder = TransactionBuilder(notary = notary)
 
         // Step 4. Check we have enough cash to settle the requested amount.
         val cashBalance = serviceHub.vaultService.cashBalances[amount.token]
@@ -73,14 +71,14 @@ class IOUSettleFlow(val linearId: UniqueIdentifier, val amount: Amount<Currency>
         }
 
         // Step 8. Verify and sign the transaction.
-        builder.toWireTransaction().toLedgerTransaction(serviceHub).verify()
+        builder.verify(serviceHub)
         val ptx = serviceHub.signInitialTransaction(builder)
 
         // Step 9. Get counterparty signature.
         val stx = subFlow(CollectSignaturesFlow(ptx))
 
         // Step 10. Finalize the transaction.
-        return subFlow(FinalityFlow(stx, setOf(counterparty, me))).single()
+        return subFlow(FinalityFlow(stx)).single()
     }
 }
 
@@ -114,11 +112,11 @@ class SelfIssueCashFlow(val amount: Amount<Currency>) : FlowLogic<Cash.State>() 
     override fun call(): Cash.State {
         /** Create the cash issue command. */
         val issueRef = OpaqueBytes.of(0)
-        val notary = serviceHub.networkMapCache.notaryNodes.single().notaryIdentity
+        val notary = serviceHub.networkMapCache.getAnyNotary()!!
         val me = serviceHub.myInfo.legalIdentity
         /** Create the cash issuance transaction. */
         val cashIssueTransaction = subFlow(CashIssueFlow(amount, issueRef, me, notary))
         /** Return the cash output. */
-        return cashIssueTransaction.tx.outputs.single().data as Cash.State
+        return cashIssueTransaction.stx.tx.outputs.single().data as Cash.State
     }
 }

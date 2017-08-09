@@ -2,13 +2,17 @@ package net.corda.training.flow
 
 import co.paralleluniverse.fibers.Suspendable
 import net.corda.contracts.asset.Cash
-import net.corda.core.contracts.*
+import net.corda.core.contracts.Amount
+import net.corda.core.contracts.Command
+import net.corda.core.contracts.TransactionType
+import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.flows.FlowLogic
 import net.corda.core.flows.InitiatedBy
 import net.corda.core.flows.InitiatingFlow
 import net.corda.core.flows.StartableByRPC
 import net.corda.core.identity.Party
-import net.corda.core.node.services.linearHeadsOfType
+import net.corda.core.node.services.queryBy
+import net.corda.core.node.services.vault.QueryCriteria
 import net.corda.core.serialization.OpaqueBytes
 import net.corda.core.transactions.SignedTransaction
 import net.corda.flows.CashIssueFlow
@@ -33,8 +37,8 @@ class IOUSettleFlow(val linearId: UniqueIdentifier, val amount: Amount<Currency>
         val me = serviceHub.myInfo.legalIdentity
 
         // Step 1. Retrieve the IOU state from the vault.
-        val iouStates = serviceHub.vaultService.linearHeadsOfType<IOUState>()
-        val iouToSettle = iouStates[linearId] ?: throw Exception("IOUState with linearId $linearId not found.")
+        val queryCriteria = QueryCriteria.LinearStateQueryCriteria(linearId = listOf(linearId))
+        val iouToSettle = serviceHub.vaultQueryService.queryBy<IOUState>(queryCriteria).states.single()
         val counterparty = iouToSettle.state.data.lender
 
         // Step 2. Check the party running this flow is the borrower.

@@ -1,13 +1,16 @@
 package net.corda.training.flow
 
 import co.paralleluniverse.fibers.Suspendable
-import net.corda.core.contracts.*
-import net.corda.core.identity.Party
+import net.corda.core.contracts.Command
+import net.corda.core.contracts.TransactionType
+import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.flows.FlowLogic
 import net.corda.core.flows.InitiatedBy
 import net.corda.core.flows.InitiatingFlow
 import net.corda.core.flows.StartableByRPC
-import net.corda.core.node.services.linearHeadsOfType
+import net.corda.core.identity.Party
+import net.corda.core.node.services.queryBy
+import net.corda.core.node.services.vault.QueryCriteria
 import net.corda.core.transactions.SignedTransaction
 import net.corda.flows.CollectSignaturesFlow
 import net.corda.flows.FinalityFlow
@@ -27,8 +30,8 @@ class IOUTransferFlow(val linearId: UniqueIdentifier, val newLender: Party): Flo
     @Suspendable
     override fun call(): SignedTransaction {
         // Stage 1. Retrieve IOU specified by linearId from the vault.
-        val iouStates = serviceHub.vaultService.linearHeadsOfType<IOUState>()
-        val iouStateAndRef = iouStates[linearId] ?: throw Exception("IOUState with linearId $linearId not found.")
+        val queryCriteria = QueryCriteria.LinearStateQueryCriteria(linearId = listOf(linearId))
+        val iouStateAndRef = serviceHub.vaultQueryService.queryBy<IOUState>(queryCriteria).states.single()
         val inputIou = iouStateAndRef.state.data
 
         // Stage 2. This flow can only be initiated by the current recipient.

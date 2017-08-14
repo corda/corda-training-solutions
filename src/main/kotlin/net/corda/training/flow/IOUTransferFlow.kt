@@ -2,19 +2,13 @@ package net.corda.training.flow
 
 import co.paralleluniverse.fibers.Suspendable
 import net.corda.core.contracts.Command
-import net.corda.core.contracts.TransactionType
 import net.corda.core.contracts.UniqueIdentifier
-import net.corda.core.flows.FlowLogic
-import net.corda.core.flows.InitiatedBy
-import net.corda.core.flows.InitiatingFlow
-import net.corda.core.flows.StartableByRPC
+import net.corda.core.flows.*
 import net.corda.core.identity.Party
 import net.corda.core.node.services.queryBy
 import net.corda.core.node.services.vault.QueryCriteria
 import net.corda.core.transactions.SignedTransaction
-import net.corda.flows.CollectSignaturesFlow
-import net.corda.flows.FinalityFlow
-import net.corda.flows.SignTransactionFlow
+import net.corda.core.transactions.TransactionBuilder
 import net.corda.training.contract.IOUContract
 import net.corda.training.state.IOUState
 
@@ -48,21 +42,21 @@ class IOUTransferFlow(val linearId: UniqueIdentifier, val newLender: Party): Flo
 
         // Stage 5. Get a reference to a transaction builder.
         val notary = serviceHub.networkMapCache.notaryNodes.single().notaryIdentity
-        val builder = TransactionType.General.Builder(notary)
+        val builder = TransactionBuilder(notary = notary)
 
-        // Stage 6. Create the transaction which comprises: one input, one output and one command.
+        // Stage 6. Create the transaction which comprises one input, one output and one command.
         builder.withItems(iouStateAndRef, outputIou, transferCommand)
 
         // Stage 7. Verify and sign the transaction.
-        builder.toWireTransaction().toLedgerTransaction(serviceHub).verify()
+        builder.verify(serviceHub)
         val ptx = serviceHub.signInitialTransaction(builder)
 
         // Stage 8. Collect signature from borrower and the new lender and add it to the transaction.
         // This also verifies the transaction and checks the signatures.
         val stx = subFlow(CollectSignaturesFlow(ptx))
 
-        // Stage 9. Notarise and record, the transaction in our vaults.
-        return subFlow(FinalityFlow(stx, setOf(inputIou.lender, inputIou.borrower, newLender))).single()
+        // Stage 9. Notarise and record the transaction in our vaults.
+        return subFlow(FinalityFlow(stx)).single()
     }
 }
 

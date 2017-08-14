@@ -33,13 +33,16 @@ data class IOUState(val amount: Amount<Currency>,
      * We do this by checking that the set intersection of the vault public keys with the participant public keys
      * is not the empty set.
      */
-    override fun isRelevant(ourKeys: Set<PublicKey>): Boolean = ourKeys.intersect(participants.flatMap { it.owningKey.keys }).isNotEmpty()
+    override fun isRelevant(ourKeys: Set<PublicKey>): Boolean {
+        val participantKeys = participants.map { it.owningKey }
+        return ourKeys.intersect(participantKeys).isNotEmpty()
+    }
 
     /**
      *  This property holds a list of the nodes which can "use" this state in a valid transaction. In this case, the
      *  lender or the borrower.
      */
-    override val participants: List<AbstractParty> get() = listOf(lender, borrower)
+    override val participants get() = listOf(lender, borrower)
 
     /**
      * A toString() helper method for displaying IOUs in the console.

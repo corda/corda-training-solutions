@@ -29,7 +29,6 @@ Flow solutions:
 
 The code in the following files was already added for you:
 
-* [`SignTransactionFlow.kt`](https://github.com/roger3cev/corda-training-solutions/blob/master/src/main/kotlin/net/corda/training/flow/SignTransactionFlow.kt)
 * [`SelfIssueCashFlow.kt`](https://github.com/roger3cev/corda-training-solutions/blob/master/src/main/kotlin/net/corda/training/flow/SelfIssueCashFlow.kt)
 * [`IOUApi.kt`](https://github.com/roger3cev/corda-training-solutions/blob/master/src/main/kotlin/net/corda/training/api/IOUApi.kt)
 * [`IOUClient.kt`](https://github.com/roger3cev/corda-training-solutions/blob/master/src/main/kotlin/net/corda/training/client/IOUClient.kt)

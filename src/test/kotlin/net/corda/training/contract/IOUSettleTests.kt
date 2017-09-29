@@ -10,7 +10,7 @@ import org.junit.Test
 import java.util.*
 
 /**
- * Practical exercise instructions.
+ * Practical exercise instructions for Contracts Part 3.
  * The objective here is to write some contract code that verifies a transaction to settle an [IOUState].
  * Settling is more complicated than transfering and issuing as it requires you to use multiple state types in a
  * transaction.
@@ -117,7 +117,7 @@ class IOUSettleTests {
 
     /**
      * Task 3.
-     * There always has to be one input IOU ina settle transaction but there might not be an output IOU.
+     * There always has to be one input IOU in a settle transaction but there might not be an output IOU.
      * TODO: Add a constraint to check there is always one input IOU.
      */
     @Test
@@ -159,7 +159,7 @@ class IOUSettleTests {
      * need to count how much cash is being used to settle and update our [IOUState] accordingly.
      * TODO: Filter out the cash states from the list of outputs list and assign them to a constant.
      * Hint:
-     * - Use the [filterIsInstance] extension function to filter the outputs list by type, in this case [Cash.State].
+     * - Use the [outputsOfType] extension function to filter the transaction's outputs by type, in this case [Cash.State].
      */
     @Test
     fun mustBeCashOutputStatesPresent() {

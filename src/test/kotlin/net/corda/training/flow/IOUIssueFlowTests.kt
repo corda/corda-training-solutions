@@ -19,7 +19,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
 /**
- * Practical exercise instructions.
+ * Practical exercise instructions Flows part 1.
  * Uncomment the unit tests and use the hints + unit test body to complete the FLows such that the unit tests pass.
  */
 class IOUIssueFlowTests {
@@ -134,6 +134,7 @@ class IOUIssueFlowTests {
     }
 
     /**
+     * Task 4.
      * Now we need to store the finished [SignedTransaction] in both counter-party vaults.
      * TODO: Amend the [IOUIssueFlow] by adding a call to [FinalityFlow].
      * Hint:

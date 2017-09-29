@@ -8,7 +8,7 @@ import net.corda.training.state.IOUState
 import org.junit.Test
 
 /**
- * Practical exercise instructions.
+ * Practical exercise instructions for Contracts Part 1.
  * The objective here is to write some contract code that verifies a transaction to issue an [IOUState].
  * As with the [IOUStateTests] uncomment each unit test and run them one at a time. Use the body of the tests and the
  * task description to determine how to get the tests to pass.
@@ -33,7 +33,7 @@ class IOUIssueTests {
      * - For the create command we only care about the existence of it in a transaction, therefore it should subclass
      *   the [TypeOnlyCommandData] class.
      * - The command should be defined inside [IOUContract].
-     * - You can use the [requireSingleCommand] function to check for the existence and type of the specified command
+     * - You can use the [requireSingleCommand] function on [tx.commands] to check for the existence and type of the specified command
      *   in the transaction.
      * - We usually encapsulate our commands around an interface inside the contract class called [Commands] which
      *   implements the [CommandData] interface. The [Create] command itself should be defined inside the [Commands]
@@ -76,7 +76,7 @@ class IOUIssueTests {
      * constraints:
      *
      *     requireThat {
-     *         "Message when constraint fails" by (boolean constraint expression)
+     *         "Message when constraint fails" using (boolean constraint expression)
      *     }
      *
      * Note that the unit tests often expect contract verification failure with a specific message which should be

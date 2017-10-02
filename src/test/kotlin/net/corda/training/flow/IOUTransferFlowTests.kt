@@ -13,7 +13,7 @@ import org.junit.Test
 import kotlin.test.assertFailsWith
 
 /**
- * Practical exercise instructions.
+ * Practical exercise instructions Flows part 2.
  * Uncomment the unit tests and use the hints + unit test body to complete the FLows such that the unit tests pass.
  */
 class IOUTransferFlowTests {
@@ -127,8 +127,8 @@ class IOUTransferFlowTests {
     /**
      * Task 4.
      * Get the borrowers and the new lenders signatures.
-     * TODO: Amend the [SignTransactionFlow] to handle collecting signatures from multiple parties.
-     * Hint: use the [SignTRansactionFlow] in the same way you did for the [IOUIssueFlow].
+     * TODO: Amend the [IOUTransferFlow] to handle collecting signatures from multiple parties.
+     * Hint: use the [CollectSignaturesFlow] in the same way you did for the [IOUIssueFlow].
      */
     @Test
     fun flowReturnsTransactionSignedByAllParties() {
@@ -142,9 +142,8 @@ class IOUTransferFlowTests {
 
     /**
      * Task 5.
-     * Get the borrowers and the new lenders signatures.
-     * TODO: Amend the [SignTransactionFlow] to handle collecting signatures from multiple parties.
-     * Hint: use the [SignTRansactionFlow] in the same way you did for the [IOUIssueFlow].
+     * We need to get the transaction signed by the notary service
+     * TODO: Use a subFlow call to the [FinalityFlow] to get a signature from the lender.
      */
     @Test
     fun flowReturnsTransactionSignedByAllPartiesAndNotary() {

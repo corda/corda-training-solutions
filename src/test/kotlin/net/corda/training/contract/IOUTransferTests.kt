@@ -9,7 +9,7 @@ import org.junit.Test
 
 
 /**
- * Practical exercise instructions.
+ * Practical exercise instructions for Contracts Part 2.
  * The objective here is to write some contract code that verifies a transaction to issue an [IOUState].
  * As with the [IOUIssueTests] uncomment each unit test and run them one at a time. Use the body of the tests and the
  * task description to determine how to get the tests to pass.

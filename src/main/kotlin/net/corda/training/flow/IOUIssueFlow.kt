@@ -53,12 +53,12 @@ class IOUIssueFlow(val state: IOUState): FlowLogic<SignedTransaction>() {
 class IOUIssueFlowResponder(val otherParty: Party): FlowLogic<Unit>() {
     @Suspendable
     override fun call() {
-        val signTransactionFlow = object : SignTransactionFlow(otherParty) {
+        class IOUIssueSignTransactionFlow : SignTransactionFlow(otherParty) {
             override fun checkTransaction(stx: SignedTransaction) {
                 // Define checking logic.
             }
         }
 
-        subFlow(signTransactionFlow)
+        subFlow(IOUIssueSignTransactionFlow())
     }
 }

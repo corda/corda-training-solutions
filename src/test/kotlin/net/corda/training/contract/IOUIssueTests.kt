@@ -144,10 +144,8 @@ class IOUIssueTests {
      *
      *       val state = tx.inputs.single() as XState
      *
-     * - You also need to make sure that when checking the [IOUState.amount] property is greater than zero that you
-     *   compare it against a zero value of the same currency. Note that you can obtain the currency of the [amount]
-     *   property by using [IOUState.amount.token].
-     *
+     * - When checking the [IOUState.amount] property is greater than zero, you need to check the
+     *   [IOUState.amount.quantity] field.
      */
     @Test
     fun cannotCreateZeroValueIOUs() {
@@ -245,7 +243,7 @@ class IOUIssueTests {
             transaction {
                 command(ALICE_PUBKEY, BOB_PUBKEY) { IOUContract.Commands.Issue() }
                 output { borrowerIsLenderIou }
-                this `fails with` "The lender and borrower cannot be the same identity."
+                this `fails with` "The lender and borrower cannot have the same identity."
             }
             transaction {
                 command(ALICE_PUBKEY, BOB_PUBKEY) { IOUContract.Commands.Issue() }

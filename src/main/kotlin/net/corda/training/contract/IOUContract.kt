@@ -1,11 +1,10 @@
 package net.corda.training.contract
 
-import net.corda.contracts.asset.Cash
-import net.corda.contracts.asset.sumCash
 import net.corda.core.contracts.*
 import net.corda.core.contracts.Requirements.using
-import net.corda.core.crypto.SecureHash
 import net.corda.core.transactions.LedgerTransaction
+import net.corda.finance.contracts.asset.Cash
+import net.corda.finance.utils.sumCash
 import net.corda.training.state.IOUState
 
 /**
@@ -13,12 +12,15 @@ import net.corda.training.state.IOUState
  * - Issuance: Issuing a new [IOUState] on the ledger, which is a bilateral agreement between two parties.
  * - Transfer: Re-assigning the lender/beneficiary.
  * - Settle: Fully or partially settling the [IOUState] using the Corda [Cash] contract.
+ *
+ * LegalProseReference: this is just a dummy string for the time being.
  */
+@LegalProseReference(uri = "<prose_contract_uri>")
 class IOUContract : Contract {
-    /**
-     * Legal prose hash. This is just a dummy string for the time being.
-     */
-    override val legalContractReference: SecureHash = SecureHash.sha256("Prose contract.")
+    companion object {
+        @JvmStatic
+        val IOU_CONTRACT_ID = "net.corda.training.contract.IOUContract"
+    }
 
     /**
      * Add any commands required for this contract as classes within this interface.

@@ -1,10 +1,16 @@
 package net.corda.training.flow
 
 import net.corda.core.contracts.*
-import net.corda.core.getOrThrow
+import net.corda.core.identity.Party
 import net.corda.core.transactions.SignedTransaction
+import net.corda.core.utilities.getOrThrow
+import net.corda.finance.*
+import net.corda.node.internal.StartedNode
 import net.corda.testing.DUMMY_NOTARY
+import net.corda.testing.chooseIdentity
 import net.corda.testing.node.MockNetwork
+import net.corda.testing.setCordappPackages
+import net.corda.testing.unsetCordappPackages
 import net.corda.training.contract.IOUContract
 import net.corda.training.state.IOUState
 import org.junit.After
@@ -18,12 +24,13 @@ import kotlin.test.assertFailsWith
  */
 class IOUTransferFlowTests {
     lateinit var net: MockNetwork
-    lateinit var a: MockNetwork.MockNode
-    lateinit var b: MockNetwork.MockNode
-    lateinit var c: MockNetwork.MockNode
+    lateinit var a: StartedNode<MockNetwork.MockNode>
+    lateinit var b: StartedNode<MockNetwork.MockNode>
+    lateinit var c: StartedNode<MockNetwork.MockNode>
 
     @Before
     fun setup() {
+        setCordappPackages("net.corda.training")
         net = MockNetwork()
         val nodes = net.createSomeNodes(3)
         a = nodes.partyNodes[0]
@@ -38,13 +45,14 @@ class IOUTransferFlowTests {
     @After
     fun tearDown() {
         net.stopNodes()
+        unsetCordappPackages()
     }
 
     /**
      * Issue an IOU on the ledger, we need to do this before we can transfer one.
      */
     private fun issueIou(iou: IOUState): SignedTransaction {
-        val flow = IOUIssueFlow(iou)
+        val flow = IOUIssueFlow(StateAndContract(iou, IOUContract.IOU_CONTRACT_ID))
         val future = a.services.startFlow(flow).resultFuture
         net.runNetwork()
         return future.getOrThrow()
@@ -70,9 +78,11 @@ class IOUTransferFlowTests {
      */
     @Test
     fun flowReturnsCorrectlyFormedPartiallySignedTransaction() {
-        val stx = issueIou(IOUState(10.POUNDS, a.info.legalIdentity, b.info.legalIdentity))
+        val lender = a.info.chooseIdentity()
+        val borrower = b.info.chooseIdentity()
+        val stx = issueIou(IOUState(10.POUNDS, lender, borrower))
         val inputIou = stx.tx.outputs.single().data as IOUState
-        val flow = IOUTransferFlow(inputIou.linearId, c.info.legalIdentity)
+        val flow = IOUTransferFlow(inputIou.linearId, c.info.chooseIdentity())
         val future = a.services.startFlow(flow).resultFuture
         net.runNetwork()
         val ptx = future.getOrThrow()
@@ -86,7 +96,7 @@ class IOUTransferFlowTests {
         println("Output state: $outputIou")
         val command = ptx.tx.commands.single()
         assert(command.value == IOUContract.Commands.Transfer())
-        ptx.verifySignaturesExcept(b.info.legalIdentity.owningKey, c.info.legalIdentity.owningKey, DUMMY_NOTARY.owningKey)
+        ptx.verifySignaturesExcept(b.info.chooseIdentity().owningKey, c.info.chooseIdentity().owningKey, DUMMY_NOTARY.owningKey)
     }
 
     /**
@@ -100,9 +110,11 @@ class IOUTransferFlowTests {
      */
     @Test
     fun flowCanOnlyBeRunByCurrentLender() {
-        val stx = issueIou(IOUState(10.POUNDS, a.info.legalIdentity, b.info.legalIdentity))
+        val lender = a.info.chooseIdentity()
+        val borrower = b.info.chooseIdentity()
+        val stx = issueIou(IOUState(10.POUNDS, lender, borrower))
         val inputIou = stx.tx.outputs.single().data as IOUState
-        val flow = IOUTransferFlow(inputIou.linearId, c.info.legalIdentity)
+        val flow = IOUTransferFlow(inputIou.linearId, c.info.chooseIdentity())
         val future = b.services.startFlow(flow).resultFuture
         net.runNetwork()
         assertFailsWith<IllegalArgumentException> { future.getOrThrow() }
@@ -115,9 +127,11 @@ class IOUTransferFlowTests {
      */
     @Test
     fun iouCannotBeTransferredToSameParty() {
-        val stx = issueIou(IOUState(10.POUNDS, a.info.legalIdentity, b.info.legalIdentity))
+        val lender = a.info.chooseIdentity()
+        val borrower = b.info.chooseIdentity()
+        val stx = issueIou(IOUState(10.POUNDS, lender, borrower))
         val inputIou = stx.tx.outputs.single().data as IOUState
-        val flow = IOUTransferFlow(inputIou.linearId, a.info.legalIdentity)
+        val flow = IOUTransferFlow(inputIou.linearId, lender)
         val future = a.services.startFlow(flow).resultFuture
         net.runNetwork()
         // Check that we can't transfer an IOU to ourselves.
@@ -132,9 +146,11 @@ class IOUTransferFlowTests {
      */
     @Test
     fun flowReturnsTransactionSignedByAllParties() {
-        val stx = issueIou(IOUState(10.POUNDS, a.info.legalIdentity, b.info.legalIdentity))
+        val lender = a.info.chooseIdentity()
+        val borrower = b.info.chooseIdentity()
+        val stx = issueIou(IOUState(10.POUNDS, lender, borrower))
         val inputIou = stx.tx.outputs.single().data as IOUState
-        val flow = IOUTransferFlow(inputIou.linearId, c.info.legalIdentity)
+        val flow = IOUTransferFlow(inputIou.linearId, c.info.chooseIdentity())
         val future = a.services.startFlow(flow).resultFuture
         net.runNetwork()
         future.getOrThrow().verifySignaturesExcept(DUMMY_NOTARY.owningKey)
@@ -147,9 +163,11 @@ class IOUTransferFlowTests {
      */
     @Test
     fun flowReturnsTransactionSignedByAllPartiesAndNotary() {
-        val stx = issueIou(IOUState(10.POUNDS, a.info.legalIdentity, b.info.legalIdentity))
+        val lender = a.info.chooseIdentity()
+        val borrower = b.info.chooseIdentity()
+        val stx = issueIou(IOUState(10.POUNDS, lender, borrower))
         val inputIou = stx.tx.outputs.single().data as IOUState
-        val flow = IOUTransferFlow(inputIou.linearId, c.info.legalIdentity)
+        val flow = IOUTransferFlow(inputIou.linearId, c.info.chooseIdentity())
         val future = a.services.startFlow(flow).resultFuture
         net.runNetwork()
         future.getOrThrow().verifyRequiredSignatures()

@@ -73,9 +73,9 @@ class IOUTransferFlow(val linearId: UniqueIdentifier,
  * The signing is handled by the [SignTransactionFlow].
  */
 @InitiatedBy(IOUTransferFlow::class)
-class IOUTransferFlowResponder(val flowSession: FlowSession): FlowLogic<SignedTransaction>() {
+class IOUTransferFlowResponder(val flowSession: FlowSession): FlowLogic<Unit>() {
     @Suspendable
-    override fun call() : SignedTransaction {
+    override fun call() {
         val signedTransactionFlow = object : SignTransactionFlow(flowSession) {
             override fun checkTransaction(stx: SignedTransaction) = requireThat {
                 //TODO checks should be made here?
@@ -84,6 +84,6 @@ class IOUTransferFlowResponder(val flowSession: FlowSession): FlowLogic<SignedTr
             }
         }
 
-        return subFlow(signedTransactionFlow)
+        subFlow(signedTransactionFlow)
     }
 }

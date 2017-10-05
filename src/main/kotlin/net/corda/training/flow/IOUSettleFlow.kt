@@ -90,9 +90,9 @@ class IOUSettleFlow(val linearId: UniqueIdentifier, val amount: Amount<Currency>
  * The signing is handled by the [SignTransactionFlow].
  */
 @InitiatedBy(IOUSettleFlow::class)
-class IOUSettleFlowResponder(val flowSession: FlowSession): FlowLogic<SignedTransaction>() {
+class IOUSettleFlowResponder(val flowSession: FlowSession): FlowLogic<Unit>() {
     @Suspendable
-    override fun call() : SignedTransaction {
+    override fun call() {
         val signedTransactionFlow = object : SignTransactionFlow(flowSession) {
             override fun checkTransaction(stx: SignedTransaction) = requireThat {
                 //TODO checks should be made here?
@@ -101,7 +101,7 @@ class IOUSettleFlowResponder(val flowSession: FlowSession): FlowLogic<SignedTran
             }
         }
 
-        return subFlow(signedTransactionFlow)
+        subFlow(signedTransactionFlow)
     }
 }
 

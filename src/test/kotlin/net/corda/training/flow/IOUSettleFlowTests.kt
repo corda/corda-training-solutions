@@ -55,7 +55,7 @@ class IOUSettleFlowTests {
      * Issue an IOU on the ledger, we need to do this before we can transfer one.
      */
     private fun issueIou(iou: IOUState): SignedTransaction {
-        val flow = IOUIssueFlow(StateAndContract(iou, IOUContract.IOU_CONTRACT_ID))
+        val flow = IOUIssueFlow(iou)
         val future = a.services.startFlow(flow).resultFuture
         net.runNetwork()
         return future.getOrThrow()
@@ -96,29 +96,31 @@ class IOUSettleFlowTests {
         val settleResult = future.getOrThrow()
         // Check the transaction is well formed...
         // One output IOUState, one input IOUState reference, input and output cash
-        val ledgerTx = settleResult.toLedgerTransaction(a.services, false)
-        assert(ledgerTx.inputs.size == 2)
-        assert(ledgerTx.outputs.size == 2)
-        val outputIou = ledgerTx.outputs.map { it.data }.filterIsInstance<IOUState>().single()
-        assertEquals(
-                outputIou,
-                inputIou.pay(5.POUNDS))
-        // Sum all the output cash. This is complicated as there may be multiple cash output states with not all of them
-        // being assigned to the lender.
-        val outputCashSum = ledgerTx.outputs
-                .map { it.data }
-                .filterIsInstance<Cash.State>()
-                .filter { it.owner == b.info.chooseIdentity() }
-                .sumCash()
-                .withoutIssuer()
-        // Compare the cash assigned to the lender with the amount claimed is being settled by the borrower.
-        assertEquals(
-                outputCashSum,
-                (inputIou.amount - inputIou.paid - outputIou.paid))
-        val command = ledgerTx.commands.requireSingleCommand<IOUContract.Commands>()
-        assert(command.value == IOUContract.Commands.Settle())
-        // Check the transaction has been signed by the borrower.
-        settleResult.verifySignaturesExcept(b.info.chooseIdentity().owningKey, DUMMY_NOTARY.owningKey)
+        a.database.transaction {
+            val ledgerTx = settleResult.toLedgerTransaction(a.services, false)
+            assert(ledgerTx.inputs.size == 2)
+            assert(ledgerTx.outputs.size == 2)
+            val outputIou = ledgerTx.outputs.map { it.data }.filterIsInstance<IOUState>().single()
+            assertEquals(
+                    outputIou,
+                    inputIou.pay(5.POUNDS))
+            // Sum all the output cash. This is complicated as there may be multiple cash output states with not all of them
+            // being assigned to the lender.
+            val outputCashSum = ledgerTx.outputs
+                    .map { it.data }
+                    .filterIsInstance<Cash.State>()
+                    .filter { it.owner == b.info.chooseIdentity() }
+                    .sumCash()
+                    .withoutIssuer()
+            // Compare the cash assigned to the lender with the amount claimed is being settled by the borrower.
+            assertEquals(
+                    outputCashSum,
+                    (inputIou.amount - inputIou.paid - outputIou.paid))
+            val command = ledgerTx.commands.requireSingleCommand<IOUContract.Commands>()
+            assert(command.value == IOUContract.Commands.Settle())
+            // Check the transaction has been signed by the borrower.
+            settleResult.verifySignaturesExcept(b.info.chooseIdentity().owningKey, DUMMY_NOTARY.owningKey)
+        }
     }
 
     /**

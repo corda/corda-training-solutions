@@ -19,7 +19,7 @@ import net.corda.training.state.IOUState
  */
 @InitiatingFlow
 @StartableByRPC
-class IOUIssueFlow(val stateAndContract: StateAndContract): FlowLogic<SignedTransaction>() {
+class IOUIssueFlow(val state: IOUState): FlowLogic<SignedTransaction>() {
     @Suspendable
     override fun call(): SignedTransaction {
         // Step 1. Get a reference to the notary service on our network and our key pair.
@@ -28,20 +28,19 @@ class IOUIssueFlow(val stateAndContract: StateAndContract): FlowLogic<SignedTran
 
         // Step 2. Create a new issue command.
         // Remember that a command is a CommandData object and a list of CompositeKeys
-        val issueCommand = Command(IOUContract.Commands.Issue(), stateAndContract.state.participants.map { it.owningKey })
+        val issueCommand = Command(IOUContract.Commands.Issue(), state.participants.map { it.owningKey })
 
         // Step 3. Create a new TransactionBuilder object.
         val builder = TransactionBuilder(notary = notary)
 
         // Step 4. Add the iou as an output state, as well as a command to the transaction builder.
-        builder.withItems(stateAndContract, issueCommand)
+        builder.withItems(StateAndContract(state, IOUContract.IOU_CONTRACT_ID), issueCommand)
 
         // Step 5. Verify and sign it with our KeyPair.
         builder.verify(serviceHub)
         val ptx = serviceHub.signInitialTransaction(builder)
 
-        val iou = stateAndContract.state as IOUState
-        val otherPartyFlows = iou.participants.minus(this.ourIdentity).map { initiateFlow(it) }.toSet()
+        val otherPartyFlows = state.participants.minus(this.ourIdentity).map { initiateFlow(it) }.toSet()
         // Step 6. Collect the other party's signature using the SignTransactionFlow.
         val stx = subFlow(CollectSignaturesFlow(ptx, otherPartyFlows))
 
@@ -55,9 +54,9 @@ class IOUIssueFlow(val stateAndContract: StateAndContract): FlowLogic<SignedTran
  * The signing is handled by the [SignTransactionFlow].
  */
 @InitiatedBy(IOUIssueFlow::class)
-class IOUIssueFlowResponder(val flowSession: FlowSession): FlowLogic<SignedTransaction>() {
+class IOUIssueFlowResponder(val flowSession: FlowSession): FlowLogic<Unit>() {
     @Suspendable
-    override fun call() : SignedTransaction {
+    override fun call() {
         val signedTransactionFlow = object : SignTransactionFlow(flowSession) {
             override fun checkTransaction(stx: SignedTransaction) = requireThat {
                 //TODO checks should be made here?
@@ -65,6 +64,6 @@ class IOUIssueFlowResponder(val flowSession: FlowSession): FlowLogic<SignedTrans
                 "This must be an IOU transaction" using (output is IOUState)
             }
         }
-        return subFlow(signedTransactionFlow)
+        subFlow(signedTransactionFlow)
     }
 }

@@ -68,7 +68,7 @@ class IOUIssueFlowTests {
         val lender = a.info.chooseIdentity()
         val borrower = b.info.chooseIdentity()
         val iou = IOUState(10.POUNDS, lender, borrower)
-        val flow = IOUIssueFlow(StateAndContract(iou, IOUContract.IOU_CONTRACT_ID))
+        val flow = IOUIssueFlow(iou)
         val future = a.services.startFlow(flow).resultFuture
         net.runNetwork()
         // Return the unsigned(!) SignedTransaction object from the IOUIssueFlow.
@@ -96,17 +96,17 @@ class IOUIssueFlowTests {
         val lender = a.info.chooseIdentity()
         val borrower = b.info.chooseIdentity()
         val zeroIou = IOUState(0.POUNDS, lender, borrower)
-        val futureOne = a.services.startFlow(IOUIssueFlow(StateAndContract(zeroIou, IOUContract.IOU_CONTRACT_ID))).resultFuture
+        val futureOne = a.services.startFlow(IOUIssueFlow(zeroIou)).resultFuture
         net.runNetwork()
         assertFailsWith<TransactionVerificationException> { futureOne.getOrThrow() }
         // Check that an IOU with the same participants fails.
         val borrowerIsLenderIou = IOUState(10.POUNDS, lender, lender)
-        val futureTwo = a.services.startFlow(IOUIssueFlow(StateAndContract(borrowerIsLenderIou, IOUContract.IOU_CONTRACT_ID))).resultFuture
+        val futureTwo = a.services.startFlow(IOUIssueFlow(borrowerIsLenderIou)).resultFuture
         net.runNetwork()
         assertFailsWith<TransactionVerificationException> { futureTwo.getOrThrow() }
         // Check a good IOU passes.
         val iou = IOUState(10.POUNDS, lender, borrower)
-        val futureThree = a.services.startFlow(IOUIssueFlow(StateAndContract(iou, IOUContract.IOU_CONTRACT_ID))).resultFuture
+        val futureThree = a.services.startFlow(IOUIssueFlow(iou)).resultFuture
         net.runNetwork()
         futureThree.getOrThrow()
     }
@@ -135,7 +135,7 @@ class IOUIssueFlowTests {
         val lender = a.info.chooseIdentity()
         val borrower = b.info.chooseIdentity()
         val iou = IOUState(10.POUNDS, lender, borrower)
-        val flow = IOUIssueFlow(StateAndContract(iou, IOUContract.IOU_CONTRACT_ID))
+        val flow = IOUIssueFlow(iou)
         val future = a.services.startFlow(flow).resultFuture
         net.runNetwork()
         val stx = future.getOrThrow()
@@ -159,7 +159,7 @@ class IOUIssueFlowTests {
         val lender = a.info.chooseIdentity()
         val borrower = b.info.chooseIdentity()
         val iou = IOUState(10.POUNDS, lender, borrower)
-        val flow = IOUIssueFlow(StateAndContract(iou, IOUContract.IOU_CONTRACT_ID))
+        val flow = IOUIssueFlow(iou)
         val future = a.services.startFlow(flow).resultFuture
         net.runNetwork()
         val stx = future.getOrThrow()

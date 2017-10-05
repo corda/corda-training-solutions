@@ -52,7 +52,7 @@ class IOUTransferFlowTests {
      * Issue an IOU on the ledger, we need to do this before we can transfer one.
      */
     private fun issueIou(iou: IOUState): SignedTransaction {
-        val flow = IOUIssueFlow(StateAndContract(iou, IOUContract.IOU_CONTRACT_ID))
+        val flow = IOUIssueFlow(iou)
         val future = a.services.startFlow(flow).resultFuture
         net.runNetwork()
         return future.getOrThrow()

@@ -86,6 +86,7 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
 }
 
 task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
+    delete "./build/nodes"
     directory "./build/nodes"
     networkMap "O=Network Map Service,L=London,C=GB"
     node {

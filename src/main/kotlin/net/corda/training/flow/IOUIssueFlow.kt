@@ -40,9 +40,9 @@ class IOUIssueFlow(val state: IOUState): FlowLogic<SignedTransaction>() {
         builder.verify(serviceHub)
         val ptx = serviceHub.signInitialTransaction(builder)
 
-        val otherPartyFlows = state.participants.minus(this.ourIdentity).map { initiateFlow(it) }.toSet()
+        val sessions = (state.participants - ourIdentity).map { initiateFlow(it) }.toSet()
         // Step 6. Collect the other party's signature using the SignTransactionFlow.
-        val stx = subFlow(CollectSignaturesFlow(ptx, otherPartyFlows))
+        val stx = subFlow(CollectSignaturesFlow(ptx, sessions))
 
         // Step 7. Assuming no exceptions, we can now finalise the transaction.
         return subFlow(FinalityFlow(stx))
@@ -59,7 +59,6 @@ class IOUIssueFlowResponder(val flowSession: FlowSession): FlowLogic<Unit>() {
     override fun call() {
         val signedTransactionFlow = object : SignTransactionFlow(flowSession) {
             override fun checkTransaction(stx: SignedTransaction) = requireThat {
-                //TODO checks should be made here?
                 val output = stx.tx.outputs.single().data
                 "This must be an IOU transaction" using (output is IOUState)
             }

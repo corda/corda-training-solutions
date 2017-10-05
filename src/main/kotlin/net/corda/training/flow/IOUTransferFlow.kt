@@ -32,7 +32,7 @@ class IOUTransferFlow(val linearId: UniqueIdentifier,
         val inputIou = iouStateAndRef.state.data
 
         // Stage 2. This flow can only be initiated by the current recipient.
-        if (this.ourIdentity != inputIou.lender) {
+        if (ourIdentity != inputIou.lender) {
             throw IllegalArgumentException("IOU transfer can only be initiated by the IOU lender.")
         }
 
@@ -59,9 +59,8 @@ class IOUTransferFlow(val linearId: UniqueIdentifier,
 
         // Stage 8. Collect signature from borrower and the new lender and add it to the transaction.
         // This also verifies the transaction and checks the signatures.
-        //TODO: walk through which signatures come from where
-        val otherPartyFlows = inputIou.participants.minus(this.ourIdentity).plus(newLender).map { initiateFlow(it) }.toSet()
-        val stx = subFlow(CollectSignaturesFlow(ptx, otherPartyFlows))
+        val sessions = (inputIou.participants - ourIdentity + newLender).map { initiateFlow(it) }.toSet()
+        val stx = subFlow(CollectSignaturesFlow(ptx, sessions))
 
         // Stage 9. Notarise and record the transaction in our vaults.
         return subFlow(FinalityFlow(stx))
@@ -78,7 +77,6 @@ class IOUTransferFlowResponder(val flowSession: FlowSession): FlowLogic<Unit>() 
     override fun call() {
         val signedTransactionFlow = object : SignTransactionFlow(flowSession) {
             override fun checkTransaction(stx: SignedTransaction) = requireThat {
-                //TODO checks should be made here?
                 val output = stx.tx.outputs.single().data
                 "This must be an IOU transaction" using (output is IOUState)
             }

@@ -29,16 +29,13 @@ import java.util.*
 class IOUSettleFlow(val linearId: UniqueIdentifier, val amount: Amount<Currency>): FlowLogic<SignedTransaction>() {
     @Suspendable
     override fun call(): SignedTransaction {
-        val me = this.ourIdentity
-
-
         // Step 1. Retrieve the IOU state from the vault.
         val queryCriteria = QueryCriteria.LinearStateQueryCriteria(linearId = listOf(linearId))
         val iouToSettle = serviceHub.vaultService.queryBy<IOUState>(queryCriteria).states.single()
         val counterparty = iouToSettle.state.data.lender
 
         // Step 2. Check the party running this flow is the borrower.
-        if (me != iouToSettle.state.data.borrower) {
+        if (ourIdentity != iouToSettle.state.data.borrower) {
             throw IllegalArgumentException("IOU settlement flow must be initiated by the borrower.")
         }
 
@@ -60,7 +57,7 @@ class IOUSettleFlow(val linearId: UniqueIdentifier, val amount: Amount<Currency>
         Cash.generateSpend(serviceHub, builder, amount, counterparty)
 
         // Step 6. Add the IOU input state and settle command to the transaction builder.
-        val settleCommand = Command(IOUContract.Commands.Settle(), listOf(counterparty.owningKey, me.owningKey))
+        val settleCommand = Command(IOUContract.Commands.Settle(), listOf(counterparty.owningKey, ourIdentity.owningKey))
         // Add the input IOU and IOU settle command.
         builder.addCommand(settleCommand)
         builder.addInputState(iouToSettle)
@@ -77,8 +74,8 @@ class IOUSettleFlow(val linearId: UniqueIdentifier, val amount: Amount<Currency>
         val ptx = serviceHub.signInitialTransaction(builder)
 
         // Step 9. Get counterparty signature.
-        val otherPartyFlows = iouToSettle.state.data.participants.minus(this.ourIdentity).map { initiateFlow(it) }.toSet()
-        val stx = subFlow(CollectSignaturesFlow(ptx, otherPartyFlows))
+        val sessions = (iouToSettle.state.data.participants -ourIdentity).map { initiateFlow(it) }.toSet()
+        val stx = subFlow(CollectSignaturesFlow(ptx, sessions))
 
         // Step 10. Finalize the transaction.
         return subFlow(FinalityFlow(stx))
@@ -95,7 +92,6 @@ class IOUSettleFlowResponder(val flowSession: FlowSession): FlowLogic<Unit>() {
     override fun call() {
         val signedTransactionFlow = object : SignTransactionFlow(flowSession) {
             override fun checkTransaction(stx: SignedTransaction) = requireThat {
-                //TODO checks should be made here?
                 val outputStates = stx.tx.outputs.map { it.data::class.java.name }.toList()
                 "There must be an IOU transaction." using (outputStates.contains(IOUState::class.java.name))
             }

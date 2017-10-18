@@ -101,12 +101,12 @@ class IOUSettleFlowResponder(val flowSession: FlowSession): FlowLogic<Unit>() {
     }
 }
 
-@InitiatingFlow
-@StartableByRPC
 /**
  * Self issues the calling node an amount of cash in the desired currency.
  * Only used for demo/sample/training purposes!
  */
+@InitiatingFlow
+@StartableByRPC
 class SelfIssueCashFlow(val amount: Amount<Currency>) : FlowLogic<Cash.State>() {
     @Suspendable
     override fun call(): Cash.State {

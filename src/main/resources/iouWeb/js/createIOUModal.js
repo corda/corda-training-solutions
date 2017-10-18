@@ -26,7 +26,7 @@ angular.module('demoAppModule').controller('CreateIOUModalCtrl', function($http,
                 `issue-iou?amount=${amount}&currency=${currency}&party=${party}`;
 
             // We hit the endpoint to create the IOU and handle success/failure responses.
-            $http.get(issueIOUEndpoint).then(
+            $http.put(issueIOUEndpoint).then(
                 (result) => createIOUModal.displayMessage(result),
                 (result) => createIOUModal.displayMessage(result)
             );

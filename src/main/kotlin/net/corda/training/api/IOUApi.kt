@@ -20,9 +20,14 @@ import net.corda.training.flow.IOUTransferFlow
 import net.corda.training.flow.SelfIssueCashFlow
 import net.corda.training.state.IOUState
 import org.bouncycastle.asn1.x500.X500Name
+import org.bouncycastle.asn1.x500.style.BCStyle
 import org.slf4j.Logger
-import java.util.*
-import javax.ws.rs.*
+import java.util.Currency
+import javax.ws.rs.GET
+import javax.ws.rs.PUT
+import javax.ws.rs.Path
+import javax.ws.rs.Produces
+import javax.ws.rs.QueryParam
 import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.Response
 
@@ -39,9 +44,12 @@ class IOUApi(val rpcOps: CordaRPCOps) {
         private val logger: Logger = loggerFor<IOUApi>()
     }
 
+    fun X500Name.toDisplayString() : String  = BCStyle.INSTANCE.toString(this)
+
     /** Helpers for filtering the network map cache. */
     private fun isNotary(nodeInfo: NodeInfo) = rpcOps.notaryIdentities().any { nodeInfo.isLegalIdentity(it) }
     private fun isMe(nodeInfo: NodeInfo) = nodeInfo.legalIdentities.first().name == me
+    private fun isNetworkMap(nodeInfo : NodeInfo) = nodeInfo.legalIdentities.single().name.organisation == "Network Map Service"
 
     /**
      * Returns the node's name.
@@ -49,7 +57,7 @@ class IOUApi(val rpcOps: CordaRPCOps) {
     @GET
     @Path("me")
     @Produces(MediaType.APPLICATION_JSON)
-    fun whoami() = mapOf("me" to myLegalName)
+    fun whoami() = mapOf("me" to myLegalName.toDisplayString())
 
     /**
      * Returns all parties registered with the [NetworkMapService]. These names can be used to look up identities
@@ -58,10 +66,10 @@ class IOUApi(val rpcOps: CordaRPCOps) {
     @GET
     @Path("peers")
     @Produces(MediaType.APPLICATION_JSON)
-    fun getPeers(): Map<String, List<X500Name>> {
+    fun getPeers(): Map<String, List<String>> {
         return mapOf("peers" to rpcOps.networkMapSnapshot()
-                .filter { isNotary(it).not() && isMe(it).not() }
-                .map { it.legalIdentities.first().name.x500Name })
+                .filter { isNotary(it).not() && isMe(it).not() && isNetworkMap(it).not() }
+                .map { it.legalIdentities.first().name.x500Name.toDisplayString() })
     }
 
     /**

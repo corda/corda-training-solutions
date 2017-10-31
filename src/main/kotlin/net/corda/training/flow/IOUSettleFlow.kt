@@ -54,6 +54,8 @@ class IOUSettleFlow(val linearId: UniqueIdentifier, val amount: Amount<Currency>
         }
 
         // Step 5. Get some cash from the vault and add a spend to our transaction builder.
+        // Vault might contain states "owned" by anonymous parties. This is one of techniques to anonymize transactions
+        // generateSpend returns all public keys which have to be used to sign transaction
         val (_, cashKeys) = Cash.generateSpend(serviceHub, builder, amount, counterparty)
 
         // Step 6. Add the IOU input state and settle command to the transaction builder.
@@ -71,7 +73,8 @@ class IOUSettleFlow(val linearId: UniqueIdentifier, val amount: Amount<Currency>
 
         // Step 8. Verify and sign the transaction.
         builder.verify(serviceHub)
-        val myKeysToSign = cashKeys + ourIdentity.owningKey
+        // We need to sign transaction with all keys referred from Cash input states + our public key
+        val myKeysToSign = (cashKeys.toSet() + ourIdentity.owningKey).toList()
         val ptx = serviceHub.signInitialTransaction(builder, myKeysToSign)
 
         // Initialising session with other party

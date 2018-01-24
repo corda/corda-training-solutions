@@ -27,7 +27,7 @@ data class IOUState(val amount: Amount<Currency>,
      *  This property holds a list of the nodes which can "use" this state in a valid transaction. In this case, the
      *  lender or the borrower.
      */
-    override val participants get() = listOf(lender, borrower)
+    override val participants: List<Party> get() = listOf(lender, borrower)
 
     /**
      * A toString() helper method for displaying IOUs in the console.

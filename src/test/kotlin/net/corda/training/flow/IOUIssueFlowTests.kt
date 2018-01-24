@@ -119,6 +119,7 @@ class IOUIssueFlowTests {
      * Hint:
      * On the Initiator side:
      * - Get a set of signers required from the participants who are not the node
+     * - - [ourIdentity] will give you the identity of the node you are operating as
      * - Use [initateFlow] to get a set of [FlowSession] objects
      * - - Using [state.participants] as a base to determine the sessions needed is recommended. [participants] is on
      * - - the state interface so it is guaranteed to to exist where [lender] and [borrower] are not.

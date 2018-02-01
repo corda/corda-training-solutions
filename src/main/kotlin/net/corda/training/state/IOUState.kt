@@ -30,11 +30,6 @@ data class IOUState(val amount: Amount<Currency>,
     override val participants: List<Party> get() = listOf(lender, borrower)
 
     /**
-     * A toString() helper method for displaying IOUs in the console.
-     */
-    override fun toString() = "IOU($linearId): ${borrower.name} owes ${lender.name} $amount and has paid $paid so far."
-
-    /**
      * Helper methods for when building transactions for settling and transferring IOUs.
      * - [pay] adds an amount to the paid property. It does no validation.
      * - [withNewLender] creates a copy of the current state with a newly specified lender. For use when transferring.

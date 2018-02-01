@@ -1,6 +1,6 @@
 buildscript {
-    ext.corda_release_version = 'R3.CORDA-3.0.1-DEV-PREVIEW' // "CORDA-3.0.1-DEV-PREVIEW" (Open Source)
-    ext.corda_release_distribution = 'com.r3.corda' // "net.corda" for Corda (Open Source)
+    ext.corda_release_version = 'R3.CORDA-3.0.0-DEV-PREVIEW-2'
+    ext.corda_release_distribution = 'com.r3.corda'
     ext.corda_gradle_plugins_version = '3.0.3'
     ext.kotlin_version = '1.1.60'
     ext.junit_version = '4.12'

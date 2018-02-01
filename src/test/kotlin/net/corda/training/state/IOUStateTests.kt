@@ -1,9 +1,16 @@
 package net.corda.training.state
 
 import net.corda.core.contracts.*
+import net.corda.core.identity.CordaX500Name
 import net.corda.core.identity.Party
 import net.corda.finance.*
+import net.corda.node.internal.StartedNode
 import net.corda.testing.*
+import net.corda.testing.node.MockNetwork
+import net.corda.testing.node.MockNodeParameters
+import net.corda.testing.node.MockServices
+import org.junit.After
+import org.junit.Before
 import org.junit.Test
 import java.util.*
 import kotlin.test.assertEquals
@@ -21,6 +28,23 @@ import kotlin.test.assertNotEquals
  * Hint: CMD / Ctrl + click on the brown type names in square brackets for that type's definition in the codebase.
  */
 class IOUStateTests {
+    lateinit var alice: TestIdentity
+    lateinit var bob: TestIdentity
+    lateinit var miniCorp: TestIdentity
+    lateinit var megaCorp: TestIdentity
+
+    @Before
+    fun setup() {
+        alice = TestIdentity(CordaX500Name(organisation = "Alice", locality = "TestLand", country = "US"))
+        bob = TestIdentity(CordaX500Name(organisation = "Bob", locality = "TestCity", country = "US"))
+        miniCorp = TestIdentity(CordaX500Name(organisation = "MiniCorp", locality = "MiniLand", country = "US"))
+        megaCorp = TestIdentity(CordaX500Name(organisation = "MegaCorp", locality = "MegaLand", country = "US"))
+    }
+
+    @After
+    fun tearDown() {
+    }
+    
     /**
      * Task 1.
      * TODO: Add an 'amount' property of type [Amount] to the [IOUState] class to get this test to pass.
@@ -87,8 +111,8 @@ class IOUStateTests {
      */
     @Test
     fun lenderIsParticipant() {
-        val iouState = IOUState(1.POUNDS, ALICE, BOB)
-        assertNotEquals(iouState.participants.indexOf(ALICE), -1)
+        val iouState = IOUState(1.POUNDS, alice.party, bob.party)
+        assertNotEquals(iouState.participants.indexOf(alice.party), -1)
     }
 
     /**
@@ -97,8 +121,8 @@ class IOUStateTests {
      */
     @Test
     fun borrowerIsParticipant() {
-        val iouState = IOUState(1.POUNDS, ALICE, BOB)
-        assertNotEquals(iouState.participants.indexOf(BOB), -1)
+        val iouState = IOUState(1.POUNDS, alice.party, bob.party)
+        assertNotEquals(iouState.participants.indexOf(bob.party), -1)
     }
 
     /**
@@ -152,32 +176,6 @@ class IOUStateTests {
     }
 
     /**
-     * Task 10.
-     * TODO: Override the toString() method for the [IOUState]. See unit test body for specifics of the format.
-     * Hint: You can use string interpolation in Kotlin to easily create strings using previously declared variables.
-     * For example:
-     *
-     *     val str: String = "World"
-     *     println("Hello $str")
-     *
-     * More information: https://kotlinlang.org/docs/reference/basic-types.html#string-templates
-     *
-     * Methods are defined as "fun foo(param: ParamType): ReturnType { }" in Kotlin or if the body is a single
-     * expression, you can use "fun foo(param: ParamType): ReturnType = expression"
-     *
-     * More information: https://kotlinlang.org/docs/reference/functions.html#function-declarations
-     *
-     * The name string name of a party can be obtained from the following property [Party.name].
-     */
-    @Test
-    fun checkIOUStateToStringMethod() {
-        val iouStateAliceBob = IOUState(1.POUNDS, ALICE, BOB)
-        val iouStateMiniMega = IOUState(2.DOLLARS, MINI_CORP, MEGA_CORP)
-        assertEquals(iouStateAliceBob.toString(), "IOU(${iouStateAliceBob.linearId}): C=IT,L=Rome,O=Bob Plc owes C=ES,L=Madrid,O=Alice Corp 1.00 GBP and has paid 0.00 GBP so far.")
-        assertEquals(iouStateMiniMega.toString(), "IOU(${iouStateMiniMega.linearId}): C=GB,L=London,O=MegaCorp owes C=GB,L=London,O=MiniCorp 2.00 USD and has paid 0.00 USD so far.")
-    }
-
-    /**
      * Task 11.
      * TODO: Add a helper method called [pay] that can be called from an [IOUState] to settle an amount of the IOU.
      * Hint: You will need to increase the [IOUState.paid] property by the amount the borrower wishes to pay.
@@ -186,7 +184,7 @@ class IOUStateTests {
      */
     @Test
     fun checkPayHelperMethod() {
-        val iou = IOUState(10.DOLLARS, ALICE, BOB)
+        val iou = IOUState(10.DOLLARS, alice.party, bob.party)
         assertEquals(5.DOLLARS, iou.pay(5.DOLLARS).paid)
         assertEquals(3.DOLLARS, iou.pay(1.DOLLARS).pay(2.DOLLARS).paid)
         assertEquals(10.DOLLARS, iou.pay(5.DOLLARS).pay(3.DOLLARS).pay(2.DOLLARS).paid)
@@ -198,8 +196,8 @@ class IOUStateTests {
      */
     @Test
     fun checkWithNewLenderHelperMethod() {
-        val iou = IOUState(10.DOLLARS, ALICE, BOB)
-        assertEquals(MINI_CORP, iou.withNewLender(MINI_CORP).lender)
-        assertEquals(MEGA_CORP, iou.withNewLender(MEGA_CORP).lender)
+        val iou = IOUState(10.DOLLARS, alice.party, bob.party)
+        assertEquals(miniCorp.party, iou.withNewLender(miniCorp.party).lender)
+        assertEquals(megaCorp.party, iou.withNewLender(megaCorp.party).lender)
     }
 }

@@ -1,16 +1,12 @@
 package net.corda.training.state
 
 import net.corda.core.contracts.*
-import net.corda.core.identity.CordaX500Name
 import net.corda.core.identity.Party
 import net.corda.finance.*
-import net.corda.node.internal.StartedNode
-import net.corda.testing.*
-import net.corda.testing.node.MockNetwork
-import net.corda.testing.node.MockNodeParameters
-import net.corda.testing.node.MockServices
-import org.junit.After
-import org.junit.Before
+import net.corda.training.ALICE
+import net.corda.training.BOB
+import net.corda.training.MEGACORP
+import net.corda.training.MINICORP
 import org.junit.Test
 import java.util.*
 import kotlin.test.assertEquals
@@ -28,23 +24,7 @@ import kotlin.test.assertNotEquals
  * Hint: CMD / Ctrl + click on the brown type names in square brackets for that type's definition in the codebase.
  */
 class IOUStateTests {
-    lateinit var alice: TestIdentity
-    lateinit var bob: TestIdentity
-    lateinit var miniCorp: TestIdentity
-    lateinit var megaCorp: TestIdentity
 
-    @Before
-    fun setup() {
-        alice = TestIdentity(CordaX500Name(organisation = "Alice", locality = "TestLand", country = "US"))
-        bob = TestIdentity(CordaX500Name(organisation = "Bob", locality = "TestCity", country = "US"))
-        miniCorp = TestIdentity(CordaX500Name(organisation = "MiniCorp", locality = "MiniLand", country = "US"))
-        megaCorp = TestIdentity(CordaX500Name(organisation = "MegaCorp", locality = "MegaLand", country = "US"))
-    }
-
-    @After
-    fun tearDown() {
-    }
-    
     /**
      * Task 1.
      * TODO: Add an 'amount' property of type [Amount] to the [IOUState] class to get this test to pass.
@@ -111,8 +91,8 @@ class IOUStateTests {
      */
     @Test
     fun lenderIsParticipant() {
-        val iouState = IOUState(1.POUNDS, alice.party, bob.party)
-        assertNotEquals(iouState.participants.indexOf(alice.party), -1)
+        val iouState = IOUState(1.POUNDS, ALICE.party, BOB.party)
+        assertNotEquals(iouState.participants.indexOf(ALICE.party), -1)
     }
 
     /**
@@ -121,8 +101,8 @@ class IOUStateTests {
      */
     @Test
     fun borrowerIsParticipant() {
-        val iouState = IOUState(1.POUNDS, alice.party, bob.party)
-        assertNotEquals(iouState.participants.indexOf(bob.party), -1)
+        val iouState = IOUState(1.POUNDS, ALICE.party, BOB.party)
+        assertNotEquals(iouState.participants.indexOf(BOB.party), -1)
     }
 
     /**
@@ -184,7 +164,7 @@ class IOUStateTests {
      */
     @Test
     fun checkPayHelperMethod() {
-        val iou = IOUState(10.DOLLARS, alice.party, bob.party)
+        val iou = IOUState(10.DOLLARS, ALICE.party, BOB.party)
         assertEquals(5.DOLLARS, iou.pay(5.DOLLARS).paid)
         assertEquals(3.DOLLARS, iou.pay(1.DOLLARS).pay(2.DOLLARS).paid)
         assertEquals(10.DOLLARS, iou.pay(5.DOLLARS).pay(3.DOLLARS).pay(2.DOLLARS).paid)
@@ -196,8 +176,8 @@ class IOUStateTests {
      */
     @Test
     fun checkWithNewLenderHelperMethod() {
-        val iou = IOUState(10.DOLLARS, alice.party, bob.party)
-        assertEquals(miniCorp.party, iou.withNewLender(miniCorp.party).lender)
-        assertEquals(megaCorp.party, iou.withNewLender(megaCorp.party).lender)
+        val iou = IOUState(10.DOLLARS, ALICE.party, BOB.party)
+        assertEquals(MINICORP.party, iou.withNewLender(MINICORP.party).lender)
+        assertEquals(MEGACORP.party, iou.withNewLender(MEGACORP.party).lender)
     }
 }

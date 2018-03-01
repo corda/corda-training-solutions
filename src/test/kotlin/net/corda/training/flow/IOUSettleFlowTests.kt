@@ -5,8 +5,6 @@ import net.corda.core.identity.CordaX500Name
 import net.corda.core.transactions.SignedTransaction
 import net.corda.finance.*
 import net.corda.finance.contracts.asset.Cash
-import net.corda.node.internal.StartedNode
-import net.corda.testing.chooseIdentity
 import net.corda.testing.node.MockNetwork
 import net.corda.training.contract.IOUContract
 import net.corda.training.state.IOUState
@@ -15,8 +13,11 @@ import net.corda.core.internal.packageName
 import net.corda.core.utilities.getOrThrow
 import net.corda.finance.schemas.CashSchemaV1
 import net.corda.finance.utils.sumCash
+import net.corda.testing.core.chooseIdentity
+import net.corda.testing.node.MockNetworkNotarySpec
 import net.corda.testing.node.MockNodeParameters
 import net.corda.testing.node.MockServices
+import net.corda.testing.node.StartedMockNode
 import net.corda.testing.node.startFlow
 import org.junit.*
 import java.util.*
@@ -30,15 +31,15 @@ import kotlin.test.assertFailsWith
 class IOUSettleFlowTests {
     lateinit var ledgerServices: MockServices
     lateinit var mockNetwork: MockNetwork
-    lateinit var a: StartedNode<MockNetwork.MockNode>
-    lateinit var b: StartedNode<MockNetwork.MockNode>
-    lateinit var c: StartedNode<MockNetwork.MockNode>
+    lateinit var a: StartedMockNode
+    lateinit var b: StartedMockNode
+    lateinit var c: StartedMockNode
 
     @Before
     fun setup() {
         ledgerServices = MockServices(listOf("net.corda.training"))
         mockNetwork = MockNetwork(listOf("net.corda.training", "net.corda.finance.contracts.asset", CashSchemaV1::class.packageName),
-                notarySpecs = listOf(MockNetwork.NotarySpec(CordaX500Name("Notary","London","GB"))))
+                notarySpecs = listOf(MockNetworkNotarySpec(CordaX500Name("Notary","London","GB"))))
         a = mockNetwork.createNode(MockNodeParameters())
         b = mockNetwork.createNode(MockNodeParameters())
         c = mockNetwork.createNode(MockNodeParameters())
@@ -59,7 +60,7 @@ class IOUSettleFlowTests {
      */
     private fun issueIou(iou: IOUState): SignedTransaction {
         val flow = IOUIssueFlow(iou)
-        val future = a.services.startFlow(flow).resultFuture
+        val future = a.services.startFlow(flow)
         mockNetwork.runNetwork()
         return future.getOrThrow()
     }
@@ -69,7 +70,7 @@ class IOUSettleFlowTests {
      */
     private fun issueCash(amount: Amount<Currency>): Cash.State {
         val flow = SelfIssueCashFlow(amount)
-        val future = a.services.startFlow(flow).resultFuture
+        val future = a.services.startFlow(flow)
         mockNetwork.runNetwork()
         return future.getOrThrow()
     }
@@ -94,12 +95,12 @@ class IOUSettleFlowTests {
         issueCash(5.POUNDS)
         val inputIou = stx.tx.outputs.single().data as IOUState
         val flow = IOUSettleFlow(inputIou.linearId, 5.POUNDS)
-        val future = a.services.startFlow(flow).resultFuture
+        val future = a.services.startFlow(flow)
         mockNetwork.runNetwork()
         val settleResult = future.getOrThrow()
         // Check the transaction is well formed...
         // One output IOUState, one input IOUState reference, input and output cash
-        a.database.transaction {
+        a.transaction {
             val ledgerTx = settleResult.toLedgerTransaction(a.services, false)
             assert(ledgerTx.inputs.size == 2)
             assert(ledgerTx.outputs.size == 2)
@@ -139,7 +140,7 @@ class IOUSettleFlowTests {
         issueCash(5.POUNDS)
         val inputIou = stx.tx.outputs.single().data as IOUState
         val flow = IOUSettleFlow(inputIou.linearId, 5.POUNDS)
-        val future = b.services.startFlow(flow).resultFuture
+        val future = b.services.startFlow(flow)
         mockNetwork.runNetwork()
         assertFailsWith<IllegalArgumentException> { future.getOrThrow() }
     }
@@ -157,7 +158,7 @@ class IOUSettleFlowTests {
         val stx = issueIou(IOUState(10.POUNDS, b.info.chooseIdentity(), a.info.chooseIdentity()))
         val inputIou = stx.tx.outputs.single().data as IOUState
         val flow = IOUSettleFlow(inputIou.linearId, 5.POUNDS)
-        val future = a.services.startFlow(flow).resultFuture
+        val future = a.services.startFlow(flow)
         mockNetwork.runNetwork()
         assertFailsWith<IllegalArgumentException>("Borrower has no GBP to settle.") { future.getOrThrow() }
     }
@@ -174,7 +175,7 @@ class IOUSettleFlowTests {
         issueCash(1.POUNDS)
         val inputIou = stx.tx.outputs.single().data as IOUState
         val flow = IOUSettleFlow(inputIou.linearId, 5.POUNDS)
-        val future = a.services.startFlow(flow).resultFuture
+        val future = a.services.startFlow(flow)
         mockNetwork.runNetwork()
         assertFailsWith<IllegalArgumentException>("Borrower has only 1.00 GBP but needs 5.00 GBP to settle.") { future.getOrThrow() }
     }
@@ -190,7 +191,7 @@ class IOUSettleFlowTests {
         issueCash(5.POUNDS)
         val inputIou = stx.tx.outputs.single().data as IOUState
         val flow = IOUSettleFlow(inputIou.linearId, 5.POUNDS)
-        val future = a.services.startFlow(flow).resultFuture
+        val future = a.services.startFlow(flow)
         mockNetwork.runNetwork()
         val settleResult = future.getOrThrow()
         // Check the transaction is well formed...
@@ -209,7 +210,7 @@ class IOUSettleFlowTests {
         issueCash(5.POUNDS)
         val inputIou = stx.tx.outputs.single().data as IOUState
         val flow = IOUSettleFlow(inputIou.linearId, 5.POUNDS)
-        val future = a.services.startFlow(flow).resultFuture
+        val future = a.services.startFlow(flow)
         mockNetwork.runNetwork()
         val settleResult = future.getOrThrow()
         // Check the transaction is well formed...

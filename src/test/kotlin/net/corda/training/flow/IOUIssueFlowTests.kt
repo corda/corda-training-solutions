@@ -7,9 +7,8 @@ import net.corda.core.identity.CordaX500Name
 import net.corda.core.transactions.SignedTransaction
 import net.corda.core.utilities.getOrThrow
 import net.corda.finance.*
-import net.corda.node.internal.StartedNode
+import net.corda.testing.core.chooseIdentity
 import net.corda.testing.node.*
-import net.corda.testing.chooseIdentity
 import net.corda.training.contract.IOUContract
 import net.corda.training.state.IOUState
 import org.junit.*
@@ -23,14 +22,14 @@ import kotlin.test.assertFailsWith
 class IOUIssueFlowTests {
     lateinit var ledgerServices: MockServices
     lateinit var mockNetwork: MockNetwork
-    lateinit var a: StartedNode<MockNetwork.MockNode>
-    lateinit var b: StartedNode<MockNetwork.MockNode>
+    lateinit var a: StartedMockNode
+    lateinit var b: StartedMockNode
 
     @Before
     fun setup() {
         ledgerServices = MockServices(listOf("net.corda.training"))
         mockNetwork = MockNetwork(listOf("net.corda.training"),
-                notarySpecs = listOf(MockNetwork.NotarySpec(CordaX500Name("Notary","London","GB"))))
+                notarySpecs = listOf(MockNetworkNotarySpec(CordaX500Name("Notary","London","GB"))))
         a = mockNetwork.createNode(MockNodeParameters())
         b = mockNetwork.createNode(MockNodeParameters())
         val startedNodes = arrayListOf(a, b)
@@ -67,7 +66,7 @@ class IOUIssueFlowTests {
         val borrower = b.info.chooseIdentity()
         val iou = IOUState(10.POUNDS, lender, borrower)
         val flow = IOUIssueFlow(iou)
-        val future = a.services.startFlow(flow).resultFuture
+        val future = a.services.startFlow(flow)
         mockNetwork.runNetwork()
         // Return the unsigned(!) SignedTransaction object from the IOUIssueFlow.
         val ptx: SignedTransaction = future.getOrThrow()
@@ -95,17 +94,17 @@ class IOUIssueFlowTests {
         val lender = a.info.chooseIdentity()
         val borrower = b.info.chooseIdentity()
         val zeroIou = IOUState(0.POUNDS, lender, borrower)
-        val futureOne = a.services.startFlow(IOUIssueFlow(zeroIou)).resultFuture
+        val futureOne = a.services.startFlow(IOUIssueFlow(zeroIou))
         mockNetwork.runNetwork()
         assertFailsWith<TransactionVerificationException> { futureOne.getOrThrow() }
         // Check that an IOU with the same participants fails.
         val borrowerIsLenderIou = IOUState(10.POUNDS, lender, lender)
-        val futureTwo = a.services.startFlow(IOUIssueFlow(borrowerIsLenderIou)).resultFuture
+        val futureTwo = a.services.startFlow(IOUIssueFlow(borrowerIsLenderIou))
         mockNetwork.runNetwork()
         assertFailsWith<TransactionVerificationException> { futureTwo.getOrThrow() }
         // Check a good IOU passes.
         val iou = IOUState(10.POUNDS, lender, borrower)
-        val futureThree = a.services.startFlow(IOUIssueFlow(iou)).resultFuture
+        val futureThree = a.services.startFlow(IOUIssueFlow(iou))
         mockNetwork.runNetwork()
         futureThree.getOrThrow()
     }
@@ -140,7 +139,7 @@ class IOUIssueFlowTests {
         val borrower = b.info.chooseIdentity()
         val iou = IOUState(10.POUNDS, lender, borrower)
         val flow = IOUIssueFlow(iou)
-        val future = a.services.startFlow(flow).resultFuture
+        val future = a.services.startFlow(flow)
         mockNetwork.runNetwork()
         val stx = future.getOrThrow()
         stx.verifyRequiredSignatures()
@@ -164,7 +163,7 @@ class IOUIssueFlowTests {
         val borrower = b.info.chooseIdentity()
         val iou = IOUState(10.POUNDS, lender, borrower)
         val flow = IOUIssueFlow(iou)
-        val future = a.services.startFlow(flow).resultFuture
+        val future = a.services.startFlow(flow)
         mockNetwork.runNetwork()
         val stx = future.getOrThrow()
         println("Signed transaction hash: ${stx.id}")

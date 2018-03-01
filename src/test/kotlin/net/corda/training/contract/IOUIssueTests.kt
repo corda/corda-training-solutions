@@ -1,15 +1,14 @@
 package net.corda.training.contract
 
 import net.corda.core.contracts.*
-import net.corda.core.identity.CordaX500Name
 import net.corda.finance.*
-import net.corda.node.internal.StartedNode
-import net.corda.testing.*
 import net.corda.testing.contracts.DummyState
-import net.corda.testing.node.MockNetwork
-import net.corda.testing.node.MockNodeParameters
 import net.corda.testing.node.MockServices
 import net.corda.testing.node.ledger
+import net.corda.training.ALICE
+import net.corda.training.BOB
+import net.corda.training.DUMMY
+import net.corda.training.MINICORP
 import net.corda.training.state.IOUState
 import org.junit.*
 
@@ -22,34 +21,7 @@ import org.junit.*
 class IOUIssueTests {
     // A pre-defined dummy command.
     class DummyCommand : TypeOnlyCommandData()
-    lateinit var ledgerServices: MockServices
-    lateinit var mockNetwork: MockNetwork
-    lateinit var a: StartedNode<MockNetwork.MockNode>
-    lateinit var b: StartedNode<MockNetwork.MockNode>
-    lateinit var alice: TestIdentity
-    lateinit var bob: TestIdentity
-    lateinit var miniCorp: TestIdentity
-    lateinit var dummy: TestIdentity
-
-    @Before
-    fun setup() {
-        ledgerServices = MockServices(listOf("net.corda.training"))
-        mockNetwork = MockNetwork(listOf("net.corda.training"),
-                notarySpecs = listOf(MockNetwork.NotarySpec(CordaX500Name("Notary","London","GB"))))
-        a = mockNetwork.createNode(MockNodeParameters())
-        b = mockNetwork.createNode(MockNodeParameters())
-        mockNetwork.runNetwork()
-        alice = TestIdentity(CordaX500Name(organisation = "Alice", locality = "TestLand", country = "US"))
-        bob = TestIdentity(CordaX500Name(organisation = "Bob", locality = "TestCity", country = "US"))
-        miniCorp = TestIdentity(CordaX500Name(organisation = "MiniCorp", locality = "MiniLand", country = "US"))
-        dummy = TestIdentity(CordaX500Name(organisation = "Dummy", locality = "FakeLand", country = "US"))
-    }
-
-    @After
-    fun tearDown() {
-        mockNetwork.stopNodes()
-    }
-
+    private var ledgerServices = MockServices(listOf("net.corda.training"))
 
     /**
      * Task 1.
@@ -77,16 +49,16 @@ class IOUIssueTests {
      */
     @Test
     fun mustIncludeIssueCommand() {
-        val iou = IOUState(1.POUNDS, alice.party, bob.party)
+        val iou = IOUState(1.POUNDS, ALICE.party, BOB.party)
         ledgerServices.ledger {
             transaction {
                 output(IOUContract.IOU_CONTRACT_ID,  iou)
-                command(listOf(alice.publicKey, bob.publicKey), DummyCommand()) // Wrong type.
+                command(listOf(ALICE.publicKey, BOB.publicKey), DummyCommand()) // Wrong type.
                 this.fails()
             }
             transaction {
                 output(IOUContract.IOU_CONTRACT_ID, iou)
-                command(listOf(alice.publicKey, bob.publicKey), IOUContract.Commands.Issue()) // Correct type.
+                command(listOf(ALICE.publicKey, BOB.publicKey), IOUContract.Commands.Issue()) // Correct type.
                 this.verifies()
             }
         }
@@ -112,17 +84,17 @@ class IOUIssueTests {
      */
     @Test
     fun issueTransactionMustHaveNoInputs() {
-        val iou = IOUState(1.POUNDS, alice.party, bob.party)
+        val iou = IOUState(1.POUNDS, ALICE.party, BOB.party)
         ledgerServices.ledger {
             transaction {
                 input(IOUContract.IOU_CONTRACT_ID, DummyState())
-                command(listOf(alice.publicKey, bob.publicKey), IOUContract.Commands.Issue())
+                command(listOf(ALICE.publicKey, BOB.publicKey), IOUContract.Commands.Issue())
                 output(IOUContract.IOU_CONTRACT_ID, iou)
                 this `fails with` "No inputs should be consumed when issuing an IOU."
             }
             transaction {
                 output(IOUContract.IOU_CONTRACT_ID, iou)
-                command(listOf(alice.publicKey, bob.publicKey), IOUContract.Commands.Issue())
+                command(listOf(ALICE.publicKey, BOB.publicKey), IOUContract.Commands.Issue())
                 this.verifies() // As there are no input states.
             }
         }
@@ -137,16 +109,16 @@ class IOUIssueTests {
      */
     @Test
     fun issueTransactionMustHaveOneOutput() {
-        val iou = IOUState(1.POUNDS, alice.party, bob.party)
+        val iou = IOUState(1.POUNDS, ALICE.party, BOB.party)
         ledgerServices.ledger {
             transaction {
-                command(listOf(alice.publicKey, bob.publicKey), IOUContract.Commands.Issue())
+                command(listOf(ALICE.publicKey, BOB.publicKey), IOUContract.Commands.Issue())
                 output(IOUContract.IOU_CONTRACT_ID, iou) // Two outputs fails.
                 output(IOUContract.IOU_CONTRACT_ID, iou)
                 this `fails with` "Only one output state should be created when issuing an IOU."
             }
             transaction {
-                command(listOf(alice.publicKey, bob.publicKey), IOUContract.Commands.Issue())
+                command(listOf(ALICE.publicKey, BOB.publicKey), IOUContract.Commands.Issue())
                 output(IOUContract.IOU_CONTRACT_ID, iou) // One output passes.
                 this.verifies()
             }
@@ -176,23 +148,23 @@ class IOUIssueTests {
     fun cannotCreateZeroValueIOUs() {
         ledgerServices.ledger {
             transaction {
-                command(listOf(alice.publicKey, bob.publicKey), IOUContract.Commands.Issue())
-                output(IOUContract.IOU_CONTRACT_ID, IOUState(0.POUNDS, alice.party, bob.party)) // Zero amount fails.
+                command(listOf(ALICE.publicKey, BOB.publicKey), IOUContract.Commands.Issue())
+                output(IOUContract.IOU_CONTRACT_ID, IOUState(0.POUNDS, ALICE.party, BOB.party)) // Zero amount fails.
                 this `fails with` "A newly issued IOU must have a positive amount."
             }
             transaction {
-                command(listOf(alice.publicKey, bob.publicKey), IOUContract.Commands.Issue())
-                output(IOUContract.IOU_CONTRACT_ID, IOUState(100.SWISS_FRANCS, alice.party, bob.party))
+                command(listOf(ALICE.publicKey, BOB.publicKey), IOUContract.Commands.Issue())
+                output(IOUContract.IOU_CONTRACT_ID, IOUState(100.SWISS_FRANCS, ALICE.party, BOB.party))
                 this.verifies()
             }
             transaction {
-                command(listOf(alice.publicKey, bob.publicKey), IOUContract.Commands.Issue())
-                output(IOUContract.IOU_CONTRACT_ID, IOUState(1.POUNDS, alice.party, bob.party))
+                command(listOf(ALICE.publicKey, BOB.publicKey), IOUContract.Commands.Issue())
+                output(IOUContract.IOU_CONTRACT_ID, IOUState(1.POUNDS, ALICE.party, BOB.party))
                 this.verifies()
             }
             transaction {
-                command(listOf(alice.publicKey, bob.publicKey), IOUContract.Commands.Issue())
-                output(IOUContract.IOU_CONTRACT_ID, IOUState(10.DOLLARS, alice.party, bob.party))
+                command(listOf(ALICE.publicKey, BOB.publicKey), IOUContract.Commands.Issue())
+                output(IOUContract.IOU_CONTRACT_ID, IOUState(10.DOLLARS, ALICE.party, BOB.party))
                 this.verifies()
             }
         }
@@ -213,40 +185,40 @@ class IOUIssueTests {
      */
     @Test
     fun lenderAndBorrowerMustSignIssueTransaction() {
-        val iou = IOUState(1.POUNDS, alice.party, bob.party)
+        val iou = IOUState(1.POUNDS, ALICE.party, BOB.party)
         ledgerServices.ledger {
             transaction {
-                command(dummy.publicKey, IOUContract.Commands.Issue())
+                command(DUMMY.publicKey, IOUContract.Commands.Issue())
                 output(IOUContract.IOU_CONTRACT_ID, iou)
                 this `fails with` "Both lender and borrower together only may sign IOU issue transaction."
             }
             transaction {
-                command(alice.publicKey, IOUContract.Commands.Issue())
+                command(ALICE.publicKey, IOUContract.Commands.Issue())
                 output(IOUContract.IOU_CONTRACT_ID, iou)
                 this `fails with` "Both lender and borrower together only may sign IOU issue transaction."
             }
             transaction {
-                command(bob.publicKey, IOUContract.Commands.Issue())
+                command(BOB.publicKey, IOUContract.Commands.Issue())
                 output(IOUContract.IOU_CONTRACT_ID, iou)
                 this `fails with` "Both lender and borrower together only may sign IOU issue transaction."
             }
             transaction {
-                command(listOf(bob.publicKey, bob.publicKey, bob.publicKey), IOUContract.Commands.Issue())
+                command(listOf(BOB.publicKey, BOB.publicKey, BOB.publicKey), IOUContract.Commands.Issue())
                 output(IOUContract.IOU_CONTRACT_ID, iou)
                 this `fails with` "Both lender and borrower together only may sign IOU issue transaction."
             }
             transaction {
-                command(listOf(bob.publicKey, bob.publicKey, miniCorp.publicKey, alice.publicKey), IOUContract.Commands.Issue())
+                command(listOf(BOB.publicKey, BOB.publicKey, MINICORP.publicKey, ALICE.publicKey), IOUContract.Commands.Issue())
                 output(IOUContract.IOU_CONTRACT_ID, iou)
                 this `fails with` "Both lender and borrower together only may sign IOU issue transaction."
             }
             transaction {
-                command(listOf(bob.publicKey, bob.publicKey, bob.publicKey, alice.publicKey), IOUContract.Commands.Issue())
+                command(listOf(BOB.publicKey, BOB.publicKey, BOB.publicKey, ALICE.publicKey), IOUContract.Commands.Issue())
                 output(IOUContract.IOU_CONTRACT_ID, iou)
                 this.verifies()
             }
             transaction {
-                command(listOf(alice.publicKey, bob.publicKey),IOUContract.Commands.Issue())
+                command(listOf(ALICE.publicKey, BOB.publicKey),IOUContract.Commands.Issue())
                 output(IOUContract.IOU_CONTRACT_ID, iou)
                 this.verifies()
             }
@@ -263,16 +235,16 @@ class IOUIssueTests {
      */
     @Test
     fun lenderAndBorrowerCannotBeTheSame() {
-        val iou = IOUState(1.POUNDS, alice.party, bob.party)
-        val borrowerIsLenderIou = IOUState(10.POUNDS, alice.party, alice.party)
+        val iou = IOUState(1.POUNDS, ALICE.party, BOB.party)
+        val borrowerIsLenderIou = IOUState(10.POUNDS, ALICE.party, ALICE.party)
         ledgerServices.ledger {
             transaction {
-                command(listOf(alice.publicKey, bob.publicKey),IOUContract.Commands.Issue())
+                command(listOf(ALICE.publicKey, BOB.publicKey),IOUContract.Commands.Issue())
                 output(IOUContract.IOU_CONTRACT_ID, borrowerIsLenderIou)
                 this `fails with` "The lender and borrower cannot have the same identity."
             }
             transaction {
-                command(listOf(alice.publicKey, bob.publicKey), IOUContract.Commands.Issue())
+                command(listOf(ALICE.publicKey, BOB.publicKey), IOUContract.Commands.Issue())
                 output(IOUContract.IOU_CONTRACT_ID, iou)
                 this.verifies()
             }

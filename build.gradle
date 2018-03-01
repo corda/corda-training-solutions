@@ -1,7 +1,7 @@
 buildscript {
-    ext.corda_release_version = 'R3.CORDA-3.0.0-DEV-PREVIEW-2'
-    ext.corda_release_distribution = 'com.r3.corda'
-    ext.corda_gradle_plugins_version = '3.0.3'
+    ext.corda_release_version = 'corda-3.0-RC01'
+    ext.corda_release_distribution = 'net.corda'
+    ext.corda_gradle_plugins_version = '3.0.8'
     ext.kotlin_version = '1.1.60'
     ext.junit_version = '4.12'
     ext.quasar_version = '0.7.9'
@@ -11,13 +11,7 @@ buildscript {
         mavenLocal()
         mavenCentral()
         jcenter()
-        maven {
-            credentials {
-                username "$artifactoryUser"
-                password "$artifactoryPassword"
-            }
-            url 'https://ci-artifactory.corda.r3cev.com/artifactory/r3-corda-releases'
-        }
+        maven { url 'https://ci-artifactory.corda.r3cev.com/artifactory/corda-releases' }
     }
 
     dependencies {
@@ -35,13 +29,8 @@ repositories {
     mavenCentral()
     maven { url 'https://dl.bintray.com/kotlin/exposed' }
     maven { url 'https://jitpack.io' }
-    maven {
-        credentials {
-            username "$artifactoryUser"
-            password "$artifactoryPassword"
-        }
-        url 'https://ci-artifactory.corda.r3cev.com/artifactory/r3-corda-releases'
-    }
+    maven { url 'https://ci-artifactory.corda.r3cev.com/artifactory/corda-releases' }
+
 }
 
 apply plugin: 'kotlin'
@@ -107,37 +96,51 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
 task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
     delete "./build/nodes"
     directory "./build/nodes"
+
     node {
-        name "O=Network Map Service,L=London,C=GB"
+        name "O=Notary,L=London,C=GB"
         notary = [validating: true]
         p2pPort 10002
-        rpcPort 10003
         cordapps = ["$corda_release_distribution:corda-finance:$corda_release_version"]
     }
     node {
         name "O=ParticipantA,L=London,C=GB"
         p2pPort 10005
-        rpcPort 10006
         webPort 10007
         cordapps = ["$corda_release_distribution:corda-finance:$corda_release_version"]
-        rpcUsers = [[ username: "user1", "password": "test", "permissions": ["ALL"]]]
+        rpcSettings {
+            useSsl false
+            standAloneBroker false
+            address "0.0.0.0:10006"
+            adminAddress "0.0.0.0:10016"
+        }
+        rpcUsers = [[ user: "user1", "password": "test", "permissions": ["ALL"]]]
     }
     node {
         name "O=ParticipantB,L=New York,C=US"
         p2pPort 10008
-        rpcPort 10009
         webPort 10010
         cordapps = ["$corda_release_distribution:corda-finance:$corda_release_version"]
-        rpcUsers = [[ username: "user1", "password": "test", "permissions": ["ALL"]]]
+        rpcSettings {
+            useSsl false
+            standAloneBroker false
+            address "0.0.0.0:10009"
+            adminAddress "0.0.0.0:10019"
+        }
+        rpcUsers = [[ user: "user1", "password": "test", "permissions": ["ALL"]]]
     }
     node {
         name "O=ParticipantC,L=New York,C=US"
         p2pPort 10011
-        rpcPort 10012
-        webPort 10013
         webPort 10013
         cordapps = ["$corda_release_distribution:corda-finance:$corda_release_version"]
-        rpcUsers = [[ username: "user1", "password": "test", "permissions": ["ALL"]]]
+        rpcSettings {
+            useSsl false
+            standAloneBroker false
+            address "0.0.0.0:10012"
+            adminAddress "0.0.0.0:10022"
+        }
+        rpcUsers = [[ user: "user1", "password": "test", "permissions": ["ALL"]]]
     }
 }
 

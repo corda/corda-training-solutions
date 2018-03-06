@@ -16,7 +16,6 @@ import net.corda.finance.utils.sumCash
 import net.corda.testing.core.chooseIdentity
 import net.corda.testing.node.MockNetworkNotarySpec
 import net.corda.testing.node.MockNodeParameters
-import net.corda.testing.node.MockServices
 import net.corda.testing.node.StartedMockNode
 import net.corda.testing.node.startFlow
 import org.junit.*
@@ -29,7 +28,6 @@ import kotlin.test.assertFailsWith
  * Uncomment the unit tests and use the hints + unit test body to complete the FLows such that the unit tests pass.
  */
 class IOUSettleFlowTests {
-    lateinit var ledgerServices: MockServices
     lateinit var mockNetwork: MockNetwork
     lateinit var a: StartedMockNode
     lateinit var b: StartedMockNode
@@ -37,7 +35,6 @@ class IOUSettleFlowTests {
 
     @Before
     fun setup() {
-        ledgerServices = MockServices(listOf("net.corda.training"))
         mockNetwork = MockNetwork(listOf("net.corda.training", "net.corda.finance.contracts.asset", CashSchemaV1::class.packageName),
                 notarySpecs = listOf(MockNetworkNotarySpec(CordaX500Name("Notary","London","GB"))))
         a = mockNetwork.createNode(MockNodeParameters())

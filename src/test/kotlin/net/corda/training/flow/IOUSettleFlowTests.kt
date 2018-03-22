@@ -13,11 +13,10 @@ import net.corda.core.internal.packageName
 import net.corda.core.utilities.getOrThrow
 import net.corda.finance.schemas.CashSchemaV1
 import net.corda.finance.utils.sumCash
-import net.corda.testing.core.chooseIdentity
+import net.corda.testing.internal.chooseIdentityAndCert
 import net.corda.testing.node.MockNetworkNotarySpec
 import net.corda.testing.node.MockNodeParameters
 import net.corda.testing.node.StartedMockNode
-import net.corda.testing.node.startFlow
 import org.junit.*
 import java.util.*
 import kotlin.test.assertEquals
@@ -57,7 +56,7 @@ class IOUSettleFlowTests {
      */
     private fun issueIou(iou: IOUState): SignedTransaction {
         val flow = IOUIssueFlow(iou)
-        val future = a.services.startFlow(flow)
+        val future = a.startFlow(flow)
         mockNetwork.runNetwork()
         return future.getOrThrow()
     }
@@ -67,7 +66,7 @@ class IOUSettleFlowTests {
      */
     private fun issueCash(amount: Amount<Currency>): Cash.State {
         val flow = SelfIssueCashFlow(amount)
-        val future = a.services.startFlow(flow)
+        val future = a.startFlow(flow)
         mockNetwork.runNetwork()
         return future.getOrThrow()
     }
@@ -88,11 +87,11 @@ class IOUSettleFlowTests {
      */
     @Test
     fun flowReturnsCorrectlyFormedPartiallySignedTransaction() {
-        val stx = issueIou(IOUState(10.POUNDS, b.info.chooseIdentity(), a.info.chooseIdentity()))
+        val stx = issueIou(IOUState(10.POUNDS, b.info.chooseIdentityAndCert().party, a.info.chooseIdentityAndCert().party))
         issueCash(5.POUNDS)
         val inputIou = stx.tx.outputs.single().data as IOUState
         val flow = IOUSettleFlow(inputIou.linearId, 5.POUNDS)
-        val future = a.services.startFlow(flow)
+        val future = a.startFlow(flow)
         mockNetwork.runNetwork()
         val settleResult = future.getOrThrow()
         // Check the transaction is well formed...
@@ -110,7 +109,7 @@ class IOUSettleFlowTests {
             val outputCashSum = ledgerTx.outputs
                     .map { it.data }
                     .filterIsInstance<Cash.State>()
-                    .filter { it.owner == b.info.chooseIdentity() }
+                    .filter { it.owner == b.info.chooseIdentityAndCert().party }
                     .sumCash()
                     .withoutIssuer()
             // Compare the cash assigned to the lender with the amount claimed is being settled by the borrower.
@@ -120,7 +119,7 @@ class IOUSettleFlowTests {
             val command = ledgerTx.commands.requireSingleCommand<IOUContract.Commands>()
             assert(command.value == IOUContract.Commands.Settle())
             // Check the transaction has been signed by the borrower.
-            settleResult.verifySignaturesExcept(b.info.chooseIdentity().owningKey,
+            settleResult.verifySignaturesExcept(b.info.chooseIdentityAndCert().party.owningKey,
                     mockNetwork.defaultNotaryNode.info.legalIdentitiesAndCerts.first().owningKey)
         }
     }
@@ -133,11 +132,11 @@ class IOUSettleFlowTests {
      */
     @Test
     fun settleFlowCanOnlyBeRunByBorrower() {
-        val stx = issueIou(IOUState(10.POUNDS, b.info.chooseIdentity(), a.info.chooseIdentity()))
+        val stx = issueIou(IOUState(10.POUNDS, b.info.chooseIdentityAndCert().party, a.info.chooseIdentityAndCert().party))
         issueCash(5.POUNDS)
         val inputIou = stx.tx.outputs.single().data as IOUState
         val flow = IOUSettleFlow(inputIou.linearId, 5.POUNDS)
-        val future = b.services.startFlow(flow)
+        val future = b.startFlow(flow)
         mockNetwork.runNetwork()
         assertFailsWith<IllegalArgumentException> { future.getOrThrow() }
     }
@@ -152,10 +151,10 @@ class IOUSettleFlowTests {
      */
     @Test
     fun borrowerMustHaveCashInRightCurrency() {
-        val stx = issueIou(IOUState(10.POUNDS, b.info.chooseIdentity(), a.info.chooseIdentity()))
+        val stx = issueIou(IOUState(10.POUNDS, b.info.chooseIdentityAndCert().party, a.info.chooseIdentityAndCert().party))
         val inputIou = stx.tx.outputs.single().data as IOUState
         val flow = IOUSettleFlow(inputIou.linearId, 5.POUNDS)
-        val future = a.services.startFlow(flow)
+        val future = a.startFlow(flow)
         mockNetwork.runNetwork()
         assertFailsWith<IllegalArgumentException>("Borrower has no GBP to settle.") { future.getOrThrow() }
     }
@@ -168,11 +167,11 @@ class IOUSettleFlowTests {
      */
     @Test
     fun borrowerMustHaveEnoughCashInRightCurrency() {
-        val stx = issueIou(IOUState(10.POUNDS, b.info.chooseIdentity(), a.info.chooseIdentity()))
+        val stx = issueIou(IOUState(10.POUNDS, b.info.chooseIdentityAndCert().party, a.info.chooseIdentityAndCert().party))
         issueCash(1.POUNDS)
         val inputIou = stx.tx.outputs.single().data as IOUState
         val flow = IOUSettleFlow(inputIou.linearId, 5.POUNDS)
-        val future = a.services.startFlow(flow)
+        val future = a.startFlow(flow)
         mockNetwork.runNetwork()
         assertFailsWith<IllegalArgumentException>("Borrower has only 1.00 GBP but needs 5.00 GBP to settle.") { future.getOrThrow() }
     }
@@ -184,11 +183,11 @@ class IOUSettleFlowTests {
      */
     @Test
     fun flowReturnsTransactionSignedByBothParties() {
-        val stx = issueIou(IOUState(10.POUNDS, b.info.chooseIdentity(), a.info.chooseIdentity()))
+        val stx = issueIou(IOUState(10.POUNDS, b.info.chooseIdentityAndCert().party, a.info.chooseIdentityAndCert().party))
         issueCash(5.POUNDS)
         val inputIou = stx.tx.outputs.single().data as IOUState
         val flow = IOUSettleFlow(inputIou.linearId, 5.POUNDS)
-        val future = a.services.startFlow(flow)
+        val future = a.startFlow(flow)
         mockNetwork.runNetwork()
         val settleResult = future.getOrThrow()
         // Check the transaction is well formed...
@@ -203,11 +202,11 @@ class IOUSettleFlowTests {
      */
     @Test
     fun flowReturnsCommittedTransaction() {
-        val stx = issueIou(IOUState(10.POUNDS, b.info.chooseIdentity(), a.info.chooseIdentity()))
+        val stx = issueIou(IOUState(10.POUNDS, b.info.chooseIdentityAndCert().party, a.info.chooseIdentityAndCert().party))
         issueCash(5.POUNDS)
         val inputIou = stx.tx.outputs.single().data as IOUState
         val flow = IOUSettleFlow(inputIou.linearId, 5.POUNDS)
-        val future = a.services.startFlow(flow)
+        val future = a.startFlow(flow)
         mockNetwork.runNetwork()
         val settleResult = future.getOrThrow()
         // Check the transaction is well formed...

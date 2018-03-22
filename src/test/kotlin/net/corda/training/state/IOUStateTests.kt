@@ -69,13 +69,14 @@ class IOUStateTests {
      * Hint:
      * - We would like this property to be initialised to a zero amount of Currency upon creation of the [IOUState].
      * - You can use the [POUNDS] extension function over [Int] to create an amount of pounds e.g. '10.POUNDS'.
-     * - This property keeps track of how much of the initial [IOUState.amount] has been settled by the borrower.
-     * - Extra credit: We need to make sure that the [IOUState.paid] property is of the same currency type as the
-     *   [IOUState.amount] property. You can create an instance of the [Amount] class that takes a zero value and a token
-     *   representing the currency - which should be the same currency as the [IOUState.amount] property.
+     * - This property keeps track of how much of the initial [IOUState.amount] has been settled by the borrower
      * - You can initialise a property with a default value in a Kotlin data class like this:
      *
      *       data class(val number: Int = 10)
+     *
+     * - We need to make sure that the [IOUState.paid] property is of the same currency type as the
+     *   [IOUState.amount] property. You can create an instance of the [Amount] class that takes a zero value and a token
+     *   representing the currency - which should be the same currency as the [IOUState.amount] property.
      */
     @Test
     fun hasPaidFieldOfCorrectType() {
@@ -156,7 +157,7 @@ class IOUStateTests {
     }
 
     /**
-     * Task 11.
+     * Task 10.
      * TODO: Add a helper method called [pay] that can be called from an [IOUState] to settle an amount of the IOU.
      * Hint: You will need to increase the [IOUState.paid] property by the amount the borrower wishes to pay.
      * The existing state is immutable so a new state must be created from the existing state. Kotlin provides a [copy]
@@ -171,7 +172,7 @@ class IOUStateTests {
     }
 
     /**
-     * Task 12.
+     * Task 11.
      * TODO: Add a helper method called [withNewLender] that can be called from an [IOUState] to change the IOU's lender.
      */
     @Test

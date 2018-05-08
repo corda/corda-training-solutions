@@ -24,7 +24,7 @@ angular.module('demoAppModule').controller('SettleModalCtrl', function($http, $u
                 apiBaseURL +
                 `settle-iou?id=${id}&amount=${amount}&currency=${currency}`;
 
-            $http.get(issueIOUEndpoint).then(
+            $http.put(issueIOUEndpoint).then(
                 (result) => settleModal.displayMessage(result),
                 (result) => settleModal.displayMessage(result)
             );

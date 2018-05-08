@@ -24,7 +24,7 @@ angular.module('demoAppModule').controller('TransferModalCtrl', function ($http,
                 apiBaseURL +
                 `transfer-iou?id=${id}&party=${party}`;
 
-            $http.get(issueIOUEndpoint).then(
+            $http.put(issueIOUEndpoint).then(
                 (result) => transferModal.displayMessage(result),
                 (result) => transferModal.displayMessage(result)
             );

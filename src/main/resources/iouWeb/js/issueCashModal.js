@@ -22,7 +22,7 @@ angular.module('demoAppModule').controller('IssueCashModalCtrl', function($http,
                 apiBaseURL +
                 `self-issue-cash?amount=${amount}&currency=${currency}`;
 
-            $http.get(issueCashEndpoint).then(
+            $http.put(issueCashEndpoint).then(
                 (result) => {console.log(result.toString()); issueCashModal.displayMessage(result); },
                 (result) => {console.log(result.toString()); issueCashModal.displayMessage(result); }
             );

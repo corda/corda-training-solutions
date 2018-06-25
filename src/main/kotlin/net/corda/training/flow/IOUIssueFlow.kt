@@ -2,10 +2,8 @@ package net.corda.training.flow
 
 import co.paralleluniverse.fibers.Suspendable
 import net.corda.core.contracts.Command
-import net.corda.core.contracts.StateAndContract
 import net.corda.core.contracts.requireThat
 import net.corda.core.flows.*
-import net.corda.core.identity.Party
 import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
 import net.corda.training.contract.IOUContract
@@ -46,7 +44,11 @@ class IOUIssueFlow(val state: IOUState): FlowLogic<SignedTransaction>() {
         val stx = subFlow(CollectSignaturesFlow(ptx, sessions))
 
         // Step 7. Assuming no exceptions, we can now finalise the transaction.
-        return subFlow(FinalityFlow(stx))
+        subFlow(FinalityFlow(stx))
+
+        sessions.forEach { subFlow(NotificationFlow(it, state)) }
+
+        return stx
     }
 }
 

@@ -33,6 +33,7 @@ class IOUIssueFlowTests {
         val startedNodes = arrayListOf(a, b)
         // For real nodes this happens automatically, but we have to manually register the flow for tests
         startedNodes.forEach { it.registerInitiatedFlow(IOUIssueFlowResponder::class.java) }
+        startedNodes.forEach { it.registerInitiatedFlow(NotificationFlowResponder::class.java) }
         mockNetwork.runNetwork()
     }
 

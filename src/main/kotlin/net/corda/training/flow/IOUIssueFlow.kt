@@ -67,5 +67,6 @@ class IOUIssueFlowResponder(val flowSession: FlowSession): FlowLogic<Unit>() {
             }
         }
         subFlow(signedTransactionFlow)
+        subFlow(NotificationFlowResponder(flowSession))
     }
 }

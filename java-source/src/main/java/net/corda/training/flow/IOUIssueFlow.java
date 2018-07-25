@@ -3,6 +3,7 @@ package net.corda.training.flow;
 import co.paralleluniverse.fibers.Suspendable;
 import net.corda.core.contracts.Command;
 import net.corda.core.contracts.StateAndContract;
+import net.corda.core.contracts.ContractState;
 import java.util.List;
 import net.corda.core.flows.*;
 import net.corda.core.identity.Party;
@@ -13,7 +14,7 @@ import net.corda.training.state.IOUState;
 import java.util.stream.Collectors;
 
 import static net.corda.core.contracts.ContractsDSL.requireThat;
-
+//import static net.corda.training.contract.IOUContract.Commands.*;
 
 /**
  * This is the flow which handles issuance of new IOUs on the ledger.
@@ -26,7 +27,7 @@ public class IOUIssueFlow{
 	@InitiatingFlow
 	@StartableByRPC
 	public static class IssueFlow extends FlowLogic<SignedTransaction> {
-		IOUState state;
+		private final IOUState state;
 
 		public IssueFlow(IOUState state){
 			this.state = state;
@@ -73,8 +74,51 @@ public class IOUIssueFlow{
 		}
 	}
 
-	// @InitiatedBy(Initiator.class)
-	// public static class RespondFlow extends FlowLogic<SignedTransaction>{
+	/**
+	 * This is the flow which signs IOU issuances.
+	 * The signing is handled by the [SignTransactionFlow].
+	 */
+	@InitiatedBy(IssueFlow.class)
+	public static class RespondFlow extends FlowLogic<SignedTransaction>{
+		private final FlowSession flowSession;
 
-	// }
+		public RespondFlow(FlowSession flowSession){
+			this.flowSession = flowSession;
+		}
+
+		@Suspendable
+		@Override
+        public SignedTransaction call() throws FlowException {
+        	class SignTxFlow extends SignTransactionFlow{
+        		private SignTxFlow(FlowSession flowSession){
+        			super(flowSession, null);
+        		}
+
+        		@Override
+        		protected void checkTransaction(SignedTransaction stx){
+        			requireThat(req -> {
+        				ContractState output = stx.getTx().getOutputs().get(0).getData();
+        				req.using("This must be an IOU transaction", output instanceof IOUState);
+        				return null;
+        			});
+        		}
+        	}
+        	return subFlow(new SignTxFlow(flowSession));
+        }
+	}
 }
+
+
+// @InitiatedBy(IOUIssueFlow::class)
+// class IOUIssueFlowResponder(val flowSession: FlowSession): FlowLogic<Unit>() {
+//     @Suspendable
+//     override fun call() {
+//         val signedTransactionFlow = object : SignTransactionFlow(flowSession) {
+//             override fun checkTransaction(stx: SignedTransaction) = requireThat {
+//                 val output = stx.tx.outputs.single().data
+//                 "This must be an IOU transaction" using (output is IOUState)
+//             }
+//         }
+//         subFlow(signedTransactionFlow)
+//     }
+// }

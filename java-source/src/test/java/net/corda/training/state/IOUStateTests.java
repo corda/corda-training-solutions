@@ -3,7 +3,6 @@ package net.corda.training.state;
 import net.corda.core.contracts.*;
 import net.corda.core.identity.Party;
 import net.corda.finance.*;
-import net.corda.finance.Currencies;
 
 import static net.corda.training.TestUtils.*;
 

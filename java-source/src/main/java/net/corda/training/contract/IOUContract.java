@@ -6,6 +6,7 @@ import net.corda.core.identity.AbstractParty;
 import net.corda.core.transactions.LedgerTransaction;
 
 import java.util.stream.Collectors;
+import java.util.HashSet;
 
 import static net.corda.core.contracts.ContractsDSL.requireSingleCommand;
 import static net.corda.core.contracts.ContractsDSL.requireThat;
@@ -45,9 +46,11 @@ public class IOUContract implements Contract {
                 req.using("A newly issued IOU must have a positive amount.", iou.getAmount().getQuantity() > 0);
                 req.using("The lender and borrower cannot have the same identity.", iou.getBorrower() != iou.getLender());
                 req.using("Both lender and borrower together only may sign IOU issue transaction.", 
-                    command.getSigners() == iou.getParticipants()
-                        .stream().map(el -> el.getOwningKey())
-                        .collect(Collectors.toList()));
+                    new HashSet<>(command.getSigners())
+                        .equals(new HashSet<>(iou.getParticipants()
+                            .stream().map(el -> el.getOwningKey())
+                            .collect(Collectors.toList())))
+                    );
                 return null;
             });
 

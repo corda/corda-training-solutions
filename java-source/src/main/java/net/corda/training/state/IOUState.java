@@ -1,13 +1,15 @@
 package net.corda.training.state;
 
 import com.google.common.collect.ImmutableList;
+import java.util.*;
+
 import net.corda.core.contracts.Amount;
 import net.corda.core.contracts.LinearState;
 import net.corda.core.contracts.UniqueIdentifier;
 import net.corda.core.identity.Party;
 import net.corda.core.identity.AbstractParty;
-// import net.corda.training.contract.IOUContract
-import java.util.*;
+
+import net.corda.training.contract.IOUContract;
 
 /**
  * The IOU State object, with the following properties:
@@ -21,14 +23,15 @@ import java.util.*;
  *   except at issuance/termination.
  */
 public class IOUState implements LinearState {
-    public final Amount<Currency> amount;
+    private final Amount<Currency> amount;
     private final Party lender;
     private final Party borrower;
     private final Amount<Currency> paid;
     private final UniqueIdentifier linearId;
 
-    // For updating states 
-    public IOUState(Amount<Currency> amount, Party lender, Party borrower, Amount<Currency> paid, UniqueIdentifier linearId) {
+
+    // Private constructor 
+    private IOUState(Amount<Currency> amount, Party lender, Party borrower, Amount<Currency> paid, UniqueIdentifier linearId) {
         this.amount = amount;
         this.lender = lender;
         this.borrower = borrower;
@@ -36,13 +39,14 @@ public class IOUState implements LinearState {
         this.linearId = linearId;
     }
 
-    // For new states
+    // For new zero-paid states
     public IOUState(Amount<Currency> amount, Party lender, Party borrower) {
-        this.amount = amount;
-        this.lender = lender;
-        this.borrower = borrower;
-        this.paid = new Amount(0, amount.getToken());
-        this.linearId = new UniqueIdentifier();
+        this(amount, lender, borrower, new Amount<>(0, amount.getToken()), new UniqueIdentifier());
+    }
+
+    // For new non-zero-paid states
+    private IOUState(Amount<Currency> amount, Party lender, Party borrower, Amount<Currency> paid){
+        this(amount, lender, borrower, paid, new UniqueIdentifier());
     }
 
     public Amount<Currency> getAmount() {
@@ -62,7 +66,7 @@ public class IOUState implements LinearState {
     }
 
     @Override
-    public List<AbstractParty> getParticipants() {
+    public List<Party> getParticipants() {
         return ImmutableList.of(lender, borrower);
     }
 

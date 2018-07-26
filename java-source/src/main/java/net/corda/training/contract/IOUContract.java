@@ -45,7 +45,9 @@ public class IOUContract implements Contract {
                 req.using("A newly issued IOU must have a positive amount.", iou.getAmount().getQuantity() > 0);
                 req.using("The lender and borrower cannot have the same identity.", iou.getBorrower() != iou.getLender());
                 req.using("Both lender and borrower together only may sign IOU issue transaction.", 
-                    command.getSigners() == iou.getParticipants().stream().map(el -> el.getOwningKey()).collect(Collectors.toList()));
+                    command.getSigners() == iou.getParticipants()
+                        .stream().map(el -> el.getOwningKey())
+                        .collect(Collectors.toList()));
                 return null;
             });
 

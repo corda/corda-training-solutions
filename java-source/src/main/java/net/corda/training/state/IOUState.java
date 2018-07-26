@@ -66,7 +66,7 @@ public class IOUState implements LinearState {
     }
 
     @Override
-    public List<Party> getParticipants() {
+    public List<AbstractParty> getParticipants() {
         return ImmutableList.of(lender, borrower);
     }
 

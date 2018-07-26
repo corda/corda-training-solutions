@@ -1,10 +1,7 @@
 package net.corda.training.contract;
 
 import net.corda.training.state.IOUState;
-import net.corda.core.contracts.CommandData;
-import net.corda.core.contracts.LegalProseReference;
-import net.corda.core.contracts.CommandWithParties;
-import net.corda.core.contracts.Contract;
+import net.corda.core.contracts.*;
 import net.corda.core.identity.AbstractParty;
 import net.corda.core.transactions.LedgerTransaction;
 
@@ -29,9 +26,9 @@ public class IOUContract implements Contract {
 
 
     public interface Commands extends CommandData {
-        class Issue implements Commands{}
-        class Transfer implements Commands{}
-        class Settle implements Commands{}
+        class Issue extends TypeOnlyCommandData implements Commands{}
+        class Transfer extends TypeOnlyCommandData implements Commands{}
+        class Settle extends TypeOnlyCommandData implements Commands{}
     }
 
 
@@ -47,13 +44,14 @@ public class IOUContract implements Contract {
                 IOUState iou = (IOUState)tx.getOutputStates().get(0);
                 req.using("A newly issued IOU must have a positive amount.", iou.getAmount().getQuantity() > 0);
                 req.using("The lender and borrower cannot have the same identity.", iou.getBorrower() != iou.getLender());
-                req.using("Both lender and borrower together only may sign IOU issue transaction.", (command.getSigners() == iou.getParticipants().stream().map(el -> el.getOwningKey()).collect(Collectors.toList())));
+                req.using("Both lender and borrower together only may sign IOU issue transaction.", 
+                    command.getSigners() == iou.getParticipants().stream().map(el -> el.getOwningKey()).collect(Collectors.toList()));
                 return null;
             });
 
         }else if(commandData instanceof Commands.Transfer){
 
-        }else if(commandData instanceof Commands.Transfer){
+        }else if(commandData instanceof Commands.Settle){
 
         }
 

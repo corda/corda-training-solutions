@@ -12,6 +12,7 @@ import net.corda.core.identity.Party;
 import net.corda.core.transactions.SignedTransaction;
 import net.corda.core.transactions.TransactionBuilder;
 import static net.corda.core.contracts.ContractsDSL.requireThat;
+import net.corda.core.utilities.ProgressTracker;
 
 import net.corda.training.contract.IOUContract;
 import net.corda.training.state.IOUState;
@@ -95,23 +96,23 @@ public class IOUIssueFlow{
 
 		@Suspendable
 		@Override
-        public SignedTransaction call() throws FlowException {
-        	class SignTxFlow extends SignTransactionFlow{
-        		
-        		private SignTxFlow(FlowSession flowSession){
-        			super(flowSession, null);
-        		}
+		public SignedTransaction call() throws FlowException {
+			class SignTxFlow extends SignTransactionFlow{
 
-        		@Override
-        		protected void checkTransaction(SignedTransaction stx){
-        			requireThat(req -> {
-        				ContractState output = stx.getTx().getOutputs().get(0).getData();
-        				req.using("This must be an IOU transaction", output instanceof IOUState);
-        				return null;
-        			});
-        		}
-        	}
-        	return subFlow(new SignTxFlow(flowSession));
-        }
+				private SignTxFlow(FlowSession flowSession, ProgressTracker progressTracker){
+					super(flowSession, progressTracker);
+				}
+
+				@Override
+				protected void checkTransaction(SignedTransaction stx){
+					requireThat(req -> {
+						ContractState output = stx.getTx().getOutputs().get(0).getData();
+						req.using("This must be an IOU transaction", output instanceof IOUState);
+						return null;
+					});
+				}
+			}
+			return subFlow(new SignTxFlow(flowSession, SignTransactionFlow.Companion.tracker()));
+		}
 	}
 }

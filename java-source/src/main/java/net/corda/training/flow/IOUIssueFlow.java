@@ -63,13 +63,11 @@ public class IOUIssueFlow{
 
         	
         	// Step 6. Collect the other party's signature using the SignTransactionFlow.
-        	Party ourIdentity = getServiceHub().getMyInfo().getLegalIdentities().get(0);
-        	
         	List<Party> otherParties = state.getParticipants()
         		.stream().map(el -> (Party)el)
         		.collect(Collectors.toList());
 
-       		otherParties.remove(ourIdentity);
+       		otherParties.remove(getOurIdentity());
 
 	        List<FlowSession> sessions = otherParties
 	        	.stream().map(el -> initiateFlow(el))

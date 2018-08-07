@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="NodeDriver" type="Application" factoryName="Application" nameIsGenerated="true">
+  <configuration default="false" name="Java - NodeDriver" type="Application" factoryName="Application">
     <option name="MAIN_CLASS_NAME" value="net.corda.training.NodeDriver" />
     <module name="java-source_test" />
     <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />

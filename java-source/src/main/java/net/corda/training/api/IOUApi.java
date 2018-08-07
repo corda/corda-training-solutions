@@ -144,7 +144,7 @@ public class IOUApi{
         Party lender = Optional.ofNullable(rpcOps.wellKnownPartyFromX500Name(CordaX500Name.parse(party))).orElseThrow(() -> new IllegalArgumentException("Unknown party name."));
         // Create a new IOU state using the parameters given.
         try {
-            IOUState state = new IOUState(new Amount((long)amount * 100, Currency.getInstance(currency)), lender, me);
+            IOUState state = new IOUState(new Amount<>((long)amount * 100, Currency.getInstance(currency)), lender, me);
             // Start the IOUIssueFlow. We block and waits for the flow to return.
             SignedTransaction result = rpcOps.startTrackedFlowDynamic(IOUIssueFlow.InitiatorFlow.class, state).getReturnValue().get();
             // Return the response.

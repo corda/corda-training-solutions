@@ -31,7 +31,7 @@ import java.util.*;
 public class NodeDriver{
     public static void main(String[] args) {
         // No permissions required as we are not invoking flows.
-        final User user = new User("user1", "test", ImmutableSet.of());
+        final User user = new User("user1", "test", ImmutableSet.of("ALL"));
         driver(new DriverParameters()
             .withIsDebug(true)
             .withWaitForAllNodesToFinish(true)

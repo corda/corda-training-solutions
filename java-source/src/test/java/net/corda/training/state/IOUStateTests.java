@@ -68,11 +68,8 @@ public class IOUStateTests {
      * TODO: Add a 'paid' property of type [Amount] to the [IOUState] class to get this test to pass.
      * Hint:
      * - We would like this property to be initialised to a zero amount of Currency upon creation of the [IOUState].
-     * - You can use the [POUNDS] extension function over [Int] to create an amount of pounds e.g. '10.POUNDS'.
+     * - You can use the [POUNDS] function from Currencies to create an amount of pounds e.g. 'Currencies.POUNDS(10)'.
      * - This property keeps track of how much of the initial [IOUState.amount] has been settled by the borrower
-     * - You can initialise a property with a default value in a Kotlin data class like this:
-     *
-     *       data class(val number: Int = 10)
      *
      * - We need to make sure that the [IOUState.paid] property is of the same currency type as the
      *   [IOUState.amount] property. You can create an instance of the [Amount] class that takes a zero value and a token
@@ -89,7 +86,7 @@ public class IOUStateTests {
     /**
      * Task 5.
      * TODO: Include the lender within the [IOUState.participants] list
-     * Hint: [listOf] takes any number of parameters and will add them to the list
+     * Hint: [ImmutableList.of] takes any number of parameters and will add them to the list
      */
     @Test
     public void lenderIsParticipant() {
@@ -109,8 +106,8 @@ public class IOUStateTests {
 
     /**
      * Task 7.
-     * TODO: Implement [LinearState] along with the required properties and methods.
-     * Hint: [LinearState] implements [ContractState] which defines an additional property and method. You can use
+     * TODO: Implement [LinearState] along with the required methods.
+     * Hint: [LinearState] implements [ContractState] which defines an additional method. You can use
      * IntellIJ to automatically add the member definitions for you or you can add them yourself. Look at the definition
      * of [LinearState] for what requires adding.
      */
@@ -121,14 +118,16 @@ public class IOUStateTests {
 
     /**
      * Task 8.
-     * TODO: Override the [LinearState.linearId] property and assign it a value via your state's constructor.
+     * TODO: Override the [LinearState.getLinearId] method and assign it a value via your state's constructor.
      * Hint:
-     * - The [LinearState.linearId] property is of type [UniqueIdentifier]. You need to create a new instance of
+     * - The [linearId] property is of type [UniqueIdentifier]. You need to create a new instance of
      * the [UniqueIdentifier] class.
-     * - The [LinearState.linearId] is designed to link all [LinearState]s (which represent the state of an
-     * agreement at a specific point in time) together. All the [LinearState]s with the same [LinearState.linearId]
-     * represent the complete life-cycle to date of an agreement, asset or shared fact.
-     * - Provide a default value for [linearId] for a new [IOUState]
+     * - The [linearId] is designed to link all [LinearState]s (which represent the state of an
+     * agreement at a specific point in time) together. All the [LinearState]s with the same [linearId]
+     * represent the complete life-cycle to date of an agreement, asset or shared fact. 
+     * - Provide a new constructor that creates an [IOUState] with a new [linearId], as opposed to copying an existing one.
+     * - Note: With two constructors, it must be specified which one is to be used by the serialization engine to generate the class schema.
+     * To accomplish this, add an @ConstructorForDeserialization annotation to the default constructor.
      */
     @Test
     public void hasLinearIdFieldOfCorrectType() throws NoSuchFieldException {
@@ -168,10 +167,9 @@ public class IOUStateTests {
      * Hint:
      * - You will need to increase the [IOUState.paid] property by the amount the borrower wishes to pay.
      * - Add a new function called [pay] in [IOUState]. This function will need to return an [IOUState].
-     * - The existing state is immutable so a new state must be created from the existing state. Kotlin provides a [copy]
-     * method which creates a new object with new values for specified fields.
-     * - [copy] returns a copy of the object instance and the fields can be changed by specifying new values as
-     * parameters to [copy]
+     * - The existing state is immutable, so a new state must be created from the existing state. As this change represents an update 
+     * in the lifecycle of an asset, it should share the same [linearId]. To enforce this distinction between updating vs creating a new state, make the default constructor
+     * private, to be used as a copy constructor.  
      */
     @Test
     public void checkPayHelperMethod() {
@@ -183,7 +181,7 @@ public class IOUStateTests {
 
     /**
      * Task 11.
-     * TODO: Add a helper method called [withNewLender] that can be called from an [IOUState] to change the IOU's lender.
+     * TODO: Add a helper method called [withNewLender] that can be called from an [IOUState] to change the IOU's lender. This will also utilize the copy constructor.
      */
     @Test
     public void checkWithNewLenderHelperMethod() {

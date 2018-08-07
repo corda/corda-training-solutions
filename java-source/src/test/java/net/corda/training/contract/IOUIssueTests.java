@@ -5,8 +5,8 @@ import net.corda.finance.*;
 import net.corda.testing.contracts.DummyState;
 import net.corda.testing.node.MockServices;
 import net.corda.testing.node.*;
-
 import static net.corda.testing.node.NodeTestUtils.ledger;
+
 import static net.corda.training.TestUtils.*;
 import net.corda.training.state.IOUState;
 
@@ -24,7 +24,6 @@ public class IOUIssueTests {
     public interface Commands extends CommandData {
         class DummyCommand extends TypeOnlyCommandData implements Commands{}
     }
-
     
     static private final MockServices ledgerServices = new MockServices(Arrays.asList("net.corda.training"));
 
@@ -36,26 +35,25 @@ public class IOUIssueTests {
      * and Settle.
      * TODO: Add an "Issue" command to the IOUContract and check for the existence of the command in the verify function.
      * Hint:
-     * - For the create command we only care about the existence of it in a transaction, therefore it should subclass
+     * - For the create command we only care about the existence of it in a transaction, therefore it should extend
      *   the [TypeOnlyCommandData] class.
      * - The command should be defined inside [IOUContract].
-     * - You can use the [requireSingleCommand] function on [tx.commands] to check for the existence and type of the specified command
-     *   in the transaction. [requireSingleCommand] requires a generic type to identify the type of command required.
+     * - You can use the [requireSingleCommand] function on [tx.getCommands] to check for the existence and type of the specified command
+     *   in the transaction. [requireSingleCommand] requires a [Class] argument to identify the type of command required.
      *
-     *   requireSingleCommand<REQUIRED_COMMAND>()
+     *   requireSingleCommand(tx.getCommands(), REQUIRED_COMMAND.class)
      *
      * - We usually encapsulate our commands around an interface inside the contract class called [Commands] which
-     *   implements the [CommandData] interface. The [Create] command itself should be defined inside the [Commands]
+     *   extends the [CommandData] interface. The [Create] command itself should be defined inside the [Commands]
      *   interface as well as implement it, for example:
      *
-     *     interface Commands : CommandData {
-     *         class X : TypeOnlyCommandData(), Commands
-     *     }
+     *   public interface Commands extends CommandData {
+     *      class X extends TypeOnlyCommandData implements Commands{}
+     *   }
      *
      * - We can check for the existence of any command that implements [IOUContract.Commands] by using the
-     *   [requireSingleCommand] function which takes a type parameter.
+     *   [requireSingleCommand] function which takes a [Class] argument.
      */
-    // @Test(expected = TransactionVerificationException.ContractRejection.class)
     public void mustIncludeIssueCommand() {
         IOUState iou = new IOUState(Currencies.POUNDS(1), ALICE.getParty(), BOB.getParty());
 
@@ -79,12 +77,14 @@ public class IOUIssueTests {
      * As previously observed, issue transactions should not have any input state references. Therefore we must check to
      * ensure that no input states are included in a transaction to issue an IOU.
      * TODO: Write a contract constraint that ensures a transaction to issue an IOU does not include any input states.
-     * Hint: use a [requireThat] block with a constraint to inside the [IOUContract.verify] function to encapsulate your
+     * Hint: use a [requireThat] lambda with a constraint to inside the [IOUContract.verify] function to encapsulate your
      * constraints:
      *
-     *     requireThat {
-     *         "Message when constraint fails" using (boolean constraint expression)
-     *     }
+     *     requireThat(requirement -> {
+     *          requirement.using("Message when constraint fails", (boolean constraing expression));
+     *          // passes all cases
+     *          return null;
+     *     });
      *
      * Note that the unit tests often expect contract verification failure with a specific message which should be
      * defined with your contract constraints. If not then the unit test will fail!
@@ -144,18 +144,16 @@ public class IOUIssueTests {
      * positive value.
      * TODO: Write a contract constraint that ensures newly issued IOUs always have a positive value.
      * Hint: You will need a number of hints to complete this task!
-     * - Use the Kotlin keyword 'val' to create a new constant which will hold a reference to the output IOU state.
-     * - You can use the Kotlin function [single] to either grab the single element from the list or throw an exception
-     *   if there are 0 or more than one elements in the list. Note that we have already checked the outputs list has
-     *   only one element in the previous task.
-     * - We need to obtain a reference to the proposed IOU for issuance from the [LedgerTransaction.outputs] list.
-     *   This list is typed as a list of [ContractState]s, therefore we need to cast the [ContractState] which we return
-     *   from [single] to an [IOUState]. You can use the Kotlin keyword 'as' to cast a class. E.g.
+     * - Create a new constant which will hold a reference to the output IOU state.
+     * - We need to obtain a reference to the proposed IOU for issuance from the [LedgerTransaction.getOutputStates()] list
+     * - You can use the function [get(0)] to grab the single element from the list.
+     * This list is typed as a list of [ContractState]s, therefore we need to cast the [ContractState] which we return
+     *   to an [IOUState]. E.g.
      *
-     *       val state = tx.outputStates.single() as XState
+     *       XState state = (XState)tx.getOutputStates().get(0)
      *
-     * - When checking the [IOUState.amount] property is greater than zero, you need to check the
-     *   [IOUState.amount.quantity] field.
+     * - When checking the [IOUState.getAmount] property is greater than zero, you need to check the
+     *   [IOUState.getAmount().getQuantity()] field.
      */
     @Test
     public void cannotCreateZeroValueIOUs() {
@@ -189,7 +187,7 @@ public class IOUIssueTests {
      * For obvious reasons, the identity of the lender and borrower must be different.
      * TODO: Add a contract constraint to check the lender is not the borrower.
      * Hint:
-     * - You can use the [IOUState.lender] and [IOUState.borrower] properties.
+     * - You can use the [IOUState.getLender()] and [IOUState.getBorrower()] properties.
      * - This check must be made before the checking who has signed.
      */
     @Test
@@ -218,17 +216,20 @@ public class IOUIssueTests {
      * IOU or change the properties of an existing IOU.
      * TODO: Add a contract constraint to check that all the required signers are [IOUState] participants.
      * Hint:
-     * - In Kotlin you can perform a set equality check of two sets with the == operator.
-     * - We need to check that the signers for the transaction are a subset of the participants list.
+     * - In Java, you can perform a set equality check of two sets with the .equals()
+     * - We need to check that the signers for the Command of this transaction equals the participants list.
      * - We don't want any additional public keys not listed in the IOUs participants list.
      * - You will need a reference to the Issue command to get access to the list of signers.
-     * - [requireSingleCommand] returns the single required command - you can assign the return value to a constant.
+     * - [requireSingleCommand] returns the single required [CommandWithParties<Commands>] - you can assign the return value to a constant.
+     * - Next, you will need to retrieve the participants of the output state and ensure they are equal them.
      *
-     * Kotlin Hints
-     * Kotlin provides a map function for easy conversion of a [Collection] using map
-     * - https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/map.html
-     * [Collection] can be turned into a set using toSet()
-     * - https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/to-set.html
+     * Java Hints
+     * - Java's map function allows for conversion of a [Collection]. However, it requires a Stream object (created by calling collection.stream()), which must then 
+     * be converted back into a Collection using collect(Collectors.toCOLLECTION_TYPE). All together, this looks like:
+     *      collection.stream().map(element -> (some operation on element)).collect(Collectors.toCOLLECTION_TYPE)
+     * This will be needed for mapping the List<Party> from getParticipants() to a List<Party.getOwningKey()>
+     *
+     * - A [Collection] can be turned into a set using: new HashSet<>(collection)
      */
     @Test
     public void lenderAndBorrowerMustSignIssueTransaction() {

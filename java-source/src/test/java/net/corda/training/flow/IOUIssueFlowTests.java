@@ -66,14 +66,14 @@ public class IOUIssueFlowTests {
      * Hint:
      * - There's a lot to do to get this unit test to pass!
      * - Create a [TransactionBuilder] and pass it a notary reference.
-     * -- A notary [Party] object can be obtained from [FlowLogic.serviceHub.networkMapCache].
+     * -- A notary [Party] object can be obtained from [FlowLogic.getServiceHub().getNetworkMapCache().getNotaryIdentities()].
      * -- In this training project there is only one notary
-     * - Create a new [Command] object with a [IOUContract.Commands.Issue] inside of it
+     * - Create a new [Command] object with the [IOUContract.Commands.Issue] type
      * -- The required signers will be the same as the state's participants
      * -- Add the [Command] to the transaction builder [addCommand].
      * - Use the flow's [IOUState] parameter as the output state with [addOutputState]
      * - Extra credit: use [TransactionBuilder.withItems] to create the transaction instead
-     * - Sign the transaction and convert it to a [SignedTransaction] using the [serviceHub.signInitialTransaction] method.
+     * - Sign the transaction and convert it to a [SignedTransaction] using the [getServiceHub().signInitialTransaction] method.
      * - Return the [SignedTransaction].
      */
     @Test
@@ -152,8 +152,8 @@ public class IOUIssueFlowTests {
      * TODO: Amend the [IOUIssueFlow] to collect the [otherParty]'s signature.
      * Hint:
      * On the Initiator side:
-     * - Get a set of the required signers from the participants who are not the node
-     * - - [ourIdentity] will give you the identity of the node you are operating as
+     * - Get a set of the required signers from the participants who are not the node - refer to Task 6 of IOUIssueTests 
+     * - - [getOurIdentity()] will give you the identity of the node you are operating as
      * - Use [initateFlow] to get a set of [FlowSession] objects
      * - - Using [state.participants] as a base to determine the sessions needed is recommended. [participants] is on
      * - - the state interface so it is guaranteed to to exist where [lender] and [borrower] are not.

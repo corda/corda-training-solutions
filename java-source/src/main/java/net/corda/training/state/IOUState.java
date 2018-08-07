@@ -17,7 +17,6 @@ import net.corda.training.contract.IOUContract;
  * - [amount] The amount owed by the [borrower] to the [lender]
  * - [lender] The lending party.
  * - [borrower] The borrowing party.
- * - [contract] Holds a reference to the [IOUContract]
  * - [paid] Records how much of the [amount] has been paid.
  * - [linearId] A unique id shared by all LinearState states representing the same agreement throughout history within
  *   the vaults of all parties. Verify methods should check that one input and one output share the id in a transaction,
@@ -31,7 +30,7 @@ public class IOUState implements LinearState {
     private final UniqueIdentifier linearId;
 
 
-    // Private constructor
+    // Private copy constructor
     @ConstructorForDeserialization 
     private IOUState(Amount<Currency> amount, Party lender, Party borrower, Amount<Currency> paid, UniqueIdentifier linearId) {
         this.amount = amount;
@@ -41,14 +40,9 @@ public class IOUState implements LinearState {
         this.linearId = linearId;
     }
 
-    // For new zero-paid states
+    // For new states
     public IOUState(Amount<Currency> amount, Party lender, Party borrower) {
         this(amount, lender, borrower, new Amount<>(0, amount.getToken()), new UniqueIdentifier());
-    }
-
-    // For new non-zero-paid states
-    private IOUState(Amount<Currency> amount, Party lender, Party borrower, Amount<Currency> paid){
-        this(amount, lender, borrower, paid, new UniqueIdentifier());
     }
 
     public Amount<Currency> getAmount() {

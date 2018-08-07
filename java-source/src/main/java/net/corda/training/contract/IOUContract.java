@@ -1,15 +1,16 @@
 package net.corda.training.contract;
 
-import net.corda.training.state.IOUState;
 import net.corda.core.contracts.*;
 import net.corda.core.identity.AbstractParty;
 import net.corda.core.transactions.LedgerTransaction;
+import static net.corda.core.contracts.ContractsDSL.requireSingleCommand;
+import static net.corda.core.contracts.ContractsDSL.requireThat;
+
+import net.corda.training.state.IOUState;
 
 import java.util.stream.Collectors;
 import java.util.HashSet;
 
-import static net.corda.core.contracts.ContractsDSL.requireSingleCommand;
-import static net.corda.core.contracts.ContractsDSL.requireThat;
 
 
 /**
@@ -42,7 +43,7 @@ public class IOUContract implements Contract {
             requireThat(req -> {
                 req.using("No inputs should be consumed when issuing an IOU.", tx.getInputs().isEmpty());
                 req.using("Only one output state should be created when issuing an IOU.", (tx.getOutputs().size() == 1));
-                IOUState iou = (IOUState)tx.getOutputStates().get(0);
+                final IOUState iou = (IOUState)tx.getOutputStates().get(0);
                 req.using("A newly issued IOU must have a positive amount.", iou.getAmount().getQuantity() > 0);
                 req.using("The lender and borrower cannot have the same identity.", iou.getBorrower() != iou.getLender());
                 req.using("Both lender and borrower together only may sign IOU issue transaction.", 

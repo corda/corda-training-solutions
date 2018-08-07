@@ -1,24 +1,21 @@
 package net.corda.training.api;
 
-import net.corda.core.contracts.Amount;
-import net.corda.core.contracts.ContractState;
-import net.corda.core.contracts.StateAndRef;
-import net.corda.core.contracts.UniqueIdentifier;
+import net.corda.core.contracts.*;
 import net.corda.core.identity.CordaX500Name;
+import net.corda.core.identity.Party;
 import net.corda.core.messaging.CordaRPCOps;
 import net.corda.core.node.NodeInfo;
-import net.corda.core.identity.Party;
-import net.corda.finance.contracts.asset.Cash;
-import net.corda.core.internal.InternalUtils;
-import net.corda.finance.contracts.GetBalances;
 import net.corda.core.transactions.SignedTransaction;
-import net.corda.finance.flows.CashIssueFlow;
+import net.corda.core.internal.InternalUtils;
 import net.corda.core.internal.FetchDataFlow.Result;
+import net.corda.finance.contracts.GetBalances;
+import net.corda.finance.contracts.asset.Cash;
+import net.corda.finance.flows.CashIssueFlow;
 
 import net.corda.training.flow.IOUIssueFlow;
-// import net.corda.training.flow.IOUSettleFlow;
-// import net.corda.training.flow.IOUTransferFlow;
-// import net.corda.training.flow.SelfIssueCashFlow;
+import net.corda.training.flow.IOUSettleFlow;
+import net.corda.training.flow.IOUTransferFlow;
+import net.corda.training.flow.SelfIssueCashFlow;
 import net.corda.training.state.IOUState;
 
 import java.util.*;
@@ -162,5 +159,36 @@ public class IOUApi{
                     .entity(e.getMessage())
                     .build();
         }
+    }
+
+    /**
+     * Transfers an IOU specified by [linearId] to a new party.
+     */
+    @GET
+    @Path("transfer-iou")
+    public Response transferIOU(@QueryParam(value = "id") String id,
+                    @QueryParam(value = "party") String party){
+        return null;
+    }
+
+    /**
+     * Settles an IOU. Requires cash in the right currency to be able to settle.
+     */
+    @GET
+    @Path("settle-iou")
+    public Response settleIOU(@QueryParam(value = "id") String id,
+                  @QueryParam(value = "amount") int amount,
+                  @QueryParam(value = "currency") String currency){
+        return null;
+    }
+
+    /**
+     * Helper end-point to issue some cash to ourselves.
+     */
+    @GET
+    @Path("self-issue-cash")
+    public Response selfIssueCash(@QueryParam(value = "amount") int amount,
+                      @QueryParam(value = "currency") String currency){
+        return null;
     }
 }

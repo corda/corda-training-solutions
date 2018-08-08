@@ -168,7 +168,10 @@ public class IOUApi{
     @Path("transfer-iou")
     public Response transferIOU(@QueryParam(value = "id") String id,
                     @QueryParam(value = "party") String party){
-        return null;
+        return Response
+                .status(Response.Status.NOT_IMPLEMENTED)
+                .entity("Not implemented")
+                .build();
     }
 
     /**
@@ -179,7 +182,10 @@ public class IOUApi{
     public Response settleIOU(@QueryParam(value = "id") String id,
                   @QueryParam(value = "amount") int amount,
                   @QueryParam(value = "currency") String currency){
-        return null;
+        return Response
+                .status(Response.Status.NOT_IMPLEMENTED)
+                .entity("Not implemented")
+                .build();
     }
 
     /**
@@ -189,6 +195,9 @@ public class IOUApi{
     @Path("self-issue-cash")
     public Response selfIssueCash(@QueryParam(value = "amount") int amount,
                       @QueryParam(value = "currency") String currency){
-        return null;
+        return Response
+                .status(Response.Status.NOT_IMPLEMENTED)
+                .entity("Not implemented")
+                .build();
     }
 }

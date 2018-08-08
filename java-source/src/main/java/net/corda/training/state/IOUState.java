@@ -29,9 +29,8 @@ public class IOUState implements LinearState {
     private final Amount<Currency> paid;
     private final UniqueIdentifier linearId;
 
-
-    // Private copy constructor
-    @ConstructorForDeserialization 
+    // Private constructor used only for copying a State object
+    @ConstructorForDeserialization
     private IOUState(Amount<Currency> amount, Party lender, Party borrower, Amount<Currency> paid, UniqueIdentifier linearId) {
         this.amount = amount;
         this.lender = lender;

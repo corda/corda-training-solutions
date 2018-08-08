@@ -90,8 +90,10 @@ class IOUContract : Contract {
                         "The lender may not change when settling." using (inputIou.lender == outputIou.lender)
                     }
                 }
-                "Both lender and borrower together only must sign IOU settle transaction." using
-                        (command.signers.toSet() == inputIou.participants.map { it.owningKey }.toSet())
+                requireThat {
+                    "Both lender and borrower together only must sign IOU settle transaction." using
+                            (command.signers.toSet() == inputIou.participants.map { it.owningKey }.toSet())
+                }
             }
         }
     }

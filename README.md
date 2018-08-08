@@ -1,9 +1,16 @@
+TODO: Update links to correct paths upon final migration
+
 ![Corda](https://www.corda.net/wp-content/uploads/2016/11/fg005_corda_b.png)
 
 # Corda Training Solutions
 
 This repo contains all the solutions for the practical exercises of the Corda two day 
-training course. 
+training course.
+
+
+This repository is divided into two parts: A Java solution, and a Kotlin solution. You may complete the training in either
+language, but be aware that the Corda platform is written in Kotlin, and many developers prefer writing CorDapps in Kotlin
+as well.
 
 # Pre-requisites:
   
@@ -13,23 +20,47 @@ training course.
 
 # Solution files
 
+### Kotlin Solutions
 State solution:
 
-* [`IOUState.kt`](https://github.com/roger3cev/corda-training-solutions/blob/master/src/main/kotlin/net/corda/training/state/IOUState.kt)
+* [`IOUState.kt`](\)
 
 Contract solution:
 
-* [`IOUContract.kt`](https://github.com/roger3cev/corda-training-solutions/blob/master/src/main/kotlin/net/corda/training/contract/IOUContract.kt)
+* [`IOUContract.kt`](\)
 
 Flow solutions:
 
-* Issue: [`IOUIssueFlow.kt`](https://github.com/roger3cev/corda-training-solutions/blob/master/src/main/kotlin/net/corda/training/flow/IOUIssueFlow.kt)
-* Transfer: [`IOUTransferFlow.kt`](https://github.com/roger3cev/corda-training-solutions/blob/master/src/main/kotlin/net/corda/training/flow/IOUTransferFlow.kt)
-* Settle: [`IOUSettleFlow.kt`](https://github.com/roger3cev/corda-training-solutions/blob/master/src/main/kotlin/net/corda/training/flow/IOUSettleFlow.kt)
+* Issue: [`IOUIssueFlow.kt`](\)
+* Transfer: [`IOUTransferFlow.kt`](\)
+* Settle: [`IOUSettleFlow.kt`](\)
 
 The code in the following files was already added for you:
 
-* [`SelfIssueCashFlow.kt`](https://github.com/roger3cev/corda-training-solutions/blob/master/src/main/kotlin/net/corda/training/flow/SelfIssueCashFlow.kt)
-* [`IOUApi.kt`](https://github.com/roger3cev/corda-training-solutions/blob/master/src/main/kotlin/net/corda/training/api/IOUApi.kt)
-* [`IOUClient.kt`](https://github.com/roger3cev/corda-training-solutions/blob/master/src/main/kotlin/net/corda/training/client/IOUClient.kt)
-* [`IOUPlugin.kt`](https://github.com/roger3cev/corda-training-solutions/blob/master/src/main/kotlin/net/corda/training/plugin/IOUPlugin.kt)
+* [`SelfIssueCashFlow.kt`](\)
+* [`IOUApi.kt`](\)
+* [`Main.kt`](\)
+* [`IOUPlugin.kt`](\)
+
+
+### Java Solutions
+State solution:
+
+* [`IOUState.java`](\)
+
+Contract solution:
+
+* [`IOUContract.java`](\)
+
+Flow solutions:
+
+* Issue: [`IOUIssueFlow.java`](\)
+* `Not implemented` Transfer: [`IOUTransferFlow.java`](\)
+* `Not implemented` Settle: [`IOUSettleFlow.java`](\)
+
+The code in the following files was already added for you:
+
+* [`IOUApi.java`](\)
+* [`NodeDriver.java`](\)
+* [`IOUPlugin.java`](\)
+* `Not implemented` [`SelfIssueCashFlow.java`](\)

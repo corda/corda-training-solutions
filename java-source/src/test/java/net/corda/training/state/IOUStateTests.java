@@ -193,6 +193,7 @@ public class IOUStateTests {
         assertEquals(MINICORP.getParty(), iou.withNewLender(MINICORP.getParty()).getLender());
         assertEquals(MEGACORP.getParty(), iou.withNewLender(MEGACORP.getParty()).getLender());
     }
+    
     /**
      * Task 12.
      * TODO: Ensure constructors are overloaded correctly.

@@ -53,7 +53,7 @@ public class IOUApi {
     private boolean isNotary(NodeInfo nodeInfo) {
         return rpcOps.notaryIdentities()
                 .stream().filter(el -> nodeInfo.isLegalIdentity(el))
-                .collect(Collectors.toList()).size() > 0;
+                .collect(Collectors.toList()).isEmpty();
     }
 
     private boolean isMe(NodeInfo nodeInfo){

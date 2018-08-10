@@ -24,15 +24,15 @@ import static net.corda.training.contract.IOUContract.Commands.*;
  * Notarisation (if required) and commitment to the ledger is handled by the [FinalityFlow].
  * The flow returns the [SignedTransaction] that was committed to the ledger.
  */
-public class IOUIssueFlow{
+public class IOUIssueFlow {
 	
 	@InitiatingFlow
 	@StartableByRPC
 	public static class InitiatorFlow extends FlowLogic<SignedTransaction> {
 		private final IOUState state;
 
-		public InitiatorFlow(IOUState state){
-			this.state = state;
+		public InitiatorFlow(IOUState state) {
+		    this.state = state;
 		}
 
 		@Suspendable
@@ -85,7 +85,7 @@ public class IOUIssueFlow{
 	 * The signing is handled by the [SignTransactionFlow].
 	 */
 	@InitiatedBy(InitiatorFlow.class)
-	public static class ResponderFlow extends FlowLogic<SignedTransaction>{
+	public static class ResponderFlow extends FlowLogic<SignedTransaction> {
 		private final FlowSession flowSession;
 
 		public ResponderFlow(FlowSession flowSession){
@@ -95,14 +95,14 @@ public class IOUIssueFlow{
 		@Suspendable
 		@Override
 		public SignedTransaction call() throws FlowException {
-			class SignTxFlow extends SignTransactionFlow{
+			class SignTxFlow extends SignTransactionFlow {
 
-				private SignTxFlow(FlowSession flowSession, ProgressTracker progressTracker){
+				private SignTxFlow(FlowSession flowSession, ProgressTracker progressTracker) {
 					super(flowSession, progressTracker);
 				}
 
 				@Override
-				protected void checkTransaction(SignedTransaction stx){
+				protected void checkTransaction(SignedTransaction stx) {
 					requireThat(req -> {
 						ContractState output = stx.getTx().getOutputs().get(0).getData();
 						req.using("This must be an IOU transaction", output instanceof IOUState);

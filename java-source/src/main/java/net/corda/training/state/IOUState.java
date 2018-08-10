@@ -66,15 +66,15 @@ public class IOUState implements LinearState {
     }
 
     @Override
-    public UniqueIdentifier getLinearId(){
+    public UniqueIdentifier getLinearId() {
     	return linearId;
     }
 
-	/**
-	 * Helper methods for when building transactions for settling and transferring IOUs.
-	 * - [pay] adds an amount to the paid property. It does no validation.
-	 * - [withNewLender] creates a copy of the current state with a newly specified lender. For use when transferring.
-	 */
+    /**
+     * Helper methods for when building transactions for settling and transferring IOUs.
+     * - [pay] adds an amount to the paid property. It does no validation.
+     * - [withNewLender] creates a copy of the current state with a newly specified lender. For use when transferring.
+     */
 	public IOUState pay(Amount<Currency> amountToPay) {
 		Amount<Currency> newAmountPaid = this.paid.plus(amountToPay);
 		return new IOUState(amount, lender, borrower, newAmountPaid, linearId);

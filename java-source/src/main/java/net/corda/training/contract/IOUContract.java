@@ -8,6 +8,7 @@ import static net.corda.core.contracts.ContractsDSL.requireThat;
 
 import net.corda.training.state.IOUState;
 
+import java.security.PublicKey;
 import java.util.stream.Collectors;
 import java.util.HashSet;
 
@@ -29,8 +30,6 @@ public class IOUContract implements Contract {
 
     public interface Commands extends CommandData {
         class Issue extends TypeOnlyCommandData implements Commands{}
-        class Transfer extends TypeOnlyCommandData implements Commands{}
-        class Settle extends TypeOnlyCommandData implements Commands{}
     }
 
 
@@ -39,28 +38,19 @@ public class IOUContract implements Contract {
         final CommandWithParties<Commands> command = requireSingleCommand(tx.getCommands(), Commands.class);
         final Commands commandData = command.getValue();
 
-        if(commandData instanceof Commands.Issue){
-            requireThat(req -> {
-                req.using("No inputs should be consumed when issuing an IOU.", tx.getInputs().isEmpty());
-                req.using("Only one output state should be created when issuing an IOU.", (tx.getOutputs().size() == 1));
-                final IOUState iou = (IOUState)tx.getOutputStates().get(0);
-                req.using("A newly issued IOU must have a positive amount.", iou.getAmount().getQuantity() > 0);
-                req.using("The lender and borrower cannot have the same identity.", iou.getBorrower() != iou.getLender());
-                req.using("Both lender and borrower together only may sign IOU issue transaction.", 
-                    new HashSet<>(command.getSigners())
-                        .equals(new HashSet<>(iou.getParticipants()
-                            .stream().map(el -> el.getOwningKey())
-                            .collect(Collectors.toList())))
-                    );
-                return null;
-            });
-
-        }else if(commandData instanceof Commands.Transfer){
-
-        }else if(commandData instanceof Commands.Settle){
-
-        }
-
+        requireThat(req -> {
+            req.using("No inputs should be consumed when issuing an IOU.", tx.getInputs().isEmpty());
+            req.using("Only one output state should be created when issuing an IOU.", (tx.getOutputs().size() == 1));
+            final IOUState iou = (IOUState)tx.getOutputStates().get(0);
+            req.using("A newly issued IOU must have a positive amount.", iou.getAmount().getQuantity() > 0);
+            req.using("The lender and borrower cannot have the same identity.", iou.getBorrower() != iou.getLender());
+            HashSet<PublicKey> signers = new HashSet<>(command.getSigners());
+            HashSet<PublicKey> participants = new HashSet<>(iou.getParticipants()
+                    .stream().map(el -> el.getOwningKey())
+                    .collect(Collectors.toList()));
+            req.using("Both lender and borrower together only may sign IOU issue transaction.", signers.equals(participants));
+            return null;
+        });
     }
 }
 

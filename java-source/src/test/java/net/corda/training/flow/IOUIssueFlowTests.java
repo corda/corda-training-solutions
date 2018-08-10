@@ -48,7 +48,6 @@ public class IOUIssueFlowTests {
 
         // For real nodes this happens automatically, but we have to manually register the flow for tests
         startedNodes.forEach(el -> el.registerInitiatedFlow(IOUIssueFlow.ResponderFlow.class));
-        // startedNodes.forEach { it.registerInitiatedFlow(IOUIssueFlowResponder::class.java) }
         mockNetwork.runNetwork();
     }
 
@@ -78,7 +77,7 @@ public class IOUIssueFlowTests {
      * - Return the [SignedTransaction].
      */
     @Test
-    public void flowReturnsCorrectlyFormedPartiallySignedTransaction() throws Exception{
+    public void flowReturnsCorrectlyFormedPartiallySignedTransaction() throws Exception {
         Party lender = a.getInfo().getLegalIdentitiesAndCerts().get(0).getParty();
         Party borrower = b.getInfo().getLegalIdentitiesAndCerts().get(0).getParty();
 
@@ -118,7 +117,7 @@ public class IOUIssueFlowTests {
      * you can confirm the transaction prior to making it immutable with the signature.
      */
     @Test
-    public void flowReturnsVerifiedPartiallySignedTransaction() throws Exception{
+    public void flowReturnsVerifiedPartiallySignedTransaction() throws Exception {
         // Check that a zero amount IOU fails.
         Party lender = a.getInfo().getLegalIdentitiesAndCerts().get(0).getParty();
         Party borrower = b.getInfo().getLegalIdentitiesAndCerts().get(0).getParty();
@@ -127,7 +126,6 @@ public class IOUIssueFlowTests {
         Future<SignedTransaction> futureOne = a.startFlow(new IOUIssueFlow.InitiatorFlow(zeroIou));
         mockNetwork.runNetwork();
 
-        // TransactionVerificationException expectedCause = new TransactionVerificationException();
         exception.expectCause(instanceOf(TransactionVerificationException.class));
         
         futureOne.get();
@@ -171,7 +169,7 @@ public class IOUIssueFlowTests {
      * transaction.
      */
     @Test
-    public void flowReturnsTransactionSignedByBothParties() throws Exception{
+    public void flowReturnsTransactionSignedByBothParties() throws Exception {
         Party lender = a.getInfo().getLegalIdentitiesAndCerts().get(0).getParty();
         Party borrower = b.getInfo().getLegalIdentitiesAndCerts().get(0).getParty();
         IOUState iou = new IOUState(Currencies.POUNDS(10), lender, borrower);
@@ -197,7 +195,7 @@ public class IOUIssueFlowTests {
      *   would require the notary's signature as notaries act as a timestamping authority.
      */
     @Test
-    public void flowRecordsTheSameTransactionInBothPartyVaults() throws Exception{
+    public void flowRecordsTheSameTransactionInBothPartyVaults() throws Exception {
         Party lender = a.getInfo().getLegalIdentitiesAndCerts().get(0).getParty();
         Party borrower = b.getInfo().getLegalIdentitiesAndCerts().get(0).getParty();
         IOUState iou = new IOUState(Currencies.POUNDS(10), lender, borrower);
@@ -211,7 +209,7 @@ public class IOUIssueFlowTests {
         Arrays.asList(a, b).stream().map(el ->
             el.getServices().getValidatedTransactions().getTransaction(stx.getId())
         ).forEach(el -> {
-            SecureHash txHash = ((SignedTransaction)el).getId();
+            SecureHash txHash = el.getId();
             System.out.printf("$txHash == %h\n", stx.getId());
             assertEquals(stx.getId(), txHash);
         });

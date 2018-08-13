@@ -28,7 +28,6 @@ sourceSets {
     }
 }
 
-
 dependencies {
     testCompile "junit:junit:$junit_version"
 
@@ -75,39 +74,45 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
     node {
         name "O=Notary,L=London,C=GB"
         notary = [validating : false]
-        p2pPort 10006
+        p2pPort 10002
         cordapps = ["$corda_release_distribution:corda-finance:$corda_release_version"]
     }
     node {
         name "O=PartyA,L=London,C=GB"
-        p2pPort 10007
+        p2pPort 10005
         rpcSettings {
-            address("localhost:10008")
-            adminAddress("localhost:10048")
+            useSsl false
+            standAloneBroker false
+            address "0.0.0.0:10006"
+            adminAddress "0.0.0.0:10016"
         }
-        webPort 10009
+        webPort 10007
         cordapps = ["$corda_release_distribution:corda-finance:$corda_release_version"]
         rpcUsers = rpcUsersList
     }
     node {
         name "O=PartyB,L=New York,C=US"
-        p2pPort 10010
+        p2pPort 10008
         rpcSettings {
-            address("localhost:10011")
-            adminAddress("localhost:10051")
+            useSsl false
+            standAloneBroker false
+            address "0.0.0.0:10009"
+            adminAddress "0.0.0.0:10019"
         }
-        webPort 10012
+        webPort 10010
         cordapps = ["$corda_release_distribution:corda-finance:$corda_release_version"]
         rpcUsers = rpcUsersList 
     }
     node {
         name "O=PartyC,L=Paris,C=FR"
-        p2pPort 10013
+        p2pPort 10011
         rpcSettings {
-            address("localhost:10014")
-            adminAddress("localhost:10054")
+            useSsl false
+            standAloneBroker false
+            address "0.0.0.0:10012"
+            adminAddress "0.0.0.0:10022"
         }
-        webPort 10015
+        webPort 10013
         cordapps = ["$corda_release_distribution:corda-finance:$corda_release_version"]
         rpcUsers = rpcUsersList 
     }

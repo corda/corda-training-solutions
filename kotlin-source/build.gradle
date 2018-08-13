@@ -5,7 +5,6 @@ repositories {
     maven { url 'https://dl.bintray.com/kotlin/exposed' }
     maven { url 'https://jitpack.io' }
     maven { url 'https://ci-artifactory.corda.r3cev.com/artifactory/corda-releases' }
-
 }
 
 apply plugin: 'kotlin'
@@ -24,7 +23,7 @@ sourceSets {
     }
     test {
         resources {
-           srcDir "../config/test"
+            srcDir "../config/test"
         }
     }
 }
@@ -80,7 +79,7 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
 
     node {
         name "O=Notary,L=London,C=GB"
-        notary = [validating: true]
+        notary = [validating: false]
         p2pPort 10002
         cordapps = ["$corda_release_distribution:corda-finance:$corda_release_version"]
     }

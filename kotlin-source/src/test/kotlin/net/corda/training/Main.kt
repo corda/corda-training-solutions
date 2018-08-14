@@ -27,12 +27,12 @@ fun main(args: Array<String>) {
     val user = User("user1", "test", permissions = setOf("ALL"))
     driver(DriverParameters( isDebug = true,
             extraCordappPackagesToScan = listOf("net.corda.finance"),
-            notarySpecs = listOf(NotarySpec(CordaX500Name("Controller", "London","GB"), true)),
+            notarySpecs = listOf(NotarySpec(CordaX500Name("Notary", "London","GB"), true)),
             waitForAllNodesToFinish = true)) {
         val(nodeA, nodeB, nodeC) = listOf(
-                startNode(NodeParameters(providedName = CordaX500Name("Bank A","London","GB")), rpcUsers = listOf(user)).getOrThrow(),
-                startNode(NodeParameters(providedName = CordaX500Name("Bank B","New York","US")), rpcUsers = listOf(user)).getOrThrow(),
-                startNode(NodeParameters(providedName = CordaX500Name("Bank C","Paris","FR")), rpcUsers = listOf(user)).getOrThrow())
+                startNode(NodeParameters(providedName = CordaX500Name("ParticipantA","London","GB")), rpcUsers = listOf(user)).getOrThrow(),
+                startNode(NodeParameters(providedName = CordaX500Name("ParticipantB","New York","US")), rpcUsers = listOf(user)).getOrThrow(),
+                startNode(NodeParameters(providedName = CordaX500Name("ParticipantC","Paris","FR")), rpcUsers = listOf(user)).getOrThrow())
 
         startWebserver(nodeA)
         startWebserver(nodeB)

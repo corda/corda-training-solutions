@@ -6,10 +6,8 @@ This repo contains all the solutions for the practical exercises of the Corda tw
 training course.
 
 
-This repository is divided into two parts: Java solutions, and Kotlin solutions. You may complete the training in either
-language, but be aware that the Corda platform is written in Kotlin, and many developers prefer to leverage this by 
-writing their CorDapps in Kotlin
-as well.
+This repository is divided into two parts: Java solutions, and Kotlin solutions. You may complete the training in whichever 
+language you prefer.
 
 # Setup
 
@@ -101,5 +99,10 @@ the green play button.
 the green play button.
 
 ###Interacting with the CorDapp
-* Once all the three nodes have started up (Look for `Webserver started up in XXX sec` in the terminal or IntelliJ ), you can interact
-with the app via a web browser. For Party A, navigate to `localhost:10007/web/iou/`.
+Once all the three nodes have started up (look for `Webserver started up in XXX sec` in the terminal or IntelliJ ), you can interact
+with the app via a web browser. 
+* From a Node Driver configuration, look for `Starting webserver on address localhost:100XX` for the addresses. 
+
+* From the terminal: Node A: `localhost:10009`, Node B: `localhost:10012`, Node C: `localhost:10015`.
+
+To access the front-end gui for each node, navigate to `localhost:XXXX/web/iou/`

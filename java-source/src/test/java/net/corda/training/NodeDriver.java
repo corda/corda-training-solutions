@@ -36,15 +36,15 @@ public class NodeDriver{
             .withIsDebug(true)
             .withWaitForAllNodesToFinish(true)
             .withExtraCordappPackagesToScan(ImmutableList.of("net.corda.finance"))
-            .withNotarySpecs(Arrays.asList(new NotarySpec(new CordaX500Name("Controller", "London","GB"), true,  Arrays.asList(user), VerifierType.InMemory, null))), dsl -> {
+            .withNotarySpecs(Arrays.asList(new NotarySpec(new CordaX500Name("Notary", "London","GB"), true,  Arrays.asList(user), VerifierType.InMemory, null))), dsl -> {
                 CordaFuture<NodeHandle> partyAFuture = dsl.startNode(new NodeParameters()
-                        .withProvidedName(new CordaX500Name("Bank A", "London", "GB"))
+                        .withProvidedName(new CordaX500Name("ParticipantA", "London", "GB"))
                         .withRpcUsers(ImmutableList.of(user)));
                 CordaFuture<NodeHandle> partyBFuture = dsl.startNode(new NodeParameters()
-                        .withProvidedName(new CordaX500Name("Bank B", "New York", "US"))
+                        .withProvidedName(new CordaX500Name("ParticipantB", "New York", "US"))
                         .withRpcUsers(ImmutableList.of(user)));
                 CordaFuture<NodeHandle> partyCFuture = dsl.startNode(new NodeParameters()
-                        .withProvidedName(new CordaX500Name("Bank C", "Paris", "FR"))
+                        .withProvidedName(new CordaX500Name("ParticipantC", "Paris", "FR"))
                         .withRpcUsers(ImmutableList.of(user)));
 
                 try {

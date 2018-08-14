@@ -10,6 +10,9 @@ import net.corda.core.node.NodeInfo;
 import net.corda.testing.node.*;
 import net.corda.core.identity.Party;
 import net.corda.core.crypto.SecureHash;
+import net.corda.core.flows.*;
+import net.corda.core.transactions.TransactionBuilder;
+
 
 import net.corda.training.contract.IOUContract;
 import net.corda.training.state.IOUState;
@@ -64,20 +67,20 @@ public class IOUIssueFlowTests {
 
     /**
      * Task 1.
-     * Build out the [IOUIssueFlow]!
-     * TODO: Implement the [IOUIssueFlow] flow which builds and returns a partially [SignedTransaction].
+     * Build out the {@link IOUIssueFlow}!
+     * TODO: Implement the {@link IOUIssueFlow} flow which builds and returns a partially {@link SignedTransaction}.
      * Hint:
      * - There's a lot to do to get this unit test to pass!
-     * - Create a [TransactionBuilder] and pass it a notary reference.
-     * -- A notary [Party] object can be obtained from [FlowLogic.getServiceHub().getNetworkMapCache().getNotaryIdentities()].
+     * - Create a {@link TransactionBuilder} and pass it a notary reference.
+     * -- A notary {@link Party} object can be obtained from [FlowLogic.getServiceHub().getNetworkMapCache().getNotaryIdentities()].
      * -- In this training project there is only one notary
-     * - Create a new [Command] object with the [IOUContract.Commands.Issue] type
+     * - Create a new {@link Command} object with the [IOUContract.Commands.Issue] type
      * -- The required signers will be the same as the state's participants
-     * -- Add the [Command] to the transaction builder [addCommand].
-     * - Use the flow's [IOUState] parameter as the output state with [addOutputState]
+     * -- Add the {@link Command} to the transaction builder [addCommand].
+     * - Use the flow's {@link IOUState} parameter as the output state with [addOutputState]
      * - Extra credit: use [TransactionBuilder.withItems] to create the transaction instead
-     * - Sign the transaction and convert it to a [SignedTransaction] using the [getServiceHub().signInitialTransaction] method.
-     * - Return the [SignedTransaction].
+     * - Sign the transaction and convert it to a {@link SignedTransaction} using the [getServiceHub().signInitialTransaction] method.
+     * - Return the {@link SignedTransaction}.
      */
     @Test
     public void flowReturnsCorrectlyFormedPartiallySignedTransaction() throws Exception {
@@ -114,8 +117,8 @@ public class IOUIssueFlowTests {
 
     /**
      * Task 2.
-     * Now we have a well formed transaction, we need to properly verify it using the [IOUContract].
-     * TODO: Amend the [IOUIssueFlow] to verify the transaction as well as sign it.
+     * Now we have a well formed transaction, we need to properly verify it using the {@link IOUContract}.
+     * TODO: Amend the {@link IOUIssueFlow} to verify the transaction as well as sign it.
      * Hint: You can verify on the builder directly prior to finalizing the transaction. This way
      * you can confirm the transaction prior to making it immutable with the signature.
      */
@@ -148,24 +151,24 @@ public class IOUIssueFlowTests {
     }
 
     /**
-     * IMPORTANT: Review the [CollectSignaturesFlow] before continuing here.
+     * IMPORTANT: Review the {@link CollectSignaturesFlow} before continuing here.
      * Task 3.
-     * Now we need to collect the signature from the [otherParty] using the [CollectSignaturesFlow].
-     * TODO: Amend the [IOUIssueFlow] to collect the [otherParty]'s signature.
+     * Now we need to collect the signature from the [otherParty] using the {@link CollectSignaturesFlow}.
+     * TODO: Amend the {@link IOUIssueFlow} to collect the [otherParty]'s signature.
      * Hint:
      * On the Initiator side:
      * - Get a set of the required signers from the participants who are not the node - refer to Task 6 of IOUIssueTests
      * - - [getOurIdentity()] will give you the identity of the node you are operating as
-     * - Use [initateFlow] to get a set of [FlowSession] objects
+     * - Use [initateFlow] to get a set of {@link FlowSession} objects
      * - - Using [state.participants] as a base to determine the sessions needed is recommended. [participants] is on
      * - - the state interface so it is guaranteed to to exist where [lender] and [borrower] are not.
-     * - Use [subFlow] to start the [CollectSignaturesFlow]
-     * - Pass it a [SignedTransaction] object and [FlowSession] set
-     * - It will return a [SignedTransaction] with all the required signatures
+     * - Use [subFlow] to start the {@link CollectSignaturesFlow}
+     * - Pass it a {@link SignedTransaction} object and {@link FlowSession} set
+     * - It will return a {@link SignedTransaction} with all the required signatures
      * - The subflow performs the signature checking and transaction verification for you
      * <p>
      * On the Responder side:
-     * - Create a subclass of [SignTransactionFlow]
+     * - Create a subclass of {@link SignTransactionFlow}
      * - Override [SignTransactionFlow.checkTransaction] to impose any constraints on the transaction
      * <p>
      * Using this flow you abstract away all the back-and-forth communication required for parties to sign a
@@ -187,12 +190,12 @@ public class IOUIssueFlowTests {
 
     /**
      * Task 4.
-     * Now we need to store the finished [SignedTransaction] in both counter-party vaults.
-     * TODO: Amend the [IOUIssueFlow] by adding a call to [FinalityFlow].
+     * Now we need to store the finished {@link SignedTransaction} in both counter-party vaults.
+     * TODO: Amend the {@link IOUIssueFlow} by adding a call to {@link FinalityFlow}.
      * Hint:
-     * - As mentioned above, use the [FinalityFlow] to ensure the transaction is recorded in both [Party] vaults.
+     * - As mentioned above, use the {@link FinalityFlow} to ensure the transaction is recorded in both {@link Party} vaults.
      * - Do not use the [BroadcastTransactionFlow]!
-     * - The [FinalityFlow] determines if the transaction requires notarisation or not.
+     * - The {@link FinalityFlow} determines if the transaction requires notarisation or not.
      * - We don't need the notary's signature as this is an issuance transaction without a timestamp. There are no
      * inputs in the transaction that could be double spent! If we added a timestamp to this transaction then we
      * would require the notary's signature as notaries act as a timestamping authority.

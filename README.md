@@ -86,19 +86,19 @@ The code in the following files was already added for you:
 # Running the CorDapp
 To run the finished application, you have two choices for each language: from the terminal, and from IntelliJ.
 
-###Kotlin
+### Kotlin
 * Terminal: Navigate to the root project folder and run `./gradlew kotlin-source:deployNodes`, followed by 
 `./kotlin-source/build/node/runnodes`
 * IntelliJ: With the project open, select `Kotlin - Node driver` from the dropdown run configuration menu, and click 
 the green play button.
 
-###Java
+### Java
 * Terminal: Navigate to the root project folder and run `./gradlew java-source:deployNodes`, followed by 
 `./java-source/build/node/runnodes`
 * IntelliJ: With the project open, select `Java - NodeDriver` from the dropdown run configuration menu, and click 
 the green play button.
 
-###Interacting with the CorDapp
+### Interacting with the CorDapp
 Once all the three nodes have started up (look for `Webserver started up in XXX sec` in the terminal or IntelliJ ), you can interact
 with the app via a web browser. 
 * From a Node Driver configuration, look for `Starting webserver on address localhost:100XX` for the addresses. 

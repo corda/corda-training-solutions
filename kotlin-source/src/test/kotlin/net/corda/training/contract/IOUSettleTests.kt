@@ -363,6 +363,14 @@ class IOUSettleTests {
                 command(listOf(ALICE.publicKey, BOB.publicKey), IOUContract.Commands.Settle())
                 verifies()
             }
+            transaction {
+                input(IOUContract.IOU_CONTRACT_ID, fiveDollars)
+                input(IOUContract.IOU_CONTRACT_ID, iou.copy(paid = 5.DOLLARS))
+                output(IOUContract.IOU_CONTRACT_ID, fiveDollars.withNewOwner(newOwner = ALICE.party).ownableState)
+                command(BOB.publicKey, fiveDollars.withNewOwner(newOwner = BOB.party).command)
+                command(listOf(ALICE.publicKey, BOB.publicKey), IOUContract.Commands.Settle())
+                verifies()
+            }
         }
     }
 

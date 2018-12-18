@@ -23,13 +23,19 @@ import java.util.stream.Collectors;
  * This is where you'll add the contract code which defines how the [IOUState] behaves. Looks at the unit tests in
  * [IOUContractTests] for instructions on how to complete the [IOUContract] class.
  */
+
+/**
+ * LegalProseReference: this is just a dummy string for the time being.
+ */
+@LegalProseReference(uri = "<prose_contract_uri>")
 public class IOUContract implements Contract {
     public static final String IOU_CONTRACT_ID = "net.corda.training.contract.IOUContract";
 
     /**
-     * Add any commands required for this contract as classes within this interface.
-     * It is useful to encapsulate your commands inside an interface, so you can use the [requireSingleCommand]
-     * function to check for a number of commands which implement this interface.
+     * The IOUContract can handle three transaction types involving [IOUState]s.
+     * - Issuance: Issuing a new [IOUState] on the ledger, which is a bilateral agreement between two parties.
+     * - Transfer: Re-assigning the lender/beneficiary.
+     * - Settle: Fully or partially settling the [IOUState] using the Corda [Cash] contract.
      */
     public interface Commands extends CommandData {
         class Issue extends TypeOnlyCommandData implements Commands{};
@@ -43,9 +49,15 @@ public class IOUContract implements Contract {
     @Override
     public void verify(LedgerTransaction tx) {
 
+        // We can use the requireSingleCommand function to extract command data from transaction.
         final CommandWithParties<Commands> command = requireSingleCommand(tx.getCommands(), Commands.class);
         final Commands commandData = command.getValue();
 
+        /**
+         * This command data can then be used inside of a conditional statement to indicate which set of tests we
+         * should be performing - we will use different assertions to enable the contract to verify the transaction
+         * for issuing, settling and transferring.
+         */
         if (commandData.equals(new Commands.Issue())) {
 
             requireThat(require -> {

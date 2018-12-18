@@ -17,7 +17,6 @@ import net.corda.core.transactions.TransactionBuilder;
 import net.corda.training.contract.IOUContract;
 import net.corda.training.state.IOUState;
 
-import javax.annotation.Signed;
 import javax.validation.constraints.NotNull;
 import java.security.PublicKey;
 import java.util.ArrayList;
@@ -27,6 +26,13 @@ import java.util.stream.Collectors;
 
 import static net.corda.core.contracts.ContractsDSL.requireThat;
 
+
+/**
+ * This is the flow which handles transfers of existing IOUs on the ledger.
+ * Gathering the counterparty's signature is handled by the [CollectSignaturesFlow].
+ * Notarisation (if required) and commitment to the ledger is handled by the [FinalityFlow].
+ * The flow returns the [SignedTransaction] that was committed to the ledger.
+ */
 public class IOUTransferFlow{
 
     @InitiatingFlow
@@ -44,20 +50,22 @@ public class IOUTransferFlow{
         @Override
         public SignedTransaction call() throws FlowException {
 
-            // Get query criteria
+            // 1. Retrieve the IOU State from the vault using LinearStateQueryCriteria
             List<UUID> listOfLinearIds = new ArrayList<>();
             listOfLinearIds.add(stateLinearId.getId());
             QueryCriteria queryCriteria = new QueryCriteria.LinearStateQueryCriteria(null, listOfLinearIds);
 
-            // Get flow components
+            // 2. Get a reference to the inputState data that we are going to settle.
             Vault.Page results = getServiceHub().getVaultService().queryBy(IOUState.class, queryCriteria);
             StateAndRef inputStateAndRefToTransfer = (StateAndRef) results.getStates().get(0);
             IOUState inputStateToTransfer = (IOUState) inputStateAndRefToTransfer.getState().getData();
 
+            // 3. We should now get some of the components required for to execute the transaction
+            // Here we get a reference to the default notary and instantiate a transaction builder.
             Party notary = getServiceHub().getNetworkMapCache().getNotaryIdentities().get(0);
             TransactionBuilder tb = new TransactionBuilder(notary);
 
-            // Add command to the flow
+            // 4. Construct a transfer command to be added to the transaction.
             List<PublicKey> listOfRequiredSigners = inputStateToTransfer.getParticipants()
                     .stream().map(AbstractParty::getOwningKey)
                     .collect(Collectors.toList());
@@ -67,23 +75,24 @@ public class IOUTransferFlow{
                     new Transfer(),
                     listOfRequiredSigners
             );
+
+            // 5. Add the command to the transaction using the TransactionBuilder.
             tb.addCommand(command);
 
-            // Add states to flow
+            // 6. Add input and output states to flow using the TransactionBuilder.
             tb.addInputState(inputStateAndRefToTransfer);
             tb.addOutputState(inputStateToTransfer.withNewLender(newLender), IOUContract.IOU_CONTRACT_ID);
 
+            // 7. Ensure that this flow is being executed by the current lender.
             if (!inputStateToTransfer.lender.getOwningKey().equals(getOurIdentity().getOwningKey())) {
                 throw new IllegalArgumentException("This flow must be run by the current lender.");
             }
 
-            // Verify the transaction
+            // 8. Verify and sign the transaction
             tb.verify(getServiceHub());
-
-            // Sign the transaction
             SignedTransaction partiallySignedTransaction = getServiceHub().signInitialTransaction(tb);
 
-            //Collect Signatures
+            // 9. Collect all of the required signatures from other Corda nodes using the CollectSignaturesFlow
             List<FlowSession> listOfFlows = new ArrayList<>();
 
             for (AbstractParty participant: inputStateToTransfer.getParticipants()) {
@@ -92,11 +101,12 @@ public class IOUTransferFlow{
                     listOfFlows.add(initiateFlow(partyToInitiateFlow));
                 }
             }
-
             listOfFlows.add(initiateFlow(newLender));
-
             SignedTransaction fullySignedTransaction = subFlow(new CollectSignaturesFlow(partiallySignedTransaction, listOfFlows));
 
+            /* 10. Return the output of the FinalityFlow which sends the transaction to the notary for verification
+             *     and the causes it to be persisted to the vault of appropriate nodes.
+             */
             return subFlow(new FinalityFlow(fullySignedTransaction));
         }
     }

@@ -7,6 +7,7 @@ import net.corda.core.contracts.*;
 import net.corda.core.flows.*;
 import net.corda.core.identity.AbstractParty;
 import net.corda.core.identity.Party;
+import net.corda.core.identity.PartyAndCertificate;
 import net.corda.core.node.services.Vault;
 import net.corda.core.node.services.vault.QueryCriteria;
 import net.corda.core.transactions.SignedTransaction;
@@ -35,9 +36,9 @@ import java.util.stream.Collectors;
 public class IOUSettleFlow {
 
     /**
-     * This is the flow which handles the (partial) settlement of existing IOUs on the ledger.
+     * This is the flow which handles the settlement (partial or complete) of existing IOUs on the ledger.
      * Gathering the counterparty's signature is handled by the [CollectSignaturesFlow].
-     * Notarisation (if required) and commitment to the ledger is handled vy the [FinalityFlow].
+     * Notarisation (if required) and commitment to the ledger is handled by the [FinalityFlow].
      * The flow returns the [SignedTransaction] that was committed to the ledger.
      */
     @InitiatingFlow
@@ -56,25 +57,26 @@ public class IOUSettleFlow {
         @Override
         public SignedTransaction call() throws FlowException {
 
-            // 1. Retrieve the IOU State from the vault.
-            List<UUID> listOfLinearIds = new ArrayList<>();
-            listOfLinearIds.add(stateLinearId.getId());
+            // 1. Retrieve the IOU State from the vault using LinearStateQueryCriteria
+            List<UUID> listOfLinearIds = Arrays.asList(stateLinearId.getId());
             QueryCriteria queryCriteria = new QueryCriteria.LinearStateQueryCriteria(null, listOfLinearIds);
-
             Vault.Page results = getServiceHub().getVaultService().queryBy(IOUState.class, queryCriteria);
-            StateAndRef inputStateAndRefToSettle = (StateAndRef) results.component1().get(0);
-            IOUState inputStateToSettle = (IOUState) ((StateAndRef) results.component1().get(0)).getState().getData();
 
-            // 2. Check the party running this flow is the borrower.
+            // 2. Get a reference to the inputState data that we are going to settle.
+            StateAndRef inputStateAndRefToSettle = (StateAndRef) results.getStates().get(0);
+            IOUState inputStateToSettle = (IOUState) ((StateAndRef) results.getStates().get(0)).getState().getData();
+
+            // 3. Check the party running this flow is the borrower.
             if (!inputStateToSettle.borrower.getOwningKey().equals(getOurIdentity().getOwningKey())) {
                 throw new IllegalArgumentException("The borrower must issue the flow");
             }
 
-            // 3. Create a transaction builder
+            // 4. We should now get some of the components required for to execute the transaction
+            // Here we get a reference to the default notary and instantiate a transaction builder.
             Party notary = getServiceHub().getNetworkMapCache().getNotaryIdentities().get(0);
             TransactionBuilder tb = new TransactionBuilder(notary);
 
-            // 4. Check we have enough cash to settle the requested amount
+            // 5. Check we have enough cash to settle the requested amount
             final Amount<Currency> cashBalance = getCashBalance(getServiceHub(), (Currency) amount.getToken());
 
             if (cashBalance.getQuantity() < amount.getQuantity()) {
@@ -83,11 +85,10 @@ public class IOUSettleFlow {
                 throw new IllegalArgumentException("Borrow tried to settle with more than was required for the obligation.");
             }
 
-            // 5. Get some cash from the vault and add a spend to our transaction builder.
-            Cash.generateSpend(getServiceHub(), tb, amount, inputStateToSettle.lender, ImmutableSet.of()).getSecond();
+            // 6. Get some cash from the vault and add a spend to our transaction builder.
+            Cash.generateSpend(getServiceHub(), tb, amount, getOurIdentityAndCert(), inputStateToSettle.lender, ImmutableSet.of()).getSecond();
 
-
-            // 6.
+            // 7. Create a command. you will need to provide the Command constructor with a reference to the Settle Command as well as a list of required signers.
             Command<IOUContract.Commands.Settle> command = new Command<>(
                     new IOUContract.Commands.Settle(),
                     inputStateToSettle.getParticipants()
@@ -95,21 +96,20 @@ public class IOUSettleFlow {
                             .collect(Collectors.toList())
             );
 
-
+            // 8. Add the command and the input state to the transaction using the TransactionBuilder.
             tb.addCommand(command);
             tb.addInputState(inputStateAndRefToSettle);
 
-            // 7. Add an IOU output state for an IOU that has not been full settled.
+            // 9. Add an IOU output state if the IOU in question that has not been fully settled.
             if (amount.getQuantity() < inputStateToSettle.amount.getQuantity()) {
                 tb.addOutputState(inputStateToSettle.pay(amount), IOUContract.IOU_CONTRACT_ID);
             }
 
-
-            // 8. Verify and sign the transaction
+            // 10. Verify and sign the transaction
             tb.verify(getServiceHub());
             SignedTransaction stx = getServiceHub().signInitialTransaction(tb, getOurIdentity().getOwningKey());
 
-            //Collect Signatures
+            // 11. Collect all of the required signatures from other Corda nodes using the CollectSignaturesFlow
             List<FlowSession> listOfFlows = new ArrayList<>();
 
             for (AbstractParty participant: inputStateToSettle.getParticipants()) {
@@ -118,9 +118,11 @@ public class IOUSettleFlow {
                     listOfFlows.add(initiateFlow(partyToInitiateFlow));
                 }
             }
-
             SignedTransaction fullySignedTransaction = subFlow(new CollectSignaturesFlow(stx, listOfFlows));
 
+            /* 12. Return the output of the FinalityFlow which sends the transaction to the notary for verification
+             *     and the causes it to be persisted to the vault of appropriate nodes.
+             */
             return subFlow(new FinalityFlow(fullySignedTransaction));
 
         }

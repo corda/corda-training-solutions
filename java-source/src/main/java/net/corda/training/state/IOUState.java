@@ -14,9 +14,15 @@ import net.corda.core.serialization.ConstructorForDeserialization;
 import javax.validation.constraints.NotNull;
 
 /**
- * This is where you'll add the definition of your state object. Look at the unit tests in [IOUStateTests] for
- * instructions on how to complete the [IOUState] class.
- *
+ * The IOU State object, with the following properties:
+ * - [amount] The amount owed by the [borrower] to the [lender]
+ * - [lender] The lending party.
+ * - [borrower] The borrowing party.
+ * - [contract] Holds a reference to the [IOUContract]
+ * - [paid] Records how much of the [amount] has been paid.
+ * - [linearId] A unique id shared by all LinearState states representing the same agreement throughout history within
+ *   the vaults of all parties. Verify methods should check that one input and one output share the id in a transaction,
+ *   except at issuance/termination.
  */
 public class IOUState implements ContractState, LinearState {
 
@@ -61,11 +67,21 @@ public class IOUState implements ContractState, LinearState {
 	    return linearId;
     }
 
+    /**
+     *  This method will return a list of the nodes which can "use" this state in a valid transaction. In this case, the
+     *  lender or the borrower.
+     */
    	@Override
     public List<AbstractParty> getParticipants() {
         return ImmutableList.of(borrower, lender);
     }
 
+    /**
+     * Helper methods for when building transactions for settling and transferring IOUs.
+     * - [pay] adds an amount to the paid property. It does no validation.
+     * - [withNewLender] creates a copy of the current state with a newly specified lender. For use when transferring.
+     * - [copy] creates a copy of the state using the internal copy constructor ensuring the LinearId is preserved.
+     */
     public IOUState pay(Amount paidAmount) {
         Amount<Currency> newAmountPaid = this.paid.plus(paidAmount);
         return new IOUState(amount, lender, borrower, newAmountPaid, linearId);

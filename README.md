@@ -2,41 +2,41 @@
 
 # Corda Training Template
 
-This repo contains all of the instructions and class templates for the practical exercises of the Corda two day 
+This repo contains all of the instructions and class templates for the practical exercises of the Corda two day
 training course.
 
 
-This repository is divided into two parts: Java templates, and Kotlin templates. You may complete the training in whichever 
-language you prefer. 
+This repository is divided into two parts: Java templates, and Kotlin templates. You may complete the training in whichever
+language you prefer.
 
 # Setup
 
-### Tools 
+### Tools
 * JDK 1.8 latest version
 * IntelliJ latest version (2017.1 or newer)
 * git
 
-After installing the required tools, clone or download a zip of this repository, and place it in your desired 
+After installing the required tools, clone or download a zip of this repository, and place it in your desired
 location.
 
 ### IntelliJ setup
 * From the main menu, click `open` (not `import`!) then navigate to where you placed this repository.
-* Click `File->Project Structure`, and set the `Project SDK` to be the JDK you downloaded (by clicking `new` and 
+* Click `File->Project Structure`, and set the `Project SDK` to be the JDK you downloaded (by clicking `new` and
 nagivating to where the JDK was installed). Click `Okay`.
-* Next, click `import` on the `Import Gradle Project` popup, leaving all options as they are. 
+* Next, click `import` on the `Import Gradle Project` popup, leaving all options as they are.
 * If you do not see the popup: Navigate back to `Project Structure->Modules`, clicking the `+ -> Import` button,
-navigate to and select the repository folder, select `Gradle` from the next menu, and finally click `Okay`, 
+navigate to and select the repository folder, select `Gradle` from the next menu, and finally click `Okay`,
 again leaving all options as they are.
 
 # Instructions
 Once you are all set up, you can start expanding on the class templates. This project follows a test-based
 development style - the unit tests for each class contain all the information you will need to complete this CorDapp.
 
-All the tests are commented out by default - to complete this training, you will uncomment them one at a time, building up 
+All the tests are commented out by default - to complete this training, you will uncomment them one at a time, building up
 the CorDapp until it passes everything.
 
-You will begin by opening `IOUState` and `IOUStateTests` in your language of choice and uncommenting the first test. Then, use the TODO and 
-hints to modify `IOUState` to pass the test. 
+You will begin by opening `IOUState` and `IOUStateTests` in your language of choice and uncommenting the first test. Then, use the TODO and
+hints to modify `IOUState` to pass the test.
 
 In order to issue IOU's using Corda - You will first fix `IOUState`, then `IOUContract`, and lastly `IOUIssueFlow`. Then you can move on to
 more challenging exercises specified in Transfer and Settle testing files.
@@ -112,25 +112,25 @@ The code in the following files was already added for you:
 
 
 # Running the CorDapp
-Once your application passes all tests in `IOUStateTests`, `IOUIssueTests`, and `IOUIssueFlowTests`, you can run the application and 
+Once your application passes all tests in `IOUStateTests`, `IOUIssueTests`, and `IOUIssueFlowTests`, you can run the application and
 interact with it via a web browser. To run the finished application, you have two choices for each language: from the terminal, and from IntelliJ.
 
 ### Kotlin
-* Terminal: Navigate to the root project folder and run `./gradlew kotlin-source:deployNodes`, followed by 
+* Terminal: Navigate to the root project folder and run `./gradlew kotlin-source:deployNodes`, followed by
 `./kotlin-source/build/node/runnodes`
-* IntelliJ: With the project open, select `Kotlin - Node driver` from the dropdown run configuration menu, and click 
+* IntelliJ: With the project open, select `Kotlin - Node driver` from the dropdown run configuration menu, and click
 the green play button.
 
 ### Java
-* Terminal: Navigate to the root project folder and run `./gradlew java-source:deployNodes`, followed by 
+* Terminal: Navigate to the root project folder and run `./gradlew java-source:deployNodes`, followed by
 `./java-source/build/node/runnodes`
-* IntelliJ: With the project open, select `Java - NodeDriver` from the dropdown run configuration menu, and click 
+* IntelliJ: With the project open, select `Java - NodeDriver` from the dropdown run configuration menu, and click
 the green play button.
 
 ### Interacting with the CorDapp
 Once all the three nodes have started up (look for `Webserver started up in XXX sec` in the terminal or IntelliJ ), you can interact
-with the app via a web browser. 
-* From a Node Driver configuration, look for `Starting webserver on address localhost:100XX` for the addresses. 
+with the app via a web browser.
+* From a Node Driver configuration, look for `Starting webserver on address localhost:100XX` for the addresses.
 
 * From the terminal: Node A: `localhost:10009`, Node B: `localhost:10012`, Node C: `localhost:10015`.
 

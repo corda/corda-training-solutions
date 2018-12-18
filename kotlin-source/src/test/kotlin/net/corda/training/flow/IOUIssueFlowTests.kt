@@ -120,7 +120,7 @@ class IOUIssueFlowTests {
      * TODO: Amend the [IOUIssueFlow] to collect the [otherParty]'s signature.
      * Hint:
      * On the Initiator side:
-     * - Get a set of signers required from the participants who are not the node
+     * - Get a set of the required signers from the participants who are not the node
      * - - [ourIdentity] will give you the identity of the node you are operating as
      * - Use [initiateFlow] to get a set of [FlowSession] objects
      * - - Using [state.participants] as a base to determine the sessions needed is recommended. [participants] is on
@@ -175,9 +175,9 @@ class IOUIssueFlowTests {
         listOf(a, b).map {
             it.services.validatedTransactions.getTransaction(stx.id)
         }.forEach {
-                    val txHash = (it as SignedTransaction).id
-                    println("$txHash == ${stx.id}")
-                    assertEquals(stx.id, txHash)
-                }
+            val txHash = (it as SignedTransaction).id
+            println("$txHash == ${stx.id}")
+            assertEquals(stx.id, txHash)
+        }
     }
 }

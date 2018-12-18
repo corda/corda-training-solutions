@@ -1,4 +1,3 @@
-
 package net.corda.training.state
 
 import net.corda.core.contracts.Amount

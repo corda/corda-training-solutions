@@ -82,7 +82,7 @@ public class IOUState implements ContractState, LinearState {
      * - [withNewLender] creates a copy of the current state with a newly specified lender. For use when transferring.
      * - [copy] creates a copy of the state using the internal copy constructor ensuring the LinearId is preserved.
      */
-    public IOUState pay(Amount paidAmount) {
+    public IOUState pay(Amount<Currency> paidAmount) {
         Amount<Currency> newAmountPaid = this.paid.plus(paidAmount);
         return new IOUState(amount, lender, borrower, newAmountPaid, linearId);
     }

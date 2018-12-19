@@ -160,6 +160,8 @@ class IOUApi(val rpcOps: CordaRPCOps) {
 
     /**
      * Settles an IOU. Requires cash in the right currency to be able to settle.
+     * Example request:
+     * curl -X PUT 'http://localhost:10007/api/iou/issue-iou?amount=99&currency=GBP&party=O=ParticipantC,L=New%20York,C=US
      */
     @GET
     @Path("settle-iou")

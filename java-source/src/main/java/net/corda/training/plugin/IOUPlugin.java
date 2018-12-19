@@ -36,7 +36,7 @@ public class IOUPlugin implements WebServerPluginRegistry {
     }
 
     @Override
-    public void customizeJSONSerialization(ObjectMapper objectMapper) { 
+    public void customizeJSONSerialization(ObjectMapper objectMapper) {
 
-     }
+    }
 }

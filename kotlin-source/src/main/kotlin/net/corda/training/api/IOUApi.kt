@@ -128,7 +128,7 @@ class IOUApi(val rpcOps: CordaRPCOps) {
                     .status(Response.Status.CREATED)
                     .entity("Transaction id ${result.id} committed to ledger.\n${result.tx.outputs.single()}")
                     .build()
-            // For the purposes of this demo app, we do not differentiate by exception type.
+        // For the purposes of this demo app, we do not differentiate by exception type.
         } catch (e: Exception) {
             return Response
                     .status(Response.Status.BAD_REQUEST)

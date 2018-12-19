@@ -26,91 +26,90 @@ import static net.corda.training.contract.IOUContract.Commands.*;
  */
 public class IOUIssueFlow {
 
-	@InitiatingFlow
-	@StartableByRPC
-	public static class InitiatorFlow extends FlowLogic<SignedTransaction> {
-		private final IOUState state;
+    @InitiatingFlow
+    @StartableByRPC
+    public static class InitiatorFlow extends FlowLogic<SignedTransaction> {
+        private final IOUState state;
+        public InitiatorFlow(IOUState state) {
+            this.state = state;
+        }
 
-		public InitiatorFlow(IOUState state) {
-			this.state = state;
-		}
+        @Suspendable
+        @Override
+        public SignedTransaction call() throws FlowException {
+            // Step 1. Get a reference to the notary service on our network and our key pair.
+            // Note: ongoing work to support multiple notary identities is still in progress.
+            final Party notary = getServiceHub().getNetworkMapCache().getNotaryIdentities().get(0);
 
-		@Suspendable
-		@Override
-		public SignedTransaction call() throws FlowException {
-			// Step 1. Get a reference to the notary service on our network and our key pair.
-			// Note: ongoing work to support multiple notary identities is still in progress.
-			final Party notary = getServiceHub().getNetworkMapCache().getNotaryIdentities().get(0);
+            // Step 2. Create a new issue command.
+            // Remember that a command is a CommandData object and a list of CompositeKeys
+            final Command<Issue> issueCommand = new Command<>(
+                    new Issue(), state.getParticipants()
+                    .stream().map(AbstractParty::getOwningKey)
+                    .collect(Collectors.toList()));
 
-			// Step 2. Create a new issue command.
-			// Remember that a command is a CommandData object and a list of CompositeKeys
-			final Command<Issue> issueCommand = new Command<>(
-					new Issue(), state.getParticipants()
-					.stream().map(AbstractParty::getOwningKey)
-					.collect(Collectors.toList()));
+            // Step 3. Create a new TransactionBuilder object.
+            final TransactionBuilder builder = new TransactionBuilder(notary);
 
-			// Step 3. Create a new TransactionBuilder object.
-			final TransactionBuilder builder = new TransactionBuilder(notary);
-
-			// Step 4. Add the iou as an output state, as well as a command to the transaction builder.
-			builder.addOutputState(state, IOUContract.IOU_CONTRACT_ID);
-			builder.addCommand(issueCommand);
-
-
-			// Step 5. Verify and sign it with our KeyPair.
-			builder.verify(getServiceHub());
-			final SignedTransaction ptx = getServiceHub().signInitialTransaction(builder);
+            // Step 4. Add the iou as an output state, as well as a command to the transaction builder.
+            builder.addOutputState(state, IOUContract.IOU_CONTRACT_ID);
+            builder.addCommand(issueCommand);
 
 
-			// Step 6. Collect the other party's signature using the SignTransactionFlow.
-			List<Party> otherParties = state.getParticipants()
-					.stream().map(el -> (Party)el)
-					.collect(Collectors.toList());
+            // Step 5. Verify and sign it with our KeyPair.
+            builder.verify(getServiceHub());
+            final SignedTransaction ptx = getServiceHub().signInitialTransaction(builder);
 
-			otherParties.remove(getOurIdentity());
 
-			List<FlowSession> sessions = otherParties
-					.stream().map(el -> initiateFlow(el))
-					.collect(Collectors.toList());
+            // Step 6. Collect the other party's signature using the SignTransactionFlow.
+            List<Party> otherParties = state.getParticipants()
+                    .stream().map(el -> (Party)el)
+                    .collect(Collectors.toList());
 
-			SignedTransaction stx = subFlow(new CollectSignaturesFlow(ptx, sessions));
+            otherParties.remove(getOurIdentity());
 
-			// Step 7. Assuming no exceptions, we can now finalise the transaction.
-			return subFlow(new FinalityFlow(stx));
-		}
-	}
+            List<FlowSession> sessions = otherParties
+                    .stream().map(el -> initiateFlow(el))
+                    .collect(Collectors.toList());
 
-	/**
-	 * This is the flow which signs IOU issuances.
-	 * The signing is handled by the [SignTransactionFlow].
-	 */
-	@InitiatedBy(InitiatorFlow.class)
-	public static class ResponderFlow extends FlowLogic<SignedTransaction>{
-		private final FlowSession flowSession;
+            SignedTransaction stx = subFlow(new CollectSignaturesFlow(ptx, sessions));
 
-		public ResponderFlow(FlowSession flowSession){
-			this.flowSession = flowSession;
-		}
+            // Step 7. Assuming no exceptions, we can now finalise the transaction.
+            return subFlow(new FinalityFlow(stx));
+        }
+    }
 
-		@Suspendable
-		@Override
-		public SignedTransaction call() throws FlowException {
-			class SignTxFlow extends SignTransactionFlow{
+    /**
+     * This is the flow which signs IOU issuances.
+     * The signing is handled by the [SignTransactionFlow].
+     */
+    @InitiatedBy(InitiatorFlow.class)
+    public static class ResponderFlow extends FlowLogic<SignedTransaction> {
+        private final FlowSession flowSession;
 
-				private SignTxFlow(FlowSession flowSession, ProgressTracker progressTracker){
-					super(flowSession, progressTracker);
-				}
+        public ResponderFlow(FlowSession flowSession){
+            this.flowSession = flowSession;
+        }
 
-				@Override
-				protected void checkTransaction(SignedTransaction stx){
-					requireThat(req -> {
-						ContractState output = stx.getTx().getOutputs().get(0).getData();
-						req.using("This must be an IOU transaction", output instanceof IOUState);
-						return null;
-					});
-				}
-			}
-			return subFlow(new SignTxFlow(flowSession, SignTransactionFlow.Companion.tracker()));
-		}
-	}
+        @Suspendable
+        @Override
+        public SignedTransaction call() throws FlowException {
+            class SignTxFlow extends SignTransactionFlow{
+
+                private SignTxFlow(FlowSession flowSession, ProgressTracker progressTracker) {
+                    super(flowSession, progressTracker);
+                }
+
+                @Override
+                protected void checkTransaction(SignedTransaction stx) {
+                    requireThat(req -> {
+                        ContractState output = stx.getTx().getOutputs().get(0).getData();
+                        req.using("This must be an IOU transaction", output instanceof IOUState);
+                        return null;
+                    });
+                }
+            }
+            return subFlow(new SignTxFlow(flowSession, SignTransactionFlow.Companion.tracker()));
+        }
+    }
 }

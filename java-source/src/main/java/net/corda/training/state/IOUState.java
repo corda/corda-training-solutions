@@ -34,7 +34,7 @@ public class IOUState implements ContractState, LinearState {
 
     // Private constructor used only for copying a State object
     @ConstructorForDeserialization
-    public IOUState(Amount<Currency> amount, Party lender, Party borrower, Amount<Currency> paid, UniqueIdentifier linearId){
+    private IOUState(Amount<Currency> amount, Party lender, Party borrower, Amount<Currency> paid, UniqueIdentifier linearId){
         this.amount = amount;
         this.lender = lender;
         this.borrower = borrower;
@@ -82,8 +82,8 @@ public class IOUState implements ContractState, LinearState {
      * - [withNewLender] creates a copy of the current state with a newly specified lender. For use when transferring.
      * - [copy] creates a copy of the state using the internal copy constructor ensuring the LinearId is preserved.
      */
-    public IOUState pay(Amount<Currency> paidAmount) {
-        Amount<Currency> newAmountPaid = this.paid.plus(paidAmount);
+    public IOUState pay(Amount<Currency> amountToPay) {
+        Amount<Currency> newAmountPaid = this.paid.plus(amountToPay);
         return new IOUState(amount, lender, borrower, newAmountPaid, linearId);
     }
 

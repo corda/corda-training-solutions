@@ -25,12 +25,6 @@ nagivating to where the JDK was installed). Click `Okay`.
 navigate to and select the repository folder, select `Gradle` from the next menu, and finally click `Okay`,
 again leaving all options as they are.
 
-# Instructions
-This project follows a test-based development style - the unit tests for each class contain all the information needed to complete this CorDapp.
-
-These are the solutions for the training material. The tests are uncommented and ready to be run. If you have configured everything correctly, all
-tests should pass without having to change any of the solutions code.
-
 ### Running the tests
 * Kotlin: Select `Kotlin - Unit tests` from the dropdown run configuration menu, and click the green play button.
 * Java: Select `Java - Unit tests` from the dropdown run configuration menu, and click the green play button.

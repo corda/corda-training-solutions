@@ -45,7 +45,6 @@ public class IOUApi {
         this.me = rpcOps.nodeInfo().getLegalIdentities().get(0).getName();
     }
 
-
     /** Helpers for filtering the network map cache. */
     public String toDisplayString(X500Name name){
         return BCStyle.INSTANCE.toString(name);

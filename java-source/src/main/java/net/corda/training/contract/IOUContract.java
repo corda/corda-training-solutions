@@ -20,8 +20,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * This is where you'll add the contract code which defines how the [IOUState] behaves. Looks at the unit tests in
- * [IOUContractTests] for instructions on how to complete the [IOUContract] class.
+ * This is the contract code which defines how the [IOUState] behaves. Looks at the unit tests in
+ * [IOUContractTests] for more insight on how this contract verifies a transaction.
  */
 
 // LegalProseReference: this is just a dummy string for the time being.
@@ -37,9 +37,9 @@ public class IOUContract implements Contract {
      * - Settle: Fully or partially settling the [IOUState] using the Corda [Cash] contract.
      */
     public interface Commands extends CommandData {
-        class Issue extends TypeOnlyCommandData implements Commands{};
-        class Transfer extends TypeOnlyCommandData implements Commands{};
-        class Settle extends TypeOnlyCommandData implements Commands{};
+        class Issue extends TypeOnlyCommandData implements Commands{}
+        class Transfer extends TypeOnlyCommandData implements Commands{}
+        class Settle extends TypeOnlyCommandData implements Commands{}
     }
     /**
      * The contract code for the [IOUContract].

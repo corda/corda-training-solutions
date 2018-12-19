@@ -83,7 +83,6 @@ public class IOUTransferFlowTests {
      * - Verify and sign the transaction as you did with the [IOUIssueFlow].
      * - Return the partially signed transaction.
      */
-
     @Test
     public void flowReturnsCorrectlyFormedPartiallySignedTransaction() throws Exception {
         Party lender = a.getInfo().getLegalIdentitiesAndCerts().get(0).getParty();
@@ -120,7 +119,6 @@ public class IOUTransferFlowTests {
      *   retrieved from the vault.
      * - Throw an [IllegalArgumentException] if the wrong party attempts to run the flow!
      */
-
     @Test
     public void flowCanOnlyBeRunByCurrentLender() throws Exception {
         Party lender = a.getInfo().getLegalIdentitiesAndCerts().get(0).getParty();
@@ -135,7 +133,6 @@ public class IOUTransferFlowTests {
         } catch (Exception exception) {
             assert exception.getMessage().equals("java.lang.IllegalArgumentException: This flow must be run by the current lender.");
         }
-
     }
 
     /**
@@ -143,7 +140,6 @@ public class IOUTransferFlowTests {
      * Check that an [IOUState] cannot be transferred to the same lender.
      * TODO: You shouldn't have to do anything additional to get this test to pass. Belts and Braces!
      */
-
     @Test
     public void iouCannotBeTransferredToSameParty() throws Exception {
         Party lender = a.getInfo().getLegalIdentitiesAndCerts().get(0).getParty();
@@ -159,7 +155,6 @@ public class IOUTransferFlowTests {
             System.out.println(exception.getMessage());
             assert exception.getMessage().equals("Contract verification failed: Failed requirement: The lender property must change in a transfer.");
         }
-
     }
 
     /**
@@ -168,7 +163,6 @@ public class IOUTransferFlowTests {
      * TODO: Amend the [IOUTransferFlow] to handle collecting signatures from multiple parties.
      * Hint: use [initiateFlow] and the [CollectSignaturesFlow] in the same way you did for the [IOUIssueFlow].
      */
-
     @Test
     public void flowReturnsTransactionSignedBtAllParties() throws Exception {
         Party lender = a.getInfo().getLegalIdentitiesAndCerts().get(0).getParty();
@@ -184,7 +178,6 @@ public class IOUTransferFlowTests {
         } catch (Exception exception) {
             System.out.println(exception.getMessage());
         }
-
     }
 
     /**
@@ -192,7 +185,6 @@ public class IOUTransferFlowTests {
      * We need to get the transaction signed by the notary service
      * TODO: Use a subFlow call to the [FinalityFlow] to get a signature from the lender.
      */
-
     @Test
     public void flowReturnsTransactionSignedByAllPartiesAndNotary() throws Exception {
         Party lender = a.getInfo().getLegalIdentitiesAndCerts().get(0).getParty();
@@ -209,5 +201,4 @@ public class IOUTransferFlowTests {
             System.out.println(exception.getMessage());
         }
     }
-
 }

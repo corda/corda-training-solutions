@@ -139,7 +139,6 @@ public class IOUSettleTests {
      * There always has to be one input IOU in a settle transaction but there might not be an output IOU.
      * TODO: Add a constraint to check there is always one input IOU.
      */
-
     @Test
     public void mustHaveOneInputIOU() {
 
@@ -188,7 +187,6 @@ public class IOUSettleTests {
      * Hint:
      * - Use the [outputsOfType] extension function to filter the transaction's outputs by type, in this case [Cash.State].
      */
-
     @Test
     public void mustBeCashOutputStatesPresent() {
 
@@ -230,7 +228,6 @@ public class IOUSettleTests {
      * - Use [filter] to filter over the list of cash states to get the ones which are being assigned to us.
      * - Once we have this filtered list, we can sum the cash being paid to us so we know how much is being settled.
      */
-
     @Test
     public void mustBeCashOutputStatesWithRecipientAsOwner() {
         IOUState iou = new IOUState(Currencies.POUNDS(10), ALICE.getParty(), BOB.getParty());
@@ -275,7 +272,6 @@ public class IOUSettleTests {
      * = explicitly loop through the list to sum the individual states.
      * - We can compare the amount left paid to the amount being paid to use, ensuring the amount being paid isn't too much.
      */
-
     @Test
     public void cashSettlementAmountMustBeLessThanRemainingIOUAmount() {
         IOUState iou = new IOUState(Currencies.DOLLARS(10), ALICE.getParty(), BOB.getParty());
@@ -323,7 +319,6 @@ public class IOUSettleTests {
      * in the currency that the IOU in denominated in.
      * TODO: You shouldn't have anything to do here but here are some tests just to make sure!
      */
-
     @Test
     public void cashSettlementMustBeInTheCorrectCurrency() {
         IOUState iou = new IOUState(Currencies.DOLLARS(10), ALICE.getParty(), BOB.getParty());
@@ -360,7 +355,6 @@ public class IOUSettleTests {
      * TODO: Write a constraint that ensures the correct behaviour depending on the amount settled vs amount remaining.
      * Hint: You can use a simple if statement and compare the total amount paid vs amount left to settle.
      */
-
     @Test
     public void mustOnlyHaveOutputIOUIfNotFullySettling() {
         IOUState iou = new IOUState(Currencies.DOLLARS(10), ALICE.getParty(), BOB.getParty());
@@ -414,7 +408,6 @@ public class IOUSettleTests {
      * We want to make sure that the only property of the IOU which changes when we settle, is the paid amount.
      * TODO: Write a constraint to check only the paid property of the [IOUState] changes when settling.
      */
-
     @Test
     public void onlyPaidPropertyMayChange() {
         IOUState iou = new IOUState(Currencies.DOLLARS(10), ALICE.getParty(), BOB.getParty());
@@ -479,7 +472,6 @@ public class IOUSettleTests {
      * Both the lender and the borrower must have signed an IOU issue transaction.
      * TODO: Add a constraint to the contract code that ensures this is the case.
      */
-
     public void mustBeSignedByAllParticipants() {
         IOUState iou = new IOUState(Currencies.DOLLARS(10), ALICE.getParty(), BOB.getParty());
         Cash.State cash = createCashState(BOB.getParty(), Currencies.DOLLARS(5));

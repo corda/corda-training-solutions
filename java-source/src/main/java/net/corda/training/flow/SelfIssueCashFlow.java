@@ -24,7 +24,7 @@ public class SelfIssueCashFlow extends FlowLogic<Cash.State> {
     @Suspendable
     public Cash.State call() throws FlowException {
         /** Create the cash issue command. */
-       OpaqueBytes issueRef = OpaqueBytes.of("1".getBytes());
+        OpaqueBytes issueRef = OpaqueBytes.of("1".getBytes());
         /** Note: ongoing work to support multiple notary identities is still in progress. */
         Party notary = getServiceHub().getNetworkMapCache().getNotaryIdentities().get(0);
         /** Create the cash issuance transaction. */

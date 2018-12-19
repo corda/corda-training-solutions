@@ -1,13 +1,10 @@
 ![Corda](https://www.corda.net/wp-content/uploads/2016/11/fg005_corda_b.png)
 
-# Corda Training Template
+# Corda Training Solutions
 
-This repo contains all of the instructions and class templates for the practical exercises of the Corda two day
-training course.
+This repo contains all the solutions for the practical exercises of the Corda two-day training course.
 
-
-This repository is divided into two parts: Java templates, and Kotlin templates. You may complete the training in whichever
-language you prefer.
+This repository is divided into two parts: Java Solutions, and Kotlin Solutions.
 
 # Setup
 
@@ -29,17 +26,10 @@ navigate to and select the repository folder, select `Gradle` from the next menu
 again leaving all options as they are.
 
 # Instructions
-Once you are all set up, you can start expanding on the class templates. This project follows a test-based
-development style - the unit tests for each class contain all the information you will need to complete this CorDapp.
+This project follows a test-based development style - the unit tests for each class contain all the information needed to complete this CorDapp.
 
-All the tests are commented out by default - to complete this training, you will uncomment them one at a time, building up
-the CorDapp until it passes everything.
-
-You will begin by opening `IOUState` and `IOUStateTests` in your language of choice and uncommenting the first test. Then, use the TODO and
-hints to modify `IOUState` to pass the test.
-
-In order to issue IOU's using Corda - You will first fix `IOUState`, then `IOUContract`, and lastly `IOUIssueFlow`. Then you can move on to
-more challenging exercises specified in Transfer and Settle testing files.
+These are the solutions for the training material. The tests are uncommented and ready to be run. If you have configured everything correctly, all
+tests should pass without having to change any of the solutions code.
 
 ### Running the tests
 * Kotlin: Select `Kotlin - Unit tests` from the dropdown run configuration menu, and click the green play button.
@@ -49,7 +39,7 @@ more challenging exercises specified in Transfer and Settle testing files.
 * Quasar - a library that provides high-performance, lightweight threads.
 * "-javaagent: /PATH_TO_FILE_FROM_ROOT_DIR/quasar.jar"
 
-# Template Files
+# Solutions Files
 
 ### Kotlin
 State:
@@ -66,11 +56,11 @@ Contract:
 
 Flow:
 
-* Issue template: `kotlin-source/src/main/kotlin/net/corda/training/flow/IOUIssueFlow.kt`
+* Issue Solution: `kotlin-source/src/main/kotlin/net/corda/training/flow/IOUIssueFlow.kt`
 * Issue tests: `kotlin-source/src/test/kotlin/net/corda/training/flow/IOUIssueFlowTests.kt`
-* Transfer template `kotlin-source/src/main/kotlin/net/corda/training/flow/IOUTransfer.kt`
+* Transfer Solution: `kotlin-source/src/main/kotlin/net/corda/training/flow/IOUTransfer.kt`
 * Transfer tests: `kotlin-source/src/test/kotlin/net/corda/training/flow/IOUTransferFlowTests.kt`
-* Settle template `kotlin-source/src/main/kotlin/net/corda/training/flow/IOUSettleFlow.kt`
+* Settle Solution: `kotlin-source/src/main/kotlin/net/corda/training/flow/IOUSettleFlow.kt`
 * Settle tests: `kotlin-source/src/test/kotlin/net/corda/training/flow/IOUSettleFlowTests.kt`
 
 The code in the following files was already added for you:
@@ -84,23 +74,23 @@ The code in the following files was already added for you:
 ### Java
 State:
 
-* Template: `java-source/src/main/java/net/corda/training/state/IOUState.java`
+* Solution: `java-source/src/main/java/net/corda/training/state/IOUState.java`
 * Tests: `java-source/src/test/java/net/corda/training/state/IOUStateTests.java`
 
 Contract:
 
-* Template: `java-source/src/main/java/net/corda/training/contract/IOUContract.java`
+* Solution: `java-source/src/main/java/net/corda/training/contract/IOUContract.java`
 * Issue Tests: `java-source/src/test/java/net/corda/training/contract/IOUIssueTests.java`
 * Transfer Tests: `java-source/src/test/java/net/corda/training/contract/IOUIssueTests.java`
 * Settle Tests: `java-source/src/test/java/net/corda/training/contract/IOUIssueTests.java`
 
 Flow:
 
-* Issue template: `java-source/src/main/java/net/corda/training/flow/IOUIssueFlow.java`
+* Issue Solution: `java-source/src/main/java/net/corda/training/flow/IOUIssueFlow.java`
 * Issue tests: `java-source/src/test/java/net/corda/training/flow/IOUIssueFlowTests.java`
-* Transfer template: `java-source/src/main/java/net/corda/training/flow/IOUTransferFlow.java`
+* Transfer Solution: `java-source/src/main/java/net/corda/training/flow/IOUTransferFlow.java`
 * Transfer tests: `java-source/src/test/java/net/corda/training/flow/IOUTransferFlowTests.java`
-* Settle template: `java-source/src/main/java/net/corda/training/flow/IOUSettleFlow.java`
+* Settle Solution: `java-source/src/main/java/net/corda/training/flow/IOUSettleFlow.java`
 * Settle tests: `java-source/src/test/java/net/corda/training/flow/IOUSettleFlowTests.java`
 
 The code in the following files was already added for you:
@@ -142,5 +132,3 @@ When running the flow tests, if you get a Quasar instrumention error then add:
 ```-ea -javaagent:lib/quasar.jar```
 
 to the VM args property in the default run configuration for JUnit in IntelliJ.
-
-Solutions are available [here](https://github.com/corda/corda-training-solutions).

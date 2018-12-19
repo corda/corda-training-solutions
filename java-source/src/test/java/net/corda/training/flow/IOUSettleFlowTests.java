@@ -97,13 +97,13 @@ public class IOUSettleFlowTests{
      * Hints:
      * - Use the code from the [IOUTransferFlow] to get the correct [IOUState] from the vault.
      * - You will need to use the [Cash.generateSpend] functionality of the vault to add the cash states and cash command
-     *   to your transaction. The API is quite simple. It takes a reference to a [TransactionBuilder], an [Amount] and
-     *   the [Party] object for the recipient. The function will mutate your builder by adding the states and commands.
+     *   to your transaction. The API is quite simple. It takes a reference to a [ServiceHub], [TransactionBuilder], an [Amount],
+     *   our Identity as a [PartyAndCertificate], the [Party] object for the recipient, and a set of the spending parties.
+     *   The function will mutate your builder by adding the states and commands.
      * - You then need to produce the output [IOUState] by using the [IOUState.pay] function.
      * - Add the input [IOUState] [StateAndRef] and the new output [IOUState] to the transaction.
      * - Sign the transaction and return it.
      */
-
     @Test
     public void flowReturnsCorrectlyFormedPartiallySignedTransaction() throws Exception {
         SignedTransaction stx = issueIOU(new IOUState(Currencies.POUNDS(10), b.getInfo().getLegalIdentities().get(0), a.getInfo().getLegalIdentities().get(0)));
@@ -159,7 +159,6 @@ public class IOUSettleFlowTests{
             }
             return null;
         });
-
     }
 
     /**
@@ -168,7 +167,6 @@ public class IOUSettleFlowTests{
      * TODO: Grab the IOU for the given [linearId] from the vault and check the node running the flow is the borrower.
      * Hint: Use the data within the iou obtained from the vault to check the right node is running the flow.
      */
-
     @Test
     public void settleFlowCanOnlyBeRunByBorrower() throws Exception {
         SignedTransaction stx = issueIOU(new IOUState(Currencies.POUNDS(10), b.getInfo().getLegalIdentities().get(0), a.getInfo().getLegalIdentities().get(0)));
@@ -190,10 +188,9 @@ public class IOUSettleFlowTests{
      * The borrower must have at least SOME cash in the right currency to pay the lender.
      * TODO: Add a check in the flow to ensure that the borrower has a balance of cash in the right currency.
      * Hint:
-     * - Use [serviceHub.getCashBalances] - it is a map which can be queried by [Currency].
+     * - Use [getCashBalance(getServiceHub(), (Currency) amount.getToken())].
      * - Use an if statement to check there is cash in the right currency present.
      */
-
     @Test
     public void borrowerMustHaveCashInRightCurrency() throws Exception {
         SignedTransaction stx = issueIOU(new IOUState(Currencies.POUNDS(10), b.getInfo().getLegalIdentities().get(0), a.getInfo().getLegalIdentities().get(0)));
@@ -216,7 +213,6 @@ public class IOUSettleFlowTests{
      * TODO: Add a check in the flow to ensure that the borrower has enough cash to pay the lender.
      * Hint: Add another if statement similar to the one required above.
      */
-
     @Test
     public void borrowerMustHaveEnoughCashInRightCurrency() throws Exception {
         SignedTransaction stx = issueIOU(new IOUState(Currencies.POUNDS(10), b.getInfo().getLegalIdentities().get(0), a.getInfo().getLegalIdentities().get(0)));
@@ -235,9 +231,8 @@ public class IOUSettleFlowTests{
     /**
      * Task 5.
      * We need to get the transaction signed by the other party.
-     * TODO: Use a subFlow call to [initateFlow] and the [SignTransactionFlow] to get a signature from the lender.
+     * TODO: Use a subFlow call to [initiateFlow] and the [SignTransactionFlow] to get a signature from the lender.
      */
-
     @Test
     public void flowReturnsTransactionSignedByBothParties() throws Exception {
         SignedTransaction stx = issueIOU(new IOUState(Currencies.POUNDS(10), b.getInfo().getLegalIdentities().get(0), a.getInfo().getLegalIdentities().get(0)));
@@ -259,7 +254,6 @@ public class IOUSettleFlowTests{
      * We need to get the transaction signed by the notary service
      * TODO: Use a subFlow call to the [FinalityFlow] to get a signature from the lender.
      */
-
     @Test
     public void flowReturnsCommittedTransaction() throws Exception {
         SignedTransaction stx = issueIOU(new IOUState(Currencies.POUNDS(10), b.getInfo().getLegalIdentities().get(0), a.getInfo().getLegalIdentities().get(0)));

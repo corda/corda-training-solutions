@@ -75,7 +75,6 @@ public class IOUTransferTests {
      *
      * - The [requireSingleCommand] function will handle unrecognised types for you (see first unit test).
      */
-
     @Test
     public void mustHandleMultipleCommandValues() {
         IOUState iou = new IOUState(Currencies.DOLLARS(10), ALICE.getParty(), BOB.getParty());
@@ -107,7 +106,6 @@ public class IOUTransferTests {
      * Hint:
      * - Look at the contract code for "Issue".
      */
-
     @Test
     public void mustHaveOneInputAndOneOutput() {
         IOUState iou = new IOUState(Currencies.DOLLARS(10), ALICE.getParty(), BOB.getParty());
@@ -157,7 +155,6 @@ public class IOUTransferTests {
      * - It's easier to take this approach then check all properties other than the lender haven't changed, including
      *   the [linearId] and the [contract]!
      */
-
     @Test
     public void onlyTheLenderMayChange() {
         IOUState iou = new IOUState(Currencies.DOLLARS(10), ALICE.getParty(), BOB.getParty());
@@ -190,12 +187,13 @@ public class IOUTransferTests {
         });
     }
 
-    @Test
+
     /**
      * Task 4.
      * It is fairly obvious that in a transfer IOU transaction the lender must change.
      * TODO: Add a constraint to check the lender has changed in the output IOU.
      */
+    @Test
     public void theLenderMustChange() {
         IOUState iou = new IOUState(Currencies.DOLLARS(10), ALICE.getParty(), BOB.getParty());
         ledger(ledgerServices, l -> {
@@ -220,7 +218,6 @@ public class IOUTransferTests {
      * All the participants in a transfer IOU transaction must sign.
      * TODO: Add a constraint to check the old lender, the new lender and the recipient have signed.
      */
-
     @Test
     public void allParticipantsMustSign() {
         IOUState iou = new IOUState(Currencies.DOLLARS(10), ALICE.getParty(), BOB.getParty());

@@ -69,7 +69,7 @@ public class IOUIssueFlow {
 
             otherParties.remove(getOurIdentity());
 
-            List<FlowSession> sessions = otherParties
+			List<FlowSession> sessions = otherParties
                     .stream().map(el -> initiateFlow(el))
                     .collect(Collectors.toList());
 

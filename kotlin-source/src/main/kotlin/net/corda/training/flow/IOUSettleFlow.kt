@@ -24,7 +24,7 @@ import java.util.*
 /**
  * This is the flow which handles the (partial) settlement of existing IOUs on the ledger.
  * Gathering the counterparty's signature is handled by the [CollectSignaturesFlow].
- * Notarisation (if required) and commitment to the ledger is handled vy the [FinalityFlow].
+ * Notarisation (if required) and commitment to the ledger is handled by the [FinalityFlow].
  * The flow returns the [SignedTransaction] that was committed to the ledger.
  */
 @InitiatingFlow

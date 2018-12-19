@@ -26,7 +26,7 @@ public class IOUIssueTests {
     public interface Commands extends CommandData {
         class DummyCommand extends TypeOnlyCommandData implements Commands{}
     }
-    
+
     static private final MockServices ledgerServices = new MockServices(Arrays.asList("net.corda.training"));
 
     /**
@@ -51,10 +51,11 @@ public class IOUIssueTests {
      * - We can check for the existence of any command that implements [IOUContract.Commands] by using the
      *   [requireSingleCommand] function which takes a {@link Class} argument.
      * - You can use the [requireSingleCommand] function on [tx.getCommands()] to check for the existence and type of the specified command
-     * in the transaction. [requireSingleCommand] requires a Class argument to identify the type of command required.
+     *   in the transaction. [requireSingleCommand] requires a Class argument to identify the type of command required.
      *
      *         requireSingleCommand(tx.getCommands(), REQUIRED_COMMAND.class)
      */
+    @Test
     public void mustIncludeIssueCommand() {
         IOUState iou = new IOUState(Currencies.POUNDS(1), ALICE.getParty(), BOB.getParty());
 
@@ -106,7 +107,7 @@ public class IOUIssueTests {
             });
             l.transaction(tx -> {
                 tx.output(IOUContract.IOU_CONTRACT_ID, iou);
-                tx.command(Arrays.asList(ALICE.getPublicKey(), BOB.getPublicKey()), new IOUContract.Commands.Issue()); 
+                tx.command(Arrays.asList(ALICE.getPublicKey(), BOB.getPublicKey()), new IOUContract.Commands.Issue());
                 return tx.verifies(); // As there are no input sates
             });
             return null;
@@ -178,8 +179,8 @@ public class IOUIssueTests {
                 tx.command(Arrays.asList(ALICE.getPublicKey(), BOB.getPublicKey()), new IOUContract.Commands.Issue());
                 tx.output(IOUContract.IOU_CONTRACT_ID, new IOUState(Currencies.DOLLARS(10), ALICE.getParty(), BOB.getParty()));
                 return tx.verifies();
-            }); 
-            return null;       
+            });
+            return null;
         });
     }
 

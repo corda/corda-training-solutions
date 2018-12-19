@@ -128,7 +128,7 @@ class IOUApi(val rpcOps: CordaRPCOps) {
                     .status(Response.Status.CREATED)
                     .entity("Transaction id ${result.id} committed to ledger.\n${result.tx.outputs.single()}")
                     .build()
-        // For the purposes of this demo app, we do not differentiate by exception type.
+            // For the purposes of this demo app, we do not differentiate by exception type.
         } catch (e: Exception) {
             return Response
                     .status(Response.Status.BAD_REQUEST)
@@ -160,6 +160,8 @@ class IOUApi(val rpcOps: CordaRPCOps) {
 
     /**
      * Settles an IOU. Requires cash in the right currency to be able to settle.
+     * Example request:
+     * curl -X PUT 'http://localhost:10007/api/iou/issue-iou?amount=99&currency=GBP&party=O=ParticipantC,L=New%20York,C=US
      */
     @GET
     @Path("settle-iou")

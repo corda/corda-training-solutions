@@ -29,15 +29,14 @@ import static org.hamcrest.core.IsInstanceOf.*;
 
 import java.security.PublicKey;
 
-
 /**
  * Practical exercise instructions Flows part 1.
  * Uncomment the unit tests and use the hints + unit test body to complete the FLows such that the unit tests pass.
  */
 public class IOUIssueFlowTests {
+
     private MockNetwork mockNetwork;
     private StartedMockNode a, b;
-
 
     @Before
     public void setup() {

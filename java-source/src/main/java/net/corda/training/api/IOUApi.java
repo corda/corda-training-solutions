@@ -44,7 +44,8 @@ public class IOUApi {
         this.rpcOps = rpcOps;
         this.me = rpcOps.nodeInfo().getLegalIdentities().get(0).getName();
     }
-    
+
+
     /** Helpers for filtering the network map cache. */
     public String toDisplayString(X500Name name){
         return BCStyle.INSTANCE.toString(name);
@@ -131,7 +132,7 @@ public class IOUApi {
     // Display cash balances.
     public Map<Currency,Amount<Currency>> getCashBalances(){
         return GetBalances.getCashBalances(rpcOps);
-    } 
+    }
 
     /**
      * Initiates a flow to agree an IOU between two parties.
@@ -148,7 +149,7 @@ public class IOUApi {
         Party lender = Optional.ofNullable(rpcOps.wellKnownPartyFromX500Name(CordaX500Name.parse(party))).orElseThrow(() -> new IllegalArgumentException("Unknown party name."));
         // Create a new IOU state using the parameters given.
         try {
-            IOUState state = new IOUState(new Amount<>((long)amount * 100, Currency.getInstance(currency)), lender, me);
+            IOUState state = new IOUState(new Amount<>((long) amount * 100, Currency.getInstance(currency)), lender, me);
             // Start the IOUIssueFlow. We block and waits for the flow to return.
             SignedTransaction result = rpcOps.startTrackedFlowDynamic(IOUIssueFlow.InitiatorFlow.class, state).getReturnValue().get();
             // Return the response.

@@ -54,7 +54,7 @@ class IOUIssueFlowTests {
      * - Create a [TransactionBuilder] and pass it a notary reference.
      * -- A notary [Party] object can be obtained from [FlowLogic.serviceHub.networkMapCache].
      * -- In this training project there is only one notary
-     * - Create a new [Command] object with a [IOUContract.Commands.Issue] inside of it
+     * - Create an [IOUContract.Commands.Issue] inside a new [Command].
      * -- The required signers will be the same as the state's participants
      * -- Add the [Command] to the transaction builder [addCommand].
      * - Use the flow's [IOUState] parameter as the output state with [addOutputState]
@@ -125,6 +125,7 @@ class IOUIssueFlowTests {
      * - Use [initiateFlow] to get a set of [FlowSession] objects
      * - - Using [state.participants] as a base to determine the sessions needed is recommended. [participants] is on
      * - - the state interface so it is guaranteed to exist where [lender] and [borrower] are not.
+     * - - Hint: [ourIdentity] will give you the [Party] that represents the identity of the initiating flow.
      * - Use [subFlow] to start the [CollectSignaturesFlow]
      * - Pass it a [SignedTransaction] object and [FlowSession] set
      * - It will return a [SignedTransaction] with all the required signatures

@@ -117,4 +117,3 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
         rpcUsers = rpcUsersList
     }
 }
-

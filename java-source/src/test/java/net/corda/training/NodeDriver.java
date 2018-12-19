@@ -33,19 +33,19 @@ public class NodeDriver{
         // No permissions required as we are not invoking flows.
         final User user = new User("user1", "test", ImmutableSet.of("ALL"));
         driver(new DriverParameters()
-            .withIsDebug(true)
-            .withWaitForAllNodesToFinish(true)
-            .withExtraCordappPackagesToScan(ImmutableList.of("net.corda.finance"))
-            .withNotarySpecs(Arrays.asList(new NotarySpec(new CordaX500Name("Notary", "London","GB"), true,  Arrays.asList(user), VerifierType.InMemory, null))), dsl -> {
-                CordaFuture<NodeHandle> partyAFuture = dsl.startNode(new NodeParameters()
-                        .withProvidedName(new CordaX500Name("ParticipantA", "London", "GB"))
-                        .withRpcUsers(ImmutableList.of(user)));
-                CordaFuture<NodeHandle> partyBFuture = dsl.startNode(new NodeParameters()
-                        .withProvidedName(new CordaX500Name("ParticipantB", "New York", "US"))
-                        .withRpcUsers(ImmutableList.of(user)));
-                CordaFuture<NodeHandle> partyCFuture = dsl.startNode(new NodeParameters()
-                        .withProvidedName(new CordaX500Name("ParticipantC", "Paris", "FR"))
-                        .withRpcUsers(ImmutableList.of(user)));
+                .withIsDebug(true)
+                .withWaitForAllNodesToFinish(true)
+                .withExtraCordappPackagesToScan(ImmutableList.of("net.corda.finance"))
+                .withNotarySpecs(Arrays.asList(new NotarySpec(new CordaX500Name("Notary", "London","GB"), true,  Arrays.asList(user), VerifierType.InMemory, null))), dsl -> {
+            CordaFuture<NodeHandle> partyAFuture = dsl.startNode(new NodeParameters()
+                    .withProvidedName(new CordaX500Name("ParticipantA", "London", "GB"))
+                    .withRpcUsers(ImmutableList.of(user)));
+            CordaFuture<NodeHandle> partyBFuture = dsl.startNode(new NodeParameters()
+                    .withProvidedName(new CordaX500Name("ParticipantB", "New York", "US"))
+                    .withRpcUsers(ImmutableList.of(user)));
+            CordaFuture<NodeHandle> partyCFuture = dsl.startNode(new NodeParameters()
+                    .withProvidedName(new CordaX500Name("ParticipantC", "Paris", "FR"))
+                    .withRpcUsers(ImmutableList.of(user)));
 
                 try {
                     dsl.startWebserver(partyAFuture.get());
@@ -56,7 +56,7 @@ public class NodeDriver{
                     e.printStackTrace();
                 }
 
-                return null;
-            });
+            return null;
+        });
     }
 }

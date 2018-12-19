@@ -50,8 +50,8 @@ class IOUTransferFlow(val linearId: UniqueIdentifier,
 
         // Stage 6. Create the transaction which comprises one input, one output and one command.
         builder.withItems(iouStateAndRef,
-                        StateAndContract(outputIou, IOUContract.IOU_CONTRACT_ID),
-                        transferCommand)
+                StateAndContract(outputIou, IOUContract.IOU_CONTRACT_ID),
+                transferCommand)
 
         // Stage 7. Verify and sign the transaction.
         builder.verify(serviceHub)

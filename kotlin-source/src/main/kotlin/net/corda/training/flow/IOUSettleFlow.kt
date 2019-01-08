@@ -89,7 +89,7 @@ class IOUSettleFlow(val linearId: UniqueIdentifier, val amount: Amount<Currency>
         val stx = subFlow(CollectSignaturesFlow(ptx, listOf(counterpartySession), myOptionalKeys = myKeysToSign))
 
         // Step 10. Finalize the transaction.
-        return subFlow(FinalityFlow(stx))
+        return subFlow(FinalityFlow(stx, counterpartySession))
     }
 }
 
@@ -98,9 +98,9 @@ class IOUSettleFlow(val linearId: UniqueIdentifier, val amount: Amount<Currency>
  * The signing is handled by the [SignTransactionFlow].
  */
 @InitiatedBy(IOUSettleFlow::class)
-class IOUSettleFlowResponder(val flowSession: FlowSession): FlowLogic<Unit>() {
+class IOUSettleFlowResponder(val flowSession: FlowSession): FlowLogic<SignedTransaction>() {
     @Suspendable
-    override fun call() {
+    override fun call(): SignedTransaction {
 
         // Receiving information about anonymous identities
         subFlow(IdentitySyncFlow.Receive(flowSession))
@@ -111,7 +111,9 @@ class IOUSettleFlowResponder(val flowSession: FlowSession): FlowLogic<Unit>() {
             }
         }
 
-        subFlow(signedTransactionFlow)
+        val txWeJustSignedId = subFlow(signedTransactionFlow)
+
+        return subFlow(ReceiveFinalityFlow(otherSideSession = flowSession, expectedTxId = txWeJustSignedId.id))
     }
 }
 

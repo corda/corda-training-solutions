@@ -5,7 +5,7 @@ import net.corda.core.contracts.ContractState
 import net.corda.core.contracts.StateAndRef
 import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.identity.CordaX500Name
-import net.corda.core.internal.x500Name
+import net.corda.core.internal.toX500Name
 import net.corda.core.messaging.CordaRPCOps
 import net.corda.core.messaging.startFlow
 import net.corda.core.messaging.startTrackedFlow
@@ -68,7 +68,7 @@ class IOUApi(val rpcOps: CordaRPCOps) {
     fun getPeers(): Map<String, List<String>> {
         return mapOf("peers" to rpcOps.networkMapSnapshot()
                 .filter { isNotary(it).not() && isMe(it).not() && isNetworkMap(it).not() }
-                .map { it.legalIdentities.first().name.x500Name.toDisplayString() })
+                .map { it.legalIdentities.first().name.toX500Name().toDisplayString() })
     }
 
     /**

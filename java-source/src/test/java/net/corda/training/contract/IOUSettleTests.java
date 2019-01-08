@@ -36,7 +36,7 @@ public class IOUSettleTests {
         class DummyCommand extends TypeOnlyCommandData implements Commands{}
     }
 
-    static private final MockServices ledgerServices = new MockServices(Arrays.asList("net.corda.training"));
+    static private final MockServices ledgerServices = new MockServices(Arrays.asList("net.corda.training", "net.corda.finance.contracts"));
 
     private Cash.State createCashState(AbstractParty owner, Amount<Currency> amount) {
         OpaqueBytes defaultBytes = new OpaqueBytes(new byte[1]);
@@ -60,24 +60,24 @@ public class IOUSettleTests {
             l.transaction(tx -> {
                 tx.input(IOUContract.IOU_CONTRACT_ID, iou);
                 tx.output(IOUContract.IOU_CONTRACT_ID, iou.pay(Currencies.POUNDS(5)));
-                tx.input(IOUContract.IOU_CONTRACT_ID, inputCash);
-                tx.output(IOUContract.IOU_CONTRACT_ID, outputCash);
+                tx.input(Cash.class.getName(), inputCash);
+                tx.output(Cash.class.getName(), outputCash);
                 tx.command(BOB.getPublicKey(), new Cash.Commands.Move());
                 return tx.failsWith("Contract Verification Failed");
             });
             l.transaction(tx -> {
                 tx.input(IOUContract.IOU_CONTRACT_ID, iou);
                 tx.output(IOUContract.IOU_CONTRACT_ID, iou.pay(Currencies.POUNDS(5)));
-                tx.input(IOUContract.IOU_CONTRACT_ID, inputCash);
-                tx.output(IOUContract.IOU_CONTRACT_ID, outputCash);
+                tx.input(Cash.class.getName(), inputCash);
+                tx.output(Cash.class.getName(), outputCash);
                 tx.command(BOB.getPublicKey(), new Commands.DummyCommand());
                 return tx.failsWith("Contract verification failed");
             });
             l.transaction(tx -> {
                 tx.input(IOUContract.IOU_CONTRACT_ID, iou);
                 tx.output(IOUContract.IOU_CONTRACT_ID, iou.pay(Currencies.POUNDS(5)));
-                tx.input(IOUContract.IOU_CONTRACT_ID, inputCash);
-                tx.output(IOUContract.IOU_CONTRACT_ID, outputCash);
+                tx.input(Cash.class.getName(), inputCash);
+                tx.output(Cash.class.getName(), outputCash);
                 tx.command(BOB.getPublicKey(), new Cash.Commands.Move());
                 tx.command(Arrays.asList(ALICE.getPublicKey(), BOB.getPublicKey()), new IOUContract.Commands.Settle());
                 return tx.verifies();
@@ -113,8 +113,8 @@ public class IOUSettleTests {
                 tx.input(IOUContract.IOU_CONTRACT_ID, iouTWO);
                 tx.command(Arrays.asList(ALICE.getPublicKey(), BOB.getPublicKey()), new IOUContract.Commands.Settle());
                 tx.output(IOUContract.IOU_CONTRACT_ID, iouONE.pay(Currencies.POUNDS(5)));
-                tx.input(IOUContract.IOU_CONTRACT_ID, inputCash);
-                tx.output(IOUContract.IOU_CONTRACT_ID, outputCash.getOwnableState());
+                tx.input(Cash.class.getName(), inputCash);
+                tx.output(Cash.class.getName(), outputCash.getOwnableState());
                 tx.command(BOB.getPublicKey(), new Cash.Commands.Move());
                 tx.failsWith("List has more than one element.");
                 return null;
@@ -123,8 +123,8 @@ public class IOUSettleTests {
                 tx.input(IOUContract.IOU_CONTRACT_ID, iouONE);
                 tx.command(Arrays.asList(ALICE.getPublicKey(), BOB.getPublicKey()), new IOUContract.Commands.Settle());
                 tx.output(IOUContract.IOU_CONTRACT_ID, iouONE.pay(Currencies.POUNDS(5)));
-                tx.input(IOUContract.IOU_CONTRACT_ID, inputCash);
-                tx.output(IOUContract.IOU_CONTRACT_ID, outputCash.getOwnableState());
+                tx.input(Cash.class.getName(), inputCash);
+                tx.output(Cash.class.getName(), outputCash.getOwnableState());
                 tx.command(BOB.getPublicKey(), new Cash.Commands.Move());
                 tx.verifies();
                 return null;
@@ -158,8 +158,8 @@ public class IOUSettleTests {
                 tx.input(IOUContract.IOU_CONTRACT_ID, iou);
                 tx.command(Arrays.asList(ALICE.getPublicKey(), BOB.getPublicKey()), new IOUContract.Commands.Settle());
                 tx.output(IOUContract.IOU_CONTRACT_ID, iou);
-                tx.input(IOUContract.IOU_CONTRACT_ID, fivePounds);
-                tx.output(IOUContract.IOU_CONTRACT_ID, fivePounds.withNewOwner(ALICE.getParty()).getOwnableState());
+                tx.input(Cash.class.getName(), fivePounds);
+                tx.output(Cash.class.getName(), fivePounds.withNewOwner(ALICE.getParty()).getOwnableState());
                 tx.command(BOB.getPublicKey(), new Cash.Commands.Move());
                 tx.verifies();
                 return null;
@@ -167,8 +167,8 @@ public class IOUSettleTests {
             l.transaction(tx -> {
                 tx.input(IOUContract.IOU_CONTRACT_ID, iouOne);
                 tx.command(Arrays.asList(ALICE.getPublicKey(), BOB.getPublicKey()), new IOUContract.Commands.Settle());
-                tx.input(IOUContract.IOU_CONTRACT_ID, tenPounds);
-                tx.output(IOUContract.IOU_CONTRACT_ID, tenPounds.withNewOwner(ALICE.getParty()).getOwnableState());
+                tx.input(Cash.class.getName(), tenPounds);
+                tx.output(Cash.class.getName(), tenPounds.withNewOwner(ALICE.getParty()).getOwnableState());
                 tx.command(BOB.getPublicKey(), new Cash.Commands.Move());
                 tx.verifies();
                 return null;
@@ -204,9 +204,9 @@ public class IOUSettleTests {
             });
             l.transaction(tx -> {
                 tx.input(IOUContract.IOU_CONTRACT_ID, iou);
-                tx.input(IOUContract.IOU_CONTRACT_ID, cash);
+                tx.input(Cash.class.getName(), cash);
                 tx.output(IOUContract.IOU_CONTRACT_ID, iou.pay(Currencies.DOLLARS(5)));
-                tx.output(IOUContract.IOU_CONTRACT_ID, cashPayment.getOwnableState());
+                tx.output(Cash.class.getName(), cashPayment.getOwnableState());
                 tx.command(BOB.getPublicKey(), new Cash.Commands.Move());
                 tx.command(Arrays.asList(ALICE.getPublicKey(), BOB.getPublicKey()), new IOUContract.Commands.Settle());
                 tx.verifies();
@@ -238,9 +238,9 @@ public class IOUSettleTests {
         ledger(ledgerServices, l -> {
             l.transaction(tx -> {
                 tx.input(IOUContract.IOU_CONTRACT_ID, iou);
-                tx.input(IOUContract.IOU_CONTRACT_ID, cash);
+                tx.input(Cash.class.getName(), cash);
                 tx.output(IOUContract.IOU_CONTRACT_ID, iou.pay(Currencies.POUNDS(5)));
-                tx.output(IOUContract.IOU_CONTRACT_ID, invalidCashPayment.getOwnableState());
+                tx.output(Cash.class.getName(), invalidCashPayment.getOwnableState());
                 tx.command(BOB.getPublicKey(), invalidCashPayment.getCommand());
                 tx.command(Arrays.asList(BOB.getPublicKey(), ALICE.getPublicKey()), new IOUContract.Commands.Settle());
                 tx.failsWith("There must be output cash paid to the recipient.");
@@ -248,9 +248,9 @@ public class IOUSettleTests {
             });
             l.transaction(tx -> {
                 tx.input(IOUContract.IOU_CONTRACT_ID, iou);
-                tx.input(IOUContract.IOU_CONTRACT_ID, cash);
+                tx.input(Cash.class.getName(), cash);
                 tx.output(IOUContract.IOU_CONTRACT_ID, iou.pay(Currencies.POUNDS(5)));
-                tx.output(IOUContract.IOU_CONTRACT_ID, validCashPayment.getOwnableState());
+                tx.output(Cash.class.getName(), validCashPayment.getOwnableState());
                 tx.command(BOB.getPublicKey(), validCashPayment.getCommand());
                 tx.command(Arrays.asList(BOB.getPublicKey(), ALICE.getPublicKey()), new IOUContract.Commands.Settle());
                 tx.verifies();
@@ -282,9 +282,9 @@ public class IOUSettleTests {
         ledger(ledgerServices, l -> {
             l.transaction(tx -> {
                 tx.input(IOUContract.IOU_CONTRACT_ID, iou);
-                tx.input(IOUContract.IOU_CONTRACT_ID, elevenDollars);
+                tx.input(Cash.class.getName(), elevenDollars);
                 tx.output(IOUContract.IOU_CONTRACT_ID, iou.pay(Currencies.DOLLARS(11)));
-                tx.output(IOUContract.IOU_CONTRACT_ID, elevenDollars.withNewOwner(ALICE.getParty()).getOwnableState());
+                tx.output(Cash.class.getName(), elevenDollars.withNewOwner(ALICE.getParty()).getOwnableState());
                 tx.command(BOB.getPublicKey(), new Cash.Commands.Move());
                 tx.command(Arrays.asList(BOB.getPublicKey(), ALICE.getPublicKey()), new IOUContract.Commands.Settle());
                 tx.failsWith("The amount settled cannot be more than the amount outstanding.");
@@ -292,9 +292,9 @@ public class IOUSettleTests {
             });
             l.transaction(tx -> {
                 tx.input(IOUContract.IOU_CONTRACT_ID, iou);
-                tx.input(IOUContract.IOU_CONTRACT_ID, fiveDollars);
+                tx.input(Cash.class.getName(), fiveDollars);
                 tx.output(IOUContract.IOU_CONTRACT_ID, iou.pay(Currencies.DOLLARS(5)));
-                tx.output(IOUContract.IOU_CONTRACT_ID, fiveDollars.withNewOwner(ALICE.getParty()).getOwnableState());
+                tx.output(Cash.class.getName(), fiveDollars.withNewOwner(ALICE.getParty()).getOwnableState());
                 tx.command(BOB.getPublicKey(), new Cash.Commands.Move());
                 tx.command(Arrays.asList(BOB.getPublicKey(), ALICE.getPublicKey()), new IOUContract.Commands.Settle());
                 tx.verifies();
@@ -302,8 +302,8 @@ public class IOUSettleTests {
             });
             l.transaction(tx -> {
                 tx.input(IOUContract.IOU_CONTRACT_ID, iou);
-                tx.input(IOUContract.IOU_CONTRACT_ID, tenDollars);
-                tx.output(IOUContract.IOU_CONTRACT_ID, tenDollars.withNewOwner(ALICE.getParty()).getOwnableState());
+                tx.input(Cash.class.getName(), tenDollars);
+                tx.output(Cash.class.getName(), tenDollars.withNewOwner(ALICE.getParty()).getOwnableState());
                 tx.command(BOB.getPublicKey(), new Cash.Commands.Move());
                 tx.command(Arrays.asList(BOB.getPublicKey(), ALICE.getPublicKey()), new IOUContract.Commands.Settle());
                 tx.verifies();
@@ -328,8 +328,8 @@ public class IOUSettleTests {
         ledger(ledgerServices, l -> {
             l.transaction(tx -> {
                 tx.input(IOUContract.IOU_CONTRACT_ID, iou);
-                tx.input(IOUContract.IOU_CONTRACT_ID, tenPounds);
-                tx.output(IOUContract.IOU_CONTRACT_ID, tenPounds.withNewOwner(ALICE.getParty()).getOwnableState());
+                tx.input(Cash.class.getName(), tenPounds);
+                tx.output(Cash.class.getName(), tenPounds.withNewOwner(ALICE.getParty()).getOwnableState());
                 tx.command(BOB.getPublicKey(), new Cash.Commands.Move());
                 tx.command(Arrays.asList(BOB.getPublicKey(), ALICE.getPublicKey()), new IOUContract.Commands.Settle());
                 tx.failsWith("Token mismatch: GBP vs USD");
@@ -337,8 +337,8 @@ public class IOUSettleTests {
             });
             l.transaction(tx -> {
                 tx.input(IOUContract.IOU_CONTRACT_ID, iou);
-                tx.input(IOUContract.IOU_CONTRACT_ID, tenDollars);
-                tx.output(IOUContract.IOU_CONTRACT_ID, tenDollars.withNewOwner(ALICE.getParty()).getOwnableState());
+                tx.input(Cash.class.getName(), tenDollars);
+                tx.output(Cash.class.getName(), tenDollars.withNewOwner(ALICE.getParty()).getOwnableState());
                 tx.command(BOB.getPublicKey(), new Cash.Commands.Move());
                 tx.command(Arrays.asList(BOB.getPublicKey(), ALICE.getPublicKey()), new IOUContract.Commands.Settle());
                 tx.verifies();
@@ -363,8 +363,8 @@ public class IOUSettleTests {
         ledger(ledgerServices, l -> {
             l.transaction(tx -> {
                 tx.input(IOUContract.IOU_CONTRACT_ID, iou);
-                tx.input(IOUContract.IOU_CONTRACT_ID, fiveDollars);
-                tx.output(IOUContract.IOU_CONTRACT_ID, fiveDollars.withNewOwner(ALICE.getParty()).getOwnableState());
+                tx.input(Cash.class.getName(), fiveDollars);
+                tx.output(Cash.class.getName(), fiveDollars.withNewOwner(ALICE.getParty()).getOwnableState());
                 tx.command(BOB.getPublicKey(), new Cash.Commands.Move());
                 tx.command(Arrays.asList(BOB.getPublicKey(), ALICE.getPublicKey()), new IOUContract.Commands.Settle());
                 tx.failsWith("There must be one output IOU.");
@@ -372,9 +372,9 @@ public class IOUSettleTests {
             });
             l.transaction(tx -> {
                 tx.input(IOUContract.IOU_CONTRACT_ID, iou);
-                tx.input(IOUContract.IOU_CONTRACT_ID, fiveDollars);
+                tx.input(Cash.class.getName(), fiveDollars);
                 tx.output(IOUContract.IOU_CONTRACT_ID, iou.pay(Currencies.DOLLARS(5)));
-                tx.output(IOUContract.IOU_CONTRACT_ID, fiveDollars.withNewOwner(ALICE.getParty()).getOwnableState());
+                tx.output(Cash.class.getName(), fiveDollars.withNewOwner(ALICE.getParty()).getOwnableState());
                 tx.command(BOB.getPublicKey(), new Cash.Commands.Move());
                 tx.command(Arrays.asList(BOB.getPublicKey(), ALICE.getPublicKey()), new IOUContract.Commands.Settle());
                 tx.verifies();
@@ -382,9 +382,9 @@ public class IOUSettleTests {
             });
             l.transaction(tx -> {
                 tx.input(IOUContract.IOU_CONTRACT_ID, iou);
-                tx.input(IOUContract.IOU_CONTRACT_ID, tenDollars);
+                tx.input(Cash.class.getName(), tenDollars);
                 tx.output(IOUContract.IOU_CONTRACT_ID, iou.pay(Currencies.DOLLARS(10)));
-                tx.output(IOUContract.IOU_CONTRACT_ID, tenDollars.withNewOwner(ALICE.getParty()).getOwnableState());
+                tx.output(Cash.class.getName(), tenDollars.withNewOwner(ALICE.getParty()).getOwnableState());
                 tx.command(BOB.getPublicKey(), new Cash.Commands.Move());
                 tx.command(Arrays.asList(BOB.getPublicKey(), ALICE.getPublicKey()), new IOUContract.Commands.Settle());
                 tx.failsWith("There must be no output IOU as it has been fully settled.");
@@ -392,8 +392,8 @@ public class IOUSettleTests {
             });
             l.transaction(tx -> {
                 tx.input(IOUContract.IOU_CONTRACT_ID, iou);
-                tx.input(IOUContract.IOU_CONTRACT_ID, tenDollars);
-                tx.output(IOUContract.IOU_CONTRACT_ID, tenDollars.withNewOwner(ALICE.getParty()).getOwnableState());
+                tx.input(Cash.class.getName(), tenDollars);
+                tx.output(Cash.class.getName(), tenDollars.withNewOwner(ALICE.getParty()).getOwnableState());
                 tx.command(BOB.getPublicKey(), new Cash.Commands.Move());
                 tx.command(Arrays.asList(BOB.getPublicKey(), ALICE.getPublicKey()), new IOUContract.Commands.Settle());
                 tx.verifies();
@@ -416,10 +416,10 @@ public class IOUSettleTests {
         ledger(ledgerServices, l -> {
             l.transaction(tx -> {
                 tx.input(IOUContract.IOU_CONTRACT_ID, iou);
-                tx.input(IOUContract.IOU_CONTRACT_ID, fiveDollars);
+                tx.input(Cash.class.getName(), fiveDollars);
                 IOUState iouCopy = iou.copy(iou.amount, iou.lender, CHARLIE.getParty(), iou.paid).pay(Currencies.DOLLARS(5));
                 tx.output(IOUContract.IOU_CONTRACT_ID, iouCopy);
-                tx.output(IOUContract.IOU_CONTRACT_ID, fiveDollars.withNewOwner(ALICE.getParty()).getOwnableState());
+                tx.output(Cash.class.getName(), fiveDollars.withNewOwner(ALICE.getParty()).getOwnableState());
                 tx.command(BOB.getPublicKey(), new Cash.Commands.Move());
                 tx.command(Arrays.asList(BOB.getPublicKey(), ALICE.getPublicKey()), new IOUContract.Commands.Settle());
                 tx.failsWith("The borrower may not change when settling.");
@@ -428,8 +428,8 @@ public class IOUSettleTests {
 
             l.transaction(tx -> {
                 tx.input(IOUContract.IOU_CONTRACT_ID, iou);
-                tx.input(IOUContract.IOU_CONTRACT_ID, fiveDollars);
-                tx.output(IOUContract.IOU_CONTRACT_ID, fiveDollars.withNewOwner(ALICE.getParty()).getOwnableState());
+                tx.input(Cash.class.getName(), fiveDollars);
+                tx.output(Cash.class.getName(), fiveDollars.withNewOwner(ALICE.getParty()).getOwnableState());
                 IOUState iouCopy = iou.copy(Currencies.DOLLARS(0), iou.lender, CHARLIE.getParty(), iou.paid).pay(Currencies.DOLLARS(5));
                 tx.output(IOUContract.IOU_CONTRACT_ID, iouCopy);
                 tx.command(BOB.getPublicKey(), new Cash.Commands.Move());
@@ -440,8 +440,8 @@ public class IOUSettleTests {
 
             l.transaction(tx -> {
                 tx.input(IOUContract.IOU_CONTRACT_ID, iou);
-                tx.input(IOUContract.IOU_CONTRACT_ID, fiveDollars);
-                tx.output(IOUContract.IOU_CONTRACT_ID, fiveDollars.withNewOwner(ALICE.getParty()).getOwnableState());
+                tx.input(Cash.class.getName(), fiveDollars);
+                tx.output(Cash.class.getName(), fiveDollars.withNewOwner(ALICE.getParty()).getOwnableState());
                 IOUState iouCopy = iou.copy(iou.amount, CHARLIE.getParty(), iou.borrower, iou.paid).pay(Currencies.DOLLARS(5));
                 tx.output(IOUContract.IOU_CONTRACT_ID, iouCopy);
                 tx.command(BOB.getPublicKey(), new Cash.Commands.Move());
@@ -452,8 +452,8 @@ public class IOUSettleTests {
 
             l.transaction(tx -> {
                 tx.input(IOUContract.IOU_CONTRACT_ID, iou);
-                tx.input(IOUContract.IOU_CONTRACT_ID, fiveDollars);
-                tx.output(IOUContract.IOU_CONTRACT_ID, fiveDollars.withNewOwner(ALICE.getParty()).getOwnableState());
+                tx.input(Cash.class.getName(), fiveDollars);
+                tx.output(Cash.class.getName(), fiveDollars.withNewOwner(ALICE.getParty()).getOwnableState());
                 IOUState iouCopy = iou.copy(iou.amount, iou.lender, iou.borrower, iou.paid).pay(Currencies.DOLLARS(5));
                 tx.output(IOUContract.IOU_CONTRACT_ID, iouCopy);
                 tx.command(BOB.getPublicKey(), new Cash.Commands.Move());
@@ -479,9 +479,9 @@ public class IOUSettleTests {
 
         ledger(ledgerServices, l -> {
             l.transaction(tx -> {
-                tx.input(IOUContract.IOU_CONTRACT_ID, cash);
+                tx.input(Cash.class.getName(), cash);
                 tx.input(IOUContract.IOU_CONTRACT_ID, iou);
-                tx.output(IOUContract.IOU_CONTRACT_ID, cashPayment.getOwnableState());
+                tx.output(Cash.class.getName(), cashPayment.getOwnableState());
                 tx.output(IOUContract.IOU_CONTRACT_ID, iou.pay(Currencies.DOLLARS(5)));
                 tx.command(BOB.getPublicKey(), new Cash.Commands.Move());
                 tx.command(Arrays.asList(ALICE.getPublicKey(), CHARLIE.getPublicKey()), new IOUContract.Commands.Settle());
@@ -489,9 +489,9 @@ public class IOUSettleTests {
                 return null;
             });
             l.transaction(tx -> {
-                tx.input(IOUContract.IOU_CONTRACT_ID, cash);
+                tx.input(Cash.class.getName(), cash);
                 tx.input(IOUContract.IOU_CONTRACT_ID, iou);
-                tx.output(IOUContract.IOU_CONTRACT_ID, cashPayment.getOwnableState());
+                tx.output(Cash.class.getName(), cashPayment.getOwnableState());
                 tx.output(IOUContract.IOU_CONTRACT_ID, iou.pay(Currencies.DOLLARS(5)));
                 tx.command(BOB.getPublicKey(), new Cash.Commands.Move());
                 tx.command(BOB.getPublicKey(), new IOUContract.Commands.Settle());
@@ -499,9 +499,9 @@ public class IOUSettleTests {
                 return null;
             });
             l.transaction(tx -> {
-                tx.input(IOUContract.IOU_CONTRACT_ID, cash);
+                tx.input(Cash.class.getName(), cash);
                 tx.input(IOUContract.IOU_CONTRACT_ID, iou);
-                tx.output(IOUContract.IOU_CONTRACT_ID, cashPayment.getOwnableState());
+                tx.output(Cash.class.getName(), cashPayment.getOwnableState());
                 tx.output(IOUContract.IOU_CONTRACT_ID, iou.pay(Currencies.DOLLARS(5)));
                 tx.command(BOB.getPublicKey(), new Cash.Commands.Move());
                 tx.command(Arrays.asList(BOB.getPublicKey(), ALICE.getPublicKey()), new IOUContract.Commands.Settle());

@@ -5,6 +5,8 @@ import net.corda.finance.*;
 import net.corda.testing.contracts.DummyState;
 import net.corda.testing.node.MockServices;
 import net.corda.testing.node.*;
+
+import static net.corda.testing.node.MockServicesKt.makeTestIdentityService;
 import static net.corda.testing.node.NodeTestUtils.ledger;
 import net.corda.core.transactions.LedgerTransaction;
 
@@ -27,7 +29,9 @@ public class IOUIssueTests {
         class DummyCommand extends TypeOnlyCommandData implements Commands{}
     }
 
-    static private final MockServices ledgerServices = new MockServices(Arrays.asList("net.corda.training"));
+    static private final MockServices ledgerServices = new MockServices(
+            Arrays.asList("net.corda.training", "net.corda.finance.contracts")
+    );
 
     /**
      * Task 1.

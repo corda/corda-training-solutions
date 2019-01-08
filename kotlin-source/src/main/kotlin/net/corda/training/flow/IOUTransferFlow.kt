@@ -63,7 +63,7 @@ class IOUTransferFlow(val linearId: UniqueIdentifier,
         val stx = subFlow(CollectSignaturesFlow(ptx, sessions))
 
         // Stage 9. Notarise and record the transaction in our vaults.
-        return subFlow(FinalityFlow(stx))
+        return subFlow(FinalityFlow(stx, sessions))
     }
 }
 
@@ -72,9 +72,9 @@ class IOUTransferFlow(val linearId: UniqueIdentifier,
  * The signing is handled by the [SignTransactionFlow].
  */
 @InitiatedBy(IOUTransferFlow::class)
-class IOUTransferFlowResponder(val flowSession: FlowSession): FlowLogic<Unit>() {
+class IOUTransferFlowResponder(val flowSession: FlowSession): FlowLogic<SignedTransaction>() {
     @Suspendable
-    override fun call() {
+    override fun call(): SignedTransaction {
         val signedTransactionFlow = object : SignTransactionFlow(flowSession) {
             override fun checkTransaction(stx: SignedTransaction) = requireThat {
                 val output = stx.tx.outputs.single().data
@@ -82,6 +82,8 @@ class IOUTransferFlowResponder(val flowSession: FlowSession): FlowLogic<Unit>() 
             }
         }
 
-        subFlow(signedTransactionFlow)
+        val txWeJustSignedId = subFlow(signedTransactionFlow)
+
+        return subFlow(ReceiveFinalityFlow(otherSideSession = flowSession, expectedTxId = txWeJustSignedId.id))
     }
 }

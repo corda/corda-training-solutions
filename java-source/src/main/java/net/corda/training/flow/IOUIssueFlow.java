@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import net.corda.core.contracts.Command;
 import net.corda.core.contracts.ContractState;
+import net.corda.core.crypto.SecureHash;
 import net.corda.core.flows.*;
 import net.corda.core.identity.AbstractParty;
 import net.corda.core.identity.Party;
@@ -26,7 +27,7 @@ import static net.corda.training.contract.IOUContract.Commands.*;
  */
 public class IOUIssueFlow {
 
-    @InitiatingFlow
+    @InitiatingFlow(version = 2)
     @StartableByRPC
     public static class InitiatorFlow extends FlowLogic<SignedTransaction> {
         private final IOUState state;
@@ -74,8 +75,8 @@ public class IOUIssueFlow {
 
             SignedTransaction stx = subFlow(new CollectSignaturesFlow(ptx, sessions));
 
-            // Step 7. Assuming no exceptions, we can now finalise the transaction.
-            return subFlow(new FinalityFlow(stx));
+            // Step 7. Assuming no exceptions, we can now finalise the transaction
+            return subFlow(new FinalityFlow(stx, sessions));
         }
     }
 
@@ -83,9 +84,11 @@ public class IOUIssueFlow {
      * This is the flow which signs IOU issuances.
      * The signing is handled by the [SignTransactionFlow].
      */
-    @InitiatedBy(InitiatorFlow.class)
+    @InitiatedBy(IOUIssueFlow.InitiatorFlow.class)
     public static class ResponderFlow extends FlowLogic<SignedTransaction> {
+
         private final FlowSession flowSession;
+        private SecureHash txWeJustSigned;
 
         public ResponderFlow(FlowSession flowSession){
             this.flowSession = flowSession;
@@ -94,7 +97,8 @@ public class IOUIssueFlow {
         @Suspendable
         @Override
         public SignedTransaction call() throws FlowException {
-            class SignTxFlow extends SignTransactionFlow{
+
+            class SignTxFlow extends SignTransactionFlow {
 
                 private SignTxFlow(FlowSession flowSession, ProgressTracker progressTracker) {
                     super(flowSession, progressTracker);
@@ -107,9 +111,22 @@ public class IOUIssueFlow {
                         req.using("This must be an IOU transaction", output instanceof IOUState);
                         return null;
                     });
+                    // Once the transaction has verified, initialize txWeJustSignedID variable.
+                    txWeJustSigned = stx.getId();
                 }
             }
-            return subFlow(new SignTxFlow(flowSession, SignTransactionFlow.Companion.tracker()));
+
+            flowSession.getCounterpartyFlowInfo().getFlowVersion();
+
+            // Create a sign transaction flow
+            SignTxFlow signTxFlow = new SignTxFlow(flowSession, SignTransactionFlow.Companion.tracker());
+
+            // Run the sign transaction flow to sign the transaction
+            subFlow(signTxFlow);
+
+            // Run the ReceiveFinalityFlow to finalize the transaction and persist it to the vault.
+            return subFlow(new ReceiveFinalityFlow(flowSession, txWeJustSigned));
+
         }
     }
 }

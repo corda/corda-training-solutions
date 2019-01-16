@@ -4,6 +4,7 @@ import co.paralleluniverse.fibers.Suspendable;
 import net.corda.core.contracts.Command;
 import net.corda.core.contracts.ContractState;
 import net.corda.core.contracts.StateAndRef;
+import net.corda.core.crypto.SecureHash;
 import net.corda.core.flows.*;
 import net.corda.core.utilities.ProgressTracker;
 import net.corda.training.contract.IOUContract.Commands.Transfer;
@@ -93,21 +94,20 @@ public class IOUTransferFlow{
             SignedTransaction partiallySignedTransaction = getServiceHub().signInitialTransaction(tb);
 
             // 9. Collect all of the required signatures from other Corda nodes using the CollectSignaturesFlow
-            List<FlowSession> listOfFlows = new ArrayList<>();
+            List<FlowSession> sessions = new ArrayList<>();
 
             for (AbstractParty participant: inputStateToTransfer.getParticipants()) {
                 Party partyToInitiateFlow = (Party) participant;
                 if (!partyToInitiateFlow.getOwningKey().equals(getOurIdentity().getOwningKey())) {
-                    listOfFlows.add(initiateFlow(partyToInitiateFlow));
+                    sessions.add(initiateFlow(partyToInitiateFlow));
                 }
             }
-            listOfFlows.add(initiateFlow(newLender));
-            SignedTransaction fullySignedTransaction = subFlow(new CollectSignaturesFlow(partiallySignedTransaction, listOfFlows));
-
+            sessions.add(initiateFlow(newLender));
+            SignedTransaction fullySignedTransaction = subFlow(new CollectSignaturesFlow(partiallySignedTransaction, sessions));
             /* 10. Return the output of the FinalityFlow which sends the transaction to the notary for verification
              *     and the causes it to be persisted to the vault of appropriate nodes.
              */
-            return subFlow(new FinalityFlow(fullySignedTransaction));
+            return subFlow(new FinalityFlow(fullySignedTransaction, sessions));
         }
     }
 
@@ -120,6 +120,7 @@ public class IOUTransferFlow{
     public static class Responder extends FlowLogic<SignedTransaction> {
 
         private final FlowSession otherPartyFlow;
+        private SecureHash txWeJustSignedId;
 
         public Responder(FlowSession otherPartyFlow) {
             this.otherPartyFlow = otherPartyFlow;
@@ -141,10 +142,19 @@ public class IOUTransferFlow{
                         require.using("This must be an IOU transaction", output instanceof IOUState);
                         return null;
                     });
+                    // Once the transaction has verified, initialize txWeJustSignedID variable.
+                    txWeJustSignedId = stx.getId();
                 }
             }
 
-            return subFlow(new SignTxFlow(otherPartyFlow, SignTransactionFlow.Companion.tracker()));
+            // Create a sign transaction flow
+            SignTxFlow signTxFlow = new SignTxFlow(otherPartyFlow, SignTransactionFlow.Companion.tracker());
+
+            // Run the sign transaction flow to sign the transaction
+            subFlow(signTxFlow);
+
+            // Run the ReceiveFinalityFlow to finalize the transaction and persist it to the vault.
+            return subFlow(new ReceiveFinalityFlow(otherPartyFlow, txWeJustSignedId));
         }
 
     }

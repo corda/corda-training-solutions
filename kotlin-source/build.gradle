@@ -132,17 +132,21 @@ idea {
 }
 
 cordapp {
+    signing {
+        enabled false
+    }
     targetPlatformVersion 4
-    minimumPlatformVersion 4
+    minimumPlatformVersion 3
     contract {
         name "Corda Training Material"
         vendor "R3"
-        licence "Contact R3"
+        licence "Contact R3 for Kotlin Source Contract License."
         versionId 1
     }
     workflow {
         name "Corda Training Material"
         vendor "R3"
-        licence "Contact R3"
+        licence "Contact R3 for Kotlin Source Workflow License."
+        versionId 1
     }
 }

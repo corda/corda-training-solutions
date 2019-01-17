@@ -68,14 +68,25 @@ def rpcUsersList = [
 ]
 
 task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
+
     delete "./build/nodes"
     directory "./build/nodes"
+
+    signing {
+        enabled false
+    }
 
     node {
         name "O=Notary,L=London,C=GB"
         notary = [validating: false]
         p2pPort 10002
         cordapps = ["$corda_release_distribution:corda-finance:$corda_release_version"]
+        rpcSettings {
+            useSsl false
+            standAloneBroker false
+            address "0.0.0.0:10003"
+            adminAddress "0.0.0.0:10013"
+        }
     }
     node {
         name "O=ParticipantA,L=London,C=GB"

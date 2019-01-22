@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/com.template.corda-training-solutions.iml" filepath="$PROJECT_DIR$/.idea/modules/com.template.corda-training-solutions.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/java-source/com.template.java-source.iml" filepath="$PROJECT_DIR$/.idea/modules/java-source/com.template.java-source.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/java-source/com.template.java-source.main.iml" filepath="$PROJECT_DIR$/.idea/modules/java-source/com.template.java-source.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/java-source/com.template.java-source.test.iml" filepath="$PROJECT_DIR$/.idea/modules/java-source/com.template.java-source.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/kotlin-source/com.template.kotlin-source.iml" filepath="$PROJECT_DIR$/.idea/modules/kotlin-source/com.template.kotlin-source.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/kotlin-source/com.template.kotlin-source.main.iml" filepath="$PROJECT_DIR$/.idea/modules/kotlin-source/com.template.kotlin-source.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/kotlin-source/com.template.kotlin-source.test.iml" filepath="$PROJECT_DIR$/.idea/modules/kotlin-source/com.template.kotlin-source.test.iml" />
+    </modules>
+  </component>
+</project>

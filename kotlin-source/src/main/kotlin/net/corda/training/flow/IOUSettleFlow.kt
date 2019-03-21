@@ -12,13 +12,14 @@ import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.OpaqueBytes
 import net.corda.finance.contracts.asset.Cash
-import net.corda.finance.contracts.getCashBalance
 import net.corda.finance.flows.CashIssueFlow
 import net.corda.training.contract.IOUContract
 import net.corda.training.state.IOUState
 import net.corda.core.contracts.requireThat
 import net.corda.core.identity.PartyAndCertificate
 import net.corda.finance.contracts.asset.PartyAndAmount
+import net.corda.finance.workflows.asset.CashUtils
+import net.corda.finance.workflows.getCashBalance
 import java.util.*
 
 /**
@@ -58,7 +59,7 @@ class IOUSettleFlow(val linearId: UniqueIdentifier, val amount: Amount<Currency>
         // Step 5. Get some cash from the vault and add a spend to our transaction builder.
         // Vault might contain states "owned" by anonymous parties. This is one of techniques to anonymize transactions
         // generateSpend returns all public keys which have to be used to sign transaction
-        val (_, cashKeys) = Cash.generateSpend(serviceHub, builder, amount, ourIdentityAndCert, counterparty)
+        val (_, cashKeys) = CashUtils.generateSpend(serviceHub, builder, amount, ourIdentityAndCert, counterparty)
 
         // Step 6. Add the IOU input state and settle command to the transaction builder.
         val settleCommand = Command(IOUContract.Commands.Settle(), listOf(counterparty.owningKey, ourIdentity.owningKey))

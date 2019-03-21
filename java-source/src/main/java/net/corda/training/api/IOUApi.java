@@ -8,7 +8,6 @@ import net.corda.core.node.NodeInfo;
 import net.corda.core.transactions.SignedTransaction;
 import net.corda.core.internal.InternalUtils;
 import net.corda.core.internal.FetchDataFlow.Result;
-import net.corda.finance.contracts.GetBalances;
 import net.corda.finance.contracts.asset.Cash;
 import net.corda.finance.flows.CashIssueFlow;
 
@@ -28,6 +27,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static net.corda.finance.workflows.GetBalances.getCashBalances;
 
 /**
  * This API is accessible from /api/iou. The endpoint paths specified below are relative to it.
@@ -129,8 +130,8 @@ public class IOUApi {
     @Path("cash-balances")
     @Produces(MediaType.APPLICATION_JSON)
     // Display cash balances.
-    public Map<Currency,Amount<Currency>> getCashBalances(){
-        return GetBalances.getCashBalances(rpcOps);
+    public Map<Currency,Amount<Currency>> cashBalances(){
+        return getCashBalances(rpcOps);
     }
 
     /**

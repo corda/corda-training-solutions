@@ -13,7 +13,7 @@ import net.corda.core.messaging.vaultQueryBy
 import net.corda.core.node.NodeInfo
 import net.corda.core.utilities.loggerFor
 import net.corda.finance.contracts.asset.Cash
-import net.corda.finance.contracts.getCashBalances
+import net.corda.finance.workflows.getCashBalances
 import net.corda.training.flow.IOUIssueFlow
 import net.corda.training.flow.IOUSettleFlow
 import net.corda.training.flow.IOUTransferFlow

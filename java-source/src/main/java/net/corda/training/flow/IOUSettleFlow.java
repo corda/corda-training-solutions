@@ -1,14 +1,12 @@
 package net.corda.training.flow;
 
 import co.paralleluniverse.fibers.Suspendable;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import net.corda.core.contracts.*;
 import net.corda.core.crypto.SecureHash;
 import net.corda.core.flows.*;
 import net.corda.core.identity.AbstractParty;
 import net.corda.core.identity.Party;
-import net.corda.core.identity.PartyAndCertificate;
 import net.corda.core.node.services.Vault;
 import net.corda.core.node.services.vault.QueryCriteria;
 import net.corda.core.transactions.SignedTransaction;
@@ -18,15 +16,15 @@ import net.corda.core.utilities.ProgressTracker;
 import net.corda.finance.contracts.asset.Cash;
 import net.corda.finance.flows.AbstractCashFlow;
 import net.corda.finance.flows.CashIssueFlow;
+import net.corda.finance.workflows.asset.CashUtils;
 import net.corda.training.contract.IOUContract;
 import net.corda.training.state.IOUState;
 
 import java.lang.IllegalArgumentException;
-import java.security.PublicKey;
 import java.util.*;
 
 import static net.corda.core.contracts.ContractsDSL.requireThat;
-import static net.corda.finance.contracts.GetBalances.getCashBalance;
+import static net.corda.finance.workflows.GetBalances.getCashBalance;
 
 import java.util.ArrayList;
 import java.util.Currency;
@@ -87,7 +85,7 @@ public class IOUSettleFlow {
             }
 
             // 6. Get some cash from the vault and add a spend to our transaction builder.
-            Cash.generateSpend(getServiceHub(), tb, amount, getOurIdentityAndCert(), inputStateToSettle.lender, ImmutableSet.of()).getSecond();
+            CashUtils.generateSpend(getServiceHub(), tb, amount, getOurIdentityAndCert(), inputStateToSettle.lender, ImmutableSet.of()).getSecond();
 
             // 7. Create a command. you will need to provide the Command constructor with a reference to the Settle Command as well as a list of required signers.
             Command<IOUContract.Commands.Settle> command = new Command<>(

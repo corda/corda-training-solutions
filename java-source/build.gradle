@@ -44,9 +44,6 @@ sourceSets {
     test {
         resources {
             srcDir "../config/test"
-            compileClasspath += main.output + test.output
-            runtimeClasspath += main.output + test.output
-            srcDir file('src/test/java')
         }
     }
 }

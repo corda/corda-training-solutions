@@ -6,24 +6,16 @@ import net.corda.core.contracts.Command;
 import net.corda.core.contracts.StateRef;
 import net.corda.core.identity.CordaX500Name;
 import net.corda.core.identity.Party;
-import net.corda.core.serialization.internal.SerializationEnvironment;
 import net.corda.core.transactions.SignedTransaction;
 import net.corda.finance.Currencies;
-import net.corda.finance.contracts.asset.Cash;
-import net.corda.node.Corda;
-import net.corda.testing.core.SerializationEnvironmentRule;
 import net.corda.testing.node.*;
 import net.corda.training.contract.IOUContract;
 import net.corda.training.state.IOUState;
 import org.junit.*;
 import org.junit.rules.ExpectedException;
 
-import javax.annotation.Signed;
-import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Currency;
-import java.util.HashSet;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -63,9 +55,6 @@ public class IOUTransferFlowTests {
 
     @Rule
     public final ExpectedException exception = ExpectedException.none();
-
-//    @Rule
-//    public final SerializationEnvironmentRule serializationEnvironmentRule = new SerializationEnvironmentRule();
 
     private SignedTransaction issueIOU(IOUState iouState) throws InterruptedException, ExecutionException {
         IOUIssueFlow.InitiatorFlow flow = new IOUIssueFlow.InitiatorFlow(iouState);

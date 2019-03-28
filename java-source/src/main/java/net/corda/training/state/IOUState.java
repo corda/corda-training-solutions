@@ -25,7 +25,6 @@ import javax.servlet.http.Part;
  */
 
 @BelongsToContract(IOUContract.class)
-@CordaSerializable
 public class IOUState implements ContractState, LinearState {
 
     public final Amount<Currency> amount;
@@ -92,7 +91,7 @@ public class IOUState implements ContractState, LinearState {
     public IOUState withNewLender(Party newLender) {
         return new IOUState(amount, newLender, borrower, paid, linearId);
     }
-// TODO REVERT PARTICIPANTS CHANGE.
+
     public IOUState copy(Amount<Currency> amount, Party lender, Party borrower, Amount<Currency> paid) {
         return new IOUState(amount, lender, borrower, paid, this.getLinearId());
     }

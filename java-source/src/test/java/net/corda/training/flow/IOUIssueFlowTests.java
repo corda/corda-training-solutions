@@ -44,6 +44,8 @@ public class IOUIssueFlowTests {
         mockNetwork = new MockNetwork(Arrays.asList("net.corda.training"), mockNetworkParameters);
         System.out.println(mockNetwork);
 
+
+
         a = mockNetwork.createNode(new MockNodeParameters());
         b = mockNetwork.createNode(new MockNodeParameters());
 

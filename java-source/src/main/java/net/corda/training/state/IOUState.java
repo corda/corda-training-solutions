@@ -7,9 +7,10 @@ import net.corda.core.identity.AbstractParty;
 import java.util.*;
 import com.google.common.collect.ImmutableList;
 import net.corda.core.serialization.ConstructorForDeserialization;
+import net.corda.core.serialization.CordaSerializable;
 import net.corda.training.contract.IOUContract;
 
-import javax.validation.constraints.NotNull;
+import javax.servlet.http.Part;
 
 /**
  * The IOU State object, with the following properties:
@@ -22,7 +23,9 @@ import javax.validation.constraints.NotNull;
  *   the vaults of all parties. Verify methods should check that one input and one output share the id in a transaction,
  *   except at issuance/termination.
  */
+
 @BelongsToContract(IOUContract.class)
+@CordaSerializable
 public class IOUState implements ContractState, LinearState {
 
     public final Amount<Currency> amount;
@@ -72,7 +75,7 @@ public class IOUState implements ContractState, LinearState {
      */
     @Override
     public List<AbstractParty> getParticipants() {
-        return ImmutableList.of(borrower, lender);
+        return ImmutableList.of(lender, borrower);
     }
 
     /**
@@ -89,7 +92,7 @@ public class IOUState implements ContractState, LinearState {
     public IOUState withNewLender(Party newLender) {
         return new IOUState(amount, newLender, borrower, paid, linearId);
     }
-
+// TODO REVERT PARTICIPANTS CHANGE.
     public IOUState copy(Amount<Currency> amount, Party lender, Party borrower, Amount<Currency> paid) {
         return new IOUState(amount, lender, borrower, paid, this.getLinearId());
     }

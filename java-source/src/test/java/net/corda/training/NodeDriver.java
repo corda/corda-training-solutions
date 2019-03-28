@@ -1,10 +1,19 @@
 package net.corda.training;
 
 import net.corda.core.identity.CordaX500Name;
+import net.corda.serialization.internal.AllWhitelist;
+import net.corda.serialization.internal.amqp.ObjectSerializer;
+import net.corda.serialization.internal.amqp.SerializerFactory;
+import net.corda.serialization.internal.amqp.SerializerFactoryBuilder;
+import net.corda.serialization.internal.amqp.custom.BigDecimalSerializer;
+import net.corda.serialization.internal.amqp.custom.CurrencySerializer;
+import net.corda.serialization.internal.carpenter.ClassCarpenterImpl;
+import net.corda.serialization.internal.model.LocalTypeInformation;
 import net.corda.testing.driver.DriverParameters;
 import net.corda.testing.driver.NodeParameters;
 import net.corda.testing.node.NotarySpec;
 import net.corda.testing.driver.NodeHandle;
+import net.corda.testing.node.TestCordapp;
 import net.corda.testing.node.User;
 import net.corda.testing.driver.VerifierType;
 import static net.corda.testing.driver.Driver.driver;
@@ -12,6 +21,8 @@ import net.corda.core.concurrent.CordaFuture;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableList;
+import net.corda.training.state.IOUState;
+
 import java.util.*;
 
 /**
@@ -32,10 +43,11 @@ public class NodeDriver{
     public static void main(String[] args) {
         // No permissions required as we are not invoking flows.
         final User user = new User("user1", "test", ImmutableSet.of("ALL"));
+
         driver(new DriverParameters()
             .withIsDebug(true)
             .withWaitForAllNodesToFinish(true)
-            .withExtraCordappPackagesToScan(ImmutableList.of("net.corda.finance"))
+                .withCordappsForAllNodes(Arrays.asList(TestCordapp.findCordapp("net.corda.finance")))
             .withNotarySpecs(Arrays.asList(new NotarySpec(new CordaX500Name("Notary", "London","GB"), true,  Arrays.asList(user), VerifierType.InMemory, null))), dsl -> {
                 CordaFuture<NodeHandle> partyAFuture = dsl.startNode(new NodeParameters()
                         .withProvidedName(new CordaX500Name("ParticipantA", "London", "GB"))

@@ -36,7 +36,7 @@ public class IOUTransferTests {
         class DummyCommand extends TypeOnlyCommandData implements Commands{}
     }
 
-    static private final MockServices ledgerServices = new MockServices(Arrays.asList("net.corda.training"));
+    static private final MockServices ledgerServices = new MockServices(Arrays.asList("net.corda.training", "net.corda.finance.contracts"));
 
     // A dummy state
     IOUState dummyState = new IOUState(Currencies.DOLLARS(0), CHARLIE.getParty(), CHARLIE.getParty());

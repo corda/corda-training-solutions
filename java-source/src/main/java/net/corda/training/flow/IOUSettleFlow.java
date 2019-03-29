@@ -1,13 +1,12 @@
 package net.corda.training.flow;
 
 import co.paralleluniverse.fibers.Suspendable;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import net.corda.core.contracts.*;
+import net.corda.core.crypto.SecureHash;
 import net.corda.core.flows.*;
 import net.corda.core.identity.AbstractParty;
 import net.corda.core.identity.Party;
-import net.corda.core.identity.PartyAndCertificate;
 import net.corda.core.node.services.Vault;
 import net.corda.core.node.services.vault.QueryCriteria;
 import net.corda.core.transactions.SignedTransaction;
@@ -17,15 +16,15 @@ import net.corda.core.utilities.ProgressTracker;
 import net.corda.finance.contracts.asset.Cash;
 import net.corda.finance.flows.AbstractCashFlow;
 import net.corda.finance.flows.CashIssueFlow;
+import net.corda.finance.workflows.asset.CashUtils;
 import net.corda.training.contract.IOUContract;
 import net.corda.training.state.IOUState;
 
 import java.lang.IllegalArgumentException;
-import java.security.PublicKey;
 import java.util.*;
 
 import static net.corda.core.contracts.ContractsDSL.requireThat;
-import static net.corda.finance.contracts.GetBalances.getCashBalance;
+import static net.corda.finance.workflows.GetBalances.getCashBalance;
 
 import java.util.ArrayList;
 import java.util.Currency;
@@ -86,7 +85,7 @@ public class IOUSettleFlow {
             }
 
             // 6. Get some cash from the vault and add a spend to our transaction builder.
-            Cash.generateSpend(getServiceHub(), tb, amount, getOurIdentityAndCert(), inputStateToSettle.lender, ImmutableSet.of()).getSecond();
+            CashUtils.generateSpend(getServiceHub(), tb, amount, getOurIdentityAndCert(), inputStateToSettle.lender, ImmutableSet.of()).getSecond();
 
             // 7. Create a command. you will need to provide the Command constructor with a reference to the Settle Command as well as a list of required signers.
             Command<IOUContract.Commands.Settle> command = new Command<>(
@@ -110,20 +109,20 @@ public class IOUSettleFlow {
             SignedTransaction stx = getServiceHub().signInitialTransaction(tb, getOurIdentity().getOwningKey());
 
             // 11. Collect all of the required signatures from other Corda nodes using the CollectSignaturesFlow
-            List<FlowSession> listOfFlows = new ArrayList<>();
+            List<FlowSession> sessions = new ArrayList<>();
 
             for (AbstractParty participant: inputStateToSettle.getParticipants()) {
                 Party partyToInitiateFlow = (Party) participant;
                 if (!partyToInitiateFlow.getOwningKey().equals(getOurIdentity().getOwningKey())) {
-                    listOfFlows.add(initiateFlow(partyToInitiateFlow));
+                    sessions.add(initiateFlow(partyToInitiateFlow));
                 }
             }
-            SignedTransaction fullySignedTransaction = subFlow(new CollectSignaturesFlow(stx, listOfFlows));
+            SignedTransaction fullySignedTransaction = subFlow(new CollectSignaturesFlow(stx, sessions));
 
             /* 12. Return the output of the FinalityFlow which sends the transaction to the notary for verification
              *     and the causes it to be persisted to the vault of appropriate nodes.
              */
-            return subFlow(new FinalityFlow(fullySignedTransaction));
+            return subFlow(new FinalityFlow(fullySignedTransaction, sessions));
 
         }
 
@@ -137,6 +136,7 @@ public class IOUSettleFlow {
     public static class Responder extends FlowLogic<SignedTransaction> {
 
         private final FlowSession otherPartyFlow;
+        private SecureHash txWeJustSignedId;
 
         public Responder(FlowSession otherPartyFlow) {
             this.otherPartyFlow = otherPartyFlow;
@@ -157,10 +157,20 @@ public class IOUSettleFlow {
                         require.using("This must be an IOU transaction", output instanceof IOUState);
                         return null;
                     });
+                    // Once the transaction has verified, initialize txWeJustSignedID variable.
+                    txWeJustSignedId = stx.getId();
                 }
             }
 
-            return subFlow(new SignTxFlow(otherPartyFlow, SignTransactionFlow.Companion.tracker()));
+            // Create a sign transaction flow
+            SignTxFlow signTxFlow = new SignTxFlow(otherPartyFlow, SignTransactionFlow.Companion.tracker());
+
+            // Run the sign transaction flow to sign the transaction
+            subFlow(signTxFlow);
+
+            // Run the ReceiveFinalityFlow to finalize the transaction and persist it to the vault.
+            return subFlow(new ReceiveFinalityFlow(otherPartyFlow, txWeJustSignedId));
+
         }
     }
 

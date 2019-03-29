@@ -8,20 +8,14 @@ import net.corda.core.identity.CordaX500Name;
 import net.corda.core.identity.Party;
 import net.corda.core.transactions.SignedTransaction;
 import net.corda.finance.Currencies;
-import net.corda.finance.contracts.asset.Cash;
-import net.corda.node.Corda;
 import net.corda.testing.node.*;
 import net.corda.training.contract.IOUContract;
 import net.corda.training.state.IOUState;
 import org.junit.*;
 import org.junit.rules.ExpectedException;
 
-import javax.annotation.Signed;
-import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Currency;
-import java.util.HashSet;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -32,8 +26,12 @@ public class IOUTransferFlowTests {
 
     @Before
     public void setup() {
-        MockNetworkParameters mockNetworkParameters = new MockNetworkParameters().withNotarySpecs(Arrays.asList(new MockNetworkNotarySpec(new CordaX500Name("Notary", "London", "GB"))));
-        mockNetwork = new MockNetwork(Arrays.asList("net.corda.training"), mockNetworkParameters);
+        MockNetworkParameters mockNetworkParameters = new MockNetworkParameters().withCordappsForAllNodes(
+                Arrays.asList(
+                        TestCordapp.findCordapp("net.corda.training")
+                )
+        ).withNotarySpecs(Arrays.asList(new MockNetworkNotarySpec(new CordaX500Name("Notary", "London", "GB"))));
+        mockNetwork = new MockNetwork(mockNetworkParameters);
         System.out.println(mockNetwork);
 
         a = mockNetwork.createNode(new MockNodeParameters());

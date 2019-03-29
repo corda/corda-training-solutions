@@ -4,7 +4,7 @@ import net.corda.core.contracts.*
 import net.corda.core.contracts.Requirements.using
 import net.corda.core.transactions.LedgerTransaction
 import net.corda.finance.contracts.asset.Cash
-import net.corda.finance.utils.sumCash
+import net.corda.finance.contracts.utils.sumCash
 import net.corda.training.state.IOUState
 
 /**

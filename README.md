@@ -1,12 +1,12 @@
 ![Corda](https://www.corda.net/wp-content/uploads/2016/11/fg005_corda_b.png)
 
-# Corda Training Template V2
+# Corda Training Template V2 (Solutions)
 
-This repo contains the starting code for a one day Corda training course. The instructional powerpoint that goes along with this content can be found here: https://github.com/corda/corda-training-materials/blob/master/Cordapp%20Development%20Module.pdf
+This repo contains the solution code for a one day Corda training course. The instructional powerpoint that goes along with this content can be found here: https://github.com/corda/corda-training-materials/blob/master/Cordapp%20Development%20Module.pdf
 
 This repository is currently only available in Java.
 
-Solutions are available here: https://github.com/corda/corda-training-solutions
+The primary git repository for this content is available here: https://github.com/corda/corda-training-template
 
 
 # Setup

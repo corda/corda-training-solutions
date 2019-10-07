@@ -8,16 +8,16 @@
 		{
 			"name": "Node A create iou",
 			"request": {
-				"method": "PUT",
+				"method": "GET",
 				"header": [],
 				"body": {},
 				"url": {
-					"raw": "http://localhost:10009/api/iou/issue-iou?amount=99&currency=GBP&party=O=ParticipantB,L=New York,C=US",
+					"raw": "http://localhost:10007/api/iou/issue-iou?amount=99&currency=GBP&party=O=ParticipantB,L=New York,C=US",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "10009",
+					"port": "10007",
 					"path": [
 						"api",
 						"iou",
@@ -48,12 +48,12 @@
 				"header": [],
 				"body": {},
 				"url": {
-					"raw": "http://localhost:10009/api/iou/transfer-iou?id=52f92916-99db-4ece-bd68-101d8598f5fc&party=O=ParticipantB,L=New York,C=US",
+					"raw": "http://localhost:10007/api/iou/transfer-iou?id=52f92916-99db-4ece-bd68-101d8598f5fc&party=O=ParticipantB,L=New York,C=US",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "10009",
+					"port": "10007",
 					"path": [
 						"api",
 						"iou",
@@ -80,12 +80,12 @@
 				"header": [],
 				"body": {},
 				"url": {
-					"raw": "http://localhost:10009/api/iou/peers",
+					"raw": "http://localhost:10007/api/iou/peers",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "10009",
+					"port": "10007",
 					"path": [
 						"api",
 						"iou",
@@ -102,12 +102,12 @@
 				"header": [],
 				"body": {},
 				"url": {
-					"raw": "http://localhost:10009/api/iou/me",
+					"raw": "http://localhost:10007/api/iou/me",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "10009",
+					"port": "10007",
 					"path": [
 						"api",
 						"iou",
@@ -124,12 +124,12 @@
 				"header": [],
 				"body": {},
 				"url": {
-					"raw": "http://localhost:10009/api/iou/ious",
+					"raw": "http://localhost:10007/api/iou/ious",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "10009",
+					"port": "10007",
 					"path": [
 						"api",
 						"iou",
@@ -146,12 +146,12 @@
 				"header": [],
 				"body": {},
 				"url": {
-					"raw": "http://localhost:10009/api/iou/issue-iou?amount=99&currency=GBP&party=O=ParticipantD,L=New York,C=US",
+					"raw": "http://localhost:10007/api/iou/issue-iou?amount=99&currency=GBP&party=O=ParticipantD,L=New York,C=US",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "10009",
+					"port": "10007",
 					"path": [
 						"api",
 						"iou",
@@ -182,12 +182,12 @@
 				"header": [],
 				"body": {},
 				"url": {
-					"raw": "http://localhost:10012/api/iou/issue-iou?amount=99&currency=GBP&party=O=ParticipantC,L=Paris,C=FR",
+					"raw": "http://localhost:10010/api/iou/issue-iou?amount=99&currency=GBP&party=O=ParticipantC,L=New York,C=US",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "10012",
+					"port": "10010",
 					"path": [
 						"api",
 						"iou",
@@ -204,7 +204,7 @@
 						},
 						{
 							"key": "party",
-							"value": "O=ParticipantC,L=Paris,C=FR"
+							"value": "O=ParticipantC,L=New York,C=US"
 						}
 					]
 				}
@@ -218,12 +218,12 @@
 				"header": [],
 				"body": {},
 				"url": {
-					"raw": "http://localhost:10012/api/iou/transfer-iou?id=9c30d15a-03c7-4ca9-b621-ac81b84481bb&party=C=US,L=New York,O=ParticipantC",
+					"raw": "http://localhost:10010/api/iou/transfer-iou?id=9c30d15a-03c7-4ca9-b621-ac81b84481bb&party=C=US,L=New York,O=ParticipantC",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "10012",
+					"port": "10010",
 					"path": [
 						"api",
 						"iou",
@@ -250,12 +250,12 @@
 				"header": [],
 				"body": {},
 				"url": {
-					"raw": "http://localhost:10012/api/iou/peers",
+					"raw": "http://localhost:10010/api/iou/peers",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "10012",
+					"port": "10010",
 					"path": [
 						"api",
 						"iou",
@@ -272,12 +272,12 @@
 				"header": [],
 				"body": {},
 				"url": {
-					"raw": "http://localhost:10012/api/iou/me",
+					"raw": "http://localhost:10010/api/iou/me",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "10012",
+					"port": "10010",
 					"path": [
 						"api",
 						"iou",
@@ -294,12 +294,12 @@
 				"header": [],
 				"body": {},
 				"url": {
-					"raw": "http://localhost:10012/api/iou/ious",
+					"raw": "http://localhost:10010/api/iou/ious",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "10012",
+					"port": "10010",
 					"path": [
 						"api",
 						"iou",
@@ -316,12 +316,12 @@
 				"header": [],
 				"body": {},
 				"url": {
-					"raw": "http://localhost:10015/api/iou/issue-iou?amount=99&currency=GBP&party=O=ParticipantB,L=New York,C=US",
+					"raw": "http://localhost:10013/api/iou/issue-iou?amount=99&currency=GBP&party=O=ParticipantB,L=New York,C=US",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "10015",
+					"port": "10013",
 					"path": [
 						"api",
 						"iou",
@@ -352,12 +352,12 @@
 				"header": [],
 				"body": {},
 				"url": {
-					"raw": "http://localhost:10015/api/iou/peers",
+					"raw": "http://localhost:10013/api/iou/peers",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "10015",
+					"port": "10013",
 					"path": [
 						"api",
 						"iou",
@@ -374,12 +374,12 @@
 				"header": [],
 				"body": {},
 				"url": {
-					"raw": "http://localhost:10015/api/iou/me",
+					"raw": "http://localhost:10013/api/iou/me",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "10015",
+					"port": "10013",
 					"path": [
 						"api",
 						"iou",
@@ -396,12 +396,12 @@
 				"header": [],
 				"body": {},
 				"url": {
-					"raw": "http://localhost:10015/api/iou/ious",
+					"raw": "http://localhost:10013/api/iou/ious",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "10015",
+					"port": "10013",
 					"path": [
 						"api",
 						"iou",

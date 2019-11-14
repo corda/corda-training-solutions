@@ -30,8 +30,10 @@ class IOUIssueFlowTests {
 
     @Before
     fun setup() {
-        mockNetwork = MockNetwork(listOf("net.corda.training"),
-                notarySpecs = listOf(MockNetworkNotarySpec(CordaX500Name("Notary","London","GB"))))
+        mockNetwork = MockNetwork(
+            listOf("net.corda.training"),
+            notarySpecs = listOf(MockNetworkNotarySpec(CordaX500Name("Notary", "London", "GB")))
+        )
         a = mockNetwork.createNode(MockNodeParameters())
         b = mockNetwork.createNode(MockNodeParameters())
         val startedNodes = arrayListOf(a, b)
@@ -54,7 +56,7 @@ class IOUIssueFlowTests {
      * - Create a [TransactionBuilder] and pass it a notary reference.
      * -- A notary [Party] object can be obtained from [FlowLogic.serviceHub.networkMapCache].
      * -- In this training project there is only one notary
-     * - Create an [IOUContract.Commands.Issue] inside a new [Command] object.
+     * - Create an [IOUContract.Commands.Issue] inside a new [Command].
      * -- The required signers will be the same as the state's participants
      * -- Add the [Command] to the transaction builder [addCommand].
      * - Use the flow's [IOUState] parameter as the output state with [addOutputState]
@@ -81,8 +83,10 @@ class IOUIssueFlowTests {
         val command = ptx.tx.commands.single()
         assert(command.value is IOUContract.Commands.Issue)
         assert(command.signers.toSet() == iou.participants.map { it.owningKey }.toSet())
-        ptx.verifySignaturesExcept(borrower.owningKey,
-                mockNetwork.defaultNotaryNode.info.legalIdentitiesAndCerts.first().owningKey)
+        ptx.verifySignaturesExcept(
+            borrower.owningKey,
+            mockNetwork.defaultNotaryNode.info.legalIdentitiesAndCerts.first().owningKey
+        )
     }
 
     /**
@@ -120,7 +124,7 @@ class IOUIssueFlowTests {
      * TODO: Amend the [IOUIssueFlow] to collect the [otherParty]'s signature.
      * Hint:
      * On the Initiator side:
-     * - Get a set of the required signers from the participants who are not the node
+     * - Get a set of signers required from the participants who are not the node
      * - - [ourIdentity] will give you the identity of the node you are operating as
      * - Use [initiateFlow] to get a set of [FlowSession] objects
      * - - Using [state.participants] as a base to determine the sessions needed is recommended. [participants] is on

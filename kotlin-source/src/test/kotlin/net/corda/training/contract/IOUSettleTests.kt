@@ -201,7 +201,7 @@ class IOUSettleTests {
 
     /**
      * Task 5.
-     * Not only to we need to check that [Cash] output states are present but we need to check that the payer is
+     * Not only do we need to check that [Cash] output states are present but we need to check that the payer is
      * correctly assigning us as the new owner of these states.
      * TODO: Add a constraint to check that we are the new owner of the output cash.
      * Hint:
@@ -224,7 +224,7 @@ class IOUSettleTests {
                 output(Cash.PROGRAM_ID, "outputs cash", invalidCashPayment.ownableState)
                 command(BOB.publicKey, invalidCashPayment.command)
                 command(listOf(ALICE.publicKey, BOB.publicKey), IOUContract.Commands.Settle())
-                this `fails with` "There must be output cash paid to the recipient."
+                this `fails with` "Output cash must be paid to the lender."
             }
             transaction {
                 input(IOUContract.IOU_CONTRACT_ID, iou)
@@ -385,25 +385,7 @@ class IOUSettleTests {
                 output(IOUContract.IOU_CONTRACT_ID, iou.copy(borrower = ALICE.party, paid = 5.DOLLARS))
                 command(BOB.publicKey, fiveDollars.withNewOwner(newOwner = BOB.party).command)
                 command(listOf(ALICE.publicKey, BOB.publicKey), IOUContract.Commands.Settle())
-                this `fails with` "The borrower may not change when settling."
-            }
-            transaction {
-                input(IOUContract.IOU_CONTRACT_ID, iou)
-                input(Cash.PROGRAM_ID, fiveDollars)
-                output(Cash.PROGRAM_ID, fiveDollars.withNewOwner(newOwner = ALICE.party).ownableState)
-                output(IOUContract.IOU_CONTRACT_ID, iou.copy(amount = 0.DOLLARS, paid = 5.DOLLARS))
-                command(BOB.publicKey, fiveDollars.withNewOwner(newOwner = BOB.party).command)
-                command(listOf(ALICE.publicKey, BOB.publicKey), IOUContract.Commands.Settle())
-                this `fails with` "The amount may not change when settling."
-            }
-            transaction {
-                input(IOUContract.IOU_CONTRACT_ID, iou)
-                input(Cash.PROGRAM_ID, fiveDollars)
-                output(Cash.PROGRAM_ID, fiveDollars.withNewOwner(newOwner = ALICE.party).ownableState)
-                output(IOUContract.IOU_CONTRACT_ID, iou.copy(lender = CHARLIE.party, paid = 5.DOLLARS))
-                command(BOB.publicKey, fiveDollars.withNewOwner(newOwner = BOB.party).command)
-                command(listOf(ALICE.publicKey, BOB.publicKey), IOUContract.Commands.Settle())
-                this `fails with` "The lender may not change when settling."
+                this `fails with` "Only the paid amount can change."
             }
             transaction {
                 input(IOUContract.IOU_CONTRACT_ID, iou)
@@ -435,7 +417,7 @@ class IOUSettleTests {
                 command(BOB.publicKey, cashPayment.command)
                 output(IOUContract.IOU_CONTRACT_ID, iou.pay(5.DOLLARS))
                 command(listOf(ALICE.publicKey, CHARLIE.publicKey), IOUContract.Commands.Settle())
-                failsWith("Both lender and borrower together only must sign IOU settle transaction.")
+                failsWith("Both lender and borrower together only must sign the IOU settle transaction.")
             }
             transaction {
                 input(Cash.PROGRAM_ID, cash)
@@ -444,7 +426,7 @@ class IOUSettleTests {
                 command(BOB.publicKey, cashPayment.command)
                 output(IOUContract.IOU_CONTRACT_ID, iou.pay(5.DOLLARS))
                 command(BOB.publicKey, IOUContract.Commands.Settle())
-                failsWith("Both lender and borrower together only must sign IOU settle transaction.")
+                failsWith("Both lender and borrower together only must sign the IOU settle transaction.")
             }
             transaction {
                 input(Cash.PROGRAM_ID, cash)

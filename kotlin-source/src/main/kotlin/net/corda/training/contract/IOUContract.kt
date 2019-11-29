@@ -43,7 +43,7 @@ class IOUContract : Contract {
             is Commands.Issue -> requireThat {
                 "No inputs should be consumed when issuing an IOU." using (tx.inputs.isEmpty())
                 "Only one output state should be created when issuing an IOU." using (tx.outputs.size == 1)
-                val iou = tx.outputStates.single() as IOUState
+                val iou = tx.outputsOfType<IOUState>().single()
                 "A newly issued IOU must have a positive amount." using (iou.amount.quantity > 0)
                 "The lender and borrower cannot have the same identity." using (iou.borrower != iou.lender)
                 "Both lender and borrower together only may sign IOU issue transaction." using
@@ -52,8 +52,8 @@ class IOUContract : Contract {
             is Commands.Transfer -> requireThat {
                 "An IOU transfer transaction should only consume one input state." using (tx.inputs.size == 1)
                 "An IOU transfer transaction should only create one output state." using (tx.outputs.size == 1)
-                val input = tx.inputStates.single() as IOUState
-                val output = tx.outputStates.single() as IOUState
+                val input = tx.inputsOfType<IOUState>().single()
+                val output = tx.outputsOfType<IOUState>().single()
                 "Only the lender property may change." using (input == output.withNewLender(input.lender))
                 "The lender property must change in a transfer." using (input.lender != output.lender)
                 "The borrower, old lender and new lender only must sign an IOU transfer transaction" using
@@ -70,7 +70,7 @@ class IOUContract : Contract {
                 // Check that the cash is being assigned to us.
                 val inputIou = ious.inputs.single()
                 val acceptableCash = cash.filter { it.owner == inputIou.lender }
-                requireThat { "There must be output cash paid to the recipient." using (acceptableCash.isNotEmpty()) }
+                requireThat { "Output cash must be paid to the lender." using (acceptableCash.isNotEmpty()) }
                 // Sum the cash being sent to us (we don't care about the issuer).
                 val sumAcceptableCash = acceptableCash.sumCash().withoutIssuer()
                 val amountOutstanding = inputIou.amount - inputIou.paid
@@ -84,14 +84,10 @@ class IOUContract : Contract {
                     requireThat { "There must be one output IOU." using (ious.outputs.size == 1) }
                     // Check only the paid property changes.
                     val outputIou = ious.outputs.single()
-                    requireThat {
-                        "The amount may not change when settling." using (inputIou.amount == outputIou.amount)
-                        "The borrower may not change when settling." using (inputIou.borrower == outputIou.borrower)
-                        "The lender may not change when settling." using (inputIou.lender == outputIou.lender)
-                    }
+                    requireThat { "Only the paid amount can change." } using (inputIou.copy(paid = outputIou.paid) == outputIou)
                 }
                 requireThat {
-                    "Both lender and borrower together only must sign IOU settle transaction." using
+                    "Both lender and borrower together only must sign the IOU settle transaction." using
                             (command.signers.toSet() == inputIou.participants.map { it.owningKey }.toSet())
                 }
             }

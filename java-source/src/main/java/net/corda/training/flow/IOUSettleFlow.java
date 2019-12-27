@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public class    IOUSettleFlow {
+public class IOUSettleFlow {
 
     /**
      * This is the flow which handles the settlement (partial or complete) of existing IOUs on the ledger.

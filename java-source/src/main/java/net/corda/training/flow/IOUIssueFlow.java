@@ -118,6 +118,7 @@ public class IOUIssueFlow {
 
             flowSession.getCounterpartyFlowInfo().getFlowVersion();
 
+
             // Create a sign transaction flow
             SignTxFlow signTxFlow = new SignTxFlow(flowSession, SignTransactionFlow.Companion.tracker());
 

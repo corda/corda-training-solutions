@@ -22,7 +22,7 @@ import net.corda.training.state.IOUState
  */
 @InitiatingFlow
 @StartableByRPC
-class IOUTransferFlow(val linearId: UniqueIdentifier,
+    class IOUTransferFlow(val linearId: UniqueIdentifier,
                       val newLender: Party): FlowLogic<SignedTransaction>() {
     @Suspendable
     override fun call(): SignedTransaction {
@@ -78,6 +78,7 @@ class IOUTransferFlowResponder(val flowSession: FlowSession): FlowLogic<SignedTr
         val signedTransactionFlow = object : SignTransactionFlow(flowSession) {
             override fun checkTransaction(stx: SignedTransaction) = requireThat {
                 val output = stx.tx.outputs.single().data
+
                 "This must be an IOU transaction" using (output is IOUState)
             }
         }

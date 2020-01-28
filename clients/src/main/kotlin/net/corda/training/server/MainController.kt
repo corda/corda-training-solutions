@@ -78,7 +78,7 @@ class MainController(rpc: NodeRPCConnection) {
      */
     @GetMapping(value = [ "ious" ], produces = [ APPLICATION_JSON_VALUE ])
     fun getIOUs(): List<StateAndRef<ContractState>> {
-        // Filter by state type: IOU.
+        // Filter by states type: IOU.
         return proxy.vaultQueryBy<IOUState>().states
     }
 
@@ -87,7 +87,7 @@ class MainController(rpc: NodeRPCConnection) {
      */
     @GetMapping(value = [ "cash" ], produces = [ APPLICATION_JSON_VALUE ])
     fun getCash(): List<StateAndRef<ContractState>> {
-        // Filter by state type: Cash.
+        // Filter by states type: Cash.
         return proxy.vaultQueryBy<Cash.State>().states
     }
 
@@ -99,7 +99,7 @@ class MainController(rpc: NodeRPCConnection) {
     fun getCashBalances() = proxy.getCashBalances()
 
     /**
-     * Initiates a flow to agree an IOU between two parties.
+     * Initiates a flows to agree an IOU between two parties.
      * Example request:
      * curl -X PUT 'http://localhost:10007/api/iou/issue-iou?amount=99&currency=GBP&party=O=ParticipantC,L=New%20York,C=US'
      */
@@ -110,10 +110,10 @@ class MainController(rpc: NodeRPCConnection) {
         // Get party objects for myself and the counterparty.
         val me = proxy.nodeInfo().legalIdentities.first()
         val lender = proxy.wellKnownPartyFromX500Name(CordaX500Name.parse(party)) ?: throw IllegalArgumentException("Unknown party name.")
-        // Create a new IOU state using the parameters given.
+        // Create a new IOU states using the parameters given.
         try {
             val state = IOUState(Amount(amount.toLong() * 100, Currency.getInstance(currency)), lender, me)
-            // Start the IOUIssueFlow. We block and waits for the flow to return.
+            // Start the IOUIssueFlow. We block and waits for the flows to return.
             val result = proxy.startTrackedFlow(::IOUIssueFlow, state).returnValue.get()
             // Return the response.
             return ResponseEntity

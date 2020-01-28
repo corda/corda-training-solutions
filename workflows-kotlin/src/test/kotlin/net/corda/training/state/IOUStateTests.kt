@@ -33,13 +33,13 @@ class IOUStateTests {
      * Hint: [Amount] is a template class that takes a class parameter of the token you would like an [Amount] of.
      * As we are dealing with cash lent from one Party to another a sensible token to use would be [Currency].
      */
-    @Test
-    fun hasIOUAmountFieldOfCorrectType() {
-        // Does the amount field exist?
-        IOUState::class.java.getDeclaredField("amount")
-        // Is the amount field of the correct type?
-        assertEquals(IOUState::class.java.getDeclaredField("amount").type, Amount::class.java)
-    }
+//    @Test
+//    fun hasIOUAmountFieldOfCorrectType() {
+//        // Does the amount field exist?
+//        IOUState::class.java.getDeclaredField("amount")
+//        // Is the amount field of the correct type?
+//        assertEquals(IOUState::class.java.getDeclaredField("amount").type, Amount::class.java)
+//    }
 
     /**
      * Task 2.

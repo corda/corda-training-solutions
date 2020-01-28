@@ -49,40 +49,40 @@ class IOUSettleTests {
      * TODO: Add the [IOUContract.Commands.Settle] case to the verify function.
      * Hint: You can leave the body empty for now.
      */
-    @Test
-    fun mustIncludeSettleCommand() {
-        val iou = IOUState(10.POUNDS, ALICE.party, BOB.party)
-        val inputCash = createCashState(5.POUNDS, BOB.party)
-        val outputCash = inputCash.withNewOwner(newOwner = ALICE.party).ownableState
-        ledgerServices.ledger {
-            transaction {
-                input(IOUContract.IOU_CONTRACT_ID, iou)
-                output(IOUContract.IOU_CONTRACT_ID, iou.pay(5.POUNDS))
-                input(Cash.PROGRAM_ID, inputCash)
-                output(Cash.PROGRAM_ID, outputCash)
-                command(BOB.publicKey, Cash.Commands.Move())
-                this.failsWith("Contract verification failed");
-            }
-            transaction {
-                input(IOUContract.IOU_CONTRACT_ID, iou)
-                output(IOUContract.IOU_CONTRACT_ID, iou.pay(5.POUNDS))
-                input(Cash.PROGRAM_ID, inputCash)
-                output(Cash.PROGRAM_ID, outputCash)
-                command(BOB.publicKey, Cash.Commands.Move())
-                command(listOf(ALICE.publicKey, BOB.publicKey), DummyCommand()) // Wrong type.
-                this.failsWith("Contract verification failed");
-            }
-            transaction {
-                input(IOUContract.IOU_CONTRACT_ID, iou)
-                output(IOUContract.IOU_CONTRACT_ID, iou.pay(5.POUNDS))
-                input(Cash.PROGRAM_ID, inputCash)
-                output(Cash.PROGRAM_ID, outputCash)
-                command(BOB.publicKey, Cash.Commands.Move())
-                command(listOf(ALICE.publicKey, BOB.publicKey), IOUContract.Commands.Settle()) // Correct Type.
-                this.verifies()
-            }
-        }
-    }
+//    @Test
+//    fun mustIncludeSettleCommand() {
+//        val iou = IOUState(10.POUNDS, ALICE.party, BOB.party)
+//        val inputCash = createCashState(5.POUNDS, BOB.party)
+//        val outputCash = inputCash.withNewOwner(newOwner = ALICE.party).ownableState
+//        ledgerServices.ledger {
+//            transaction {
+//                input(IOUContract.IOU_CONTRACT_ID, iou)
+//                output(IOUContract.IOU_CONTRACT_ID, iou.pay(5.POUNDS))
+//                input(Cash.PROGRAM_ID, inputCash)
+//                output(Cash.PROGRAM_ID, outputCash)
+//                command(BOB.publicKey, Cash.Commands.Move())
+//                this.failsWith("Contract verification failed");
+//            }
+//            transaction {
+//                input(IOUContract.IOU_CONTRACT_ID, iou)
+//                output(IOUContract.IOU_CONTRACT_ID, iou.pay(5.POUNDS))
+//                input(Cash.PROGRAM_ID, inputCash)
+//                output(Cash.PROGRAM_ID, outputCash)
+//                command(BOB.publicKey, Cash.Commands.Move())
+//                command(listOf(ALICE.publicKey, BOB.publicKey), DummyCommand()) // Wrong type.
+//                this.failsWith("Contract verification failed");
+//            }
+//            transaction {
+//                input(IOUContract.IOU_CONTRACT_ID, iou)
+//                output(IOUContract.IOU_CONTRACT_ID, iou.pay(5.POUNDS))
+//                input(Cash.PROGRAM_ID, inputCash)
+//                output(Cash.PROGRAM_ID, outputCash)
+//                command(BOB.publicKey, Cash.Commands.Move())
+//                command(listOf(ALICE.publicKey, BOB.publicKey), IOUContract.Commands.Settle()) // Correct Type.
+//                this.verifies()
+//            }
+//        }
+//    }
 
     /**
      * Task 2.

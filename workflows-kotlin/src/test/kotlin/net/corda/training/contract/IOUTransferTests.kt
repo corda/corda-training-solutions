@@ -65,28 +65,28 @@ class IOUTransferTests {
      *       }
      * - The [requireSingleCommand] function will handle unrecognised types for you (see first unit test).
      */
-    @Test
-    fun mustHandleMultipleCommandValues() {
-        val iou = IOUState(10.POUNDS, ALICE.party, BOB.party)
-        ledgerServices.ledger {
-            transaction {
-                output(IOUContract::class.java.name, iou)
-                command(listOf(ALICE.publicKey, BOB.publicKey), DummyCommand())
-                this `fails with` "Required net.corda.training.contracts.IOUContract.Commands command"
-            }
-            transaction {
-                output(IOUContract::class.java.name, iou)
-                command(listOf(ALICE.publicKey, BOB.publicKey), IOUContract.Commands.Issue())
-                this.verifies()
-            }
-            transaction {
-                input(IOUContract::class.java.name, iou)
-                output(IOUContract::class.java.name, iou.withNewLender(CHARLIE.party))
-                command(listOf(ALICE.publicKey, BOB.publicKey, CHARLIE.publicKey), IOUContract.Commands.Transfer())
-                this.verifies()
-            }
-        }
-    }
+//    @Test
+//    fun mustHandleMultipleCommandValues() {
+//        val iou = IOUState(10.POUNDS, ALICE.party, BOB.party)
+//        ledgerServices.ledger {
+//            transaction {
+//                output(IOUContract::class.java.name, iou)
+//                command(listOf(ALICE.publicKey, BOB.publicKey), DummyCommand())
+//                this `fails with` "Required net.corda.training.contracts.IOUContract.Commands command"
+//            }
+//            transaction {
+//                output(IOUContract::class.java.name, iou)
+//                command(listOf(ALICE.publicKey, BOB.publicKey), IOUContract.Commands.Issue())
+//                this.verifies()
+//            }
+//            transaction {
+//                input(IOUContract::class.java.name, iou)
+//                output(IOUContract::class.java.name, iou.withNewLender(CHARLIE.party))
+//                command(listOf(ALICE.publicKey, BOB.publicKey, CHARLIE.publicKey), IOUContract.Commands.Transfer())
+//                this.verifies()
+//            }
+//        }
+//    }
 
     /**
      * Task 2.

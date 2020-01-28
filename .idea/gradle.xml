@@ -9,7 +9,9 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/clients" />
+            <option value="$PROJECT_DIR$/contracts-java" />
             <option value="$PROJECT_DIR$/contracts-kotlin" />
+            <option value="$PROJECT_DIR$/workflows-java" />
             <option value="$PROJECT_DIR$/workflows-kotlin" />
           </set>
         </option>

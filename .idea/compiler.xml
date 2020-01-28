@@ -10,6 +10,8 @@
       <module name="corda-training-solutions.java-source.test" target="1.8" />
       <module name="corda-training-solutions.kotlin-source.main" target="1.8" />
       <module name="corda-training-solutions.kotlin-source.test" target="1.8" />
+      <module name="corda-training-solutions.workflows-java.integrationTest" target="1.8" />
+      <module name="corda-training-solutions.workflows-kotlin.integrationTest" target="1.8" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">

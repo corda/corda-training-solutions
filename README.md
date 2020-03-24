@@ -41,6 +41,68 @@ again leaving all options as they are.
 * Quasar - a library that provides high-performance, lightweight threads.
 * "-javaagent: /PATH_TO_FILE_FROM_ROOT_DIR/quasar.jar"
 
+# Solutions Files
+
+### Kotlin
+State:
+
+* Template: `kotlin-source/src/test/kotlin/net/corda/training/state/IOUState.kt`
+* Tests: `kotlin-source/src/main/kotlin/net/corda/training/state/IOUStateTests.kt`
+
+Contract:
+
+* Template: `kotlin-source/src/main/kotlin/net/corda/training/contract/IOUContract.kt`
+* Issue Tests: `kotlin-source/src/test/kotlin/net/corda/training/contract/IOUIssueTests.kt`
+* Transfer Tests: `kotlin-source/src/test/kotlin/net/corda/training/contract/IOUTransferTests.kt`
+* Settle Tests: `kotlin-source/src/test/kotlin/net/corda/training/contract/IOUSettleTests.kt`
+
+Flow:
+
+* Issue Flow Solution: `kotlin-source/src/main/kotlin/net/corda/training/flow/IOUIssueFlow.kt`
+* Issue Flow tests: `kotlin-source/src/test/kotlin/net/corda/training/flow/IOUIssueFlowTests.kt`
+* Transfer Flow Solution: `kotlin-source/src/main/kotlin/net/corda/training/flow/IOUTransferFlow.kt`
+* Transfer Flow Tests: `kotlin-source/src/test/kotlin/net/corda/training/flow/IOUTransferFlowTests.kt`
+* Settle Flow Solution: `kotlin-source/src/main/kotlin/net/corda/training/flow/IOUSettleFlow.kt`
+* Settle Flow tests: `kotlin-source/src/test/kotlin/net/corda/training/flow/IOUSettleFlowTests.kt`
+
+The code in the following files was already added for you:
+
+* `kotlin-source/src/main/kotlin/net/corda/training/plugin/IOUPlugin.kt`
+* `kotlin-source/src/test/kotlin/net/corda/training/Main.kt`
+* `kotling-source/src/main/kotlin/net/corda/training/plugin/IOUPlugin.kt`
+* `kotling-source/src/main/java/kotlin/corda/training/flow/SelfIssueCashFlow.kt`
+
+
+### Java
+State:
+
+* Solution: `java-source/src/main/java/net/corda/training/state/IOUState.java`
+* Tests: `java-source/src/test/java/net/corda/training/state/IOUStateTests.java`
+
+Contract:
+
+* Solution: `java-source/src/main/java/net/corda/training/contract/IOUContract.java`
+* Issue Tests: `java-source/src/test/java/net/corda/training/contract/IOUIssueTests.java`
+* Transfer Tests: `java-source/src/test/java/net/corda/training/contract/IOUIssueTests.java`
+* Settle Tests: `java-source/src/test/java/net/corda/training/contract/IOUIssueTests.java`
+
+Flow:
+
+* Issue Solution: `java-source/src/main/java/net/corda/training/flow/IOUIssueFlow.java`
+* Issue tests: `java-source/src/test/java/net/corda/training/flow/IOUIssueFlowTests.java`
+* Transfer Solution: `java-source/src/main/java/net/corda/training/flow/IOUTransferFlow.java`
+* Transfer tests: `java-source/src/test/java/net/corda/training/flow/IOUTransferFlowTests.java`
+* Settle Solution: `java-source/src/main/java/net/corda/training/flow/IOUSettleFlow.java`
+* Settle tests: `java-source/src/test/java/net/corda/training/flow/IOUSettleFlowTests.java`
+
+The code in the following files was already added for you:
+
+* `java-source/src/main/java/net/corda/training/plugin/IOUPlugin.java`
+* `java-source/src/test/java/net/corda/training/NodeDriver.java`
+* `java-source/src/main/java/net/corda/training/plugin/IOUPlugin.java`
+* `java-source/src/main/java/net/corda/training/flow/SelfIssueCashFlow.java`
+
+
 # Running the CorDapp
 Once your application passes all tests in `IOUStateTests`, `IOUIssueTests`, and `IOUIssueFlowTests`, you can run the application and
 interact with it via a web browser. To run the finished application, you have two choices for each language: from the terminal, and from IntelliJ.
